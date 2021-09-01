@@ -84,16 +84,14 @@ func (t *TritonClientService) modelHTTPInfer(modelName, modelVersion string, req
 	requestObj.SetBody(requestBody)
 	// ResponseObj
 	responseObj := fasthttp.AcquireResponse()
-	defer func() {
-		fasthttp.ReleaseRequest(requestObj)
-		fasthttp.ReleaseResponse(responseObj)
-	}()
+	// Defer result
+	defer fasthttp.ReleaseRequest(requestObj)
+	defer fasthttp.ReleaseResponse(responseObj)
 	if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
 		return nil, err
 	}
 	// Parse Response Body
-	body := responseObj.Body()
-	return body, nil
+	return responseObj.Body(), nil
 }
 
 // ModelHTTPInfer Call Triton with HTTP
