@@ -91,7 +91,8 @@ func (t *TritonClientService) modelHTTPInfer(modelName, modelVersion string, req
 		return nil, err
 	}
 	// Parse Response Body
-	return responseObj.Body(), nil
+	respBody := responseObj.Body()
+	return respBody, nil
 }
 
 // ModelHTTPInfer Call Triton with HTTP
