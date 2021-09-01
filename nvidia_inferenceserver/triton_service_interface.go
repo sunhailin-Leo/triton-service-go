@@ -78,7 +78,7 @@ type TritonClientService struct {
 func (t *TritonClientService) modelHTTPInfer(modelName, modelVersion string, requestBody []byte, timeout time.Duration) (interface{}, error) {
 	// RequestObj
 	requestObj := fasthttp.AcquireRequest()
-	requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/models/%s/versions/%s/infer", HTTPPrefix, t.ServerURL, modelName, modelVersion))
+	requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/models/" + modelName + "/versions/" + modelVersion + "/infer")
 	requestObj.Header.SetMethod(HttpPostMethod)
 	requestObj.Header.SetContentType(JsonContentType)
 	requestObj.SetBody(requestBody)
