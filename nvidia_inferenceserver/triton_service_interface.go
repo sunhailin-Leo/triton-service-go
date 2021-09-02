@@ -97,12 +97,12 @@ func (t *TritonClientService) ModelHTTPInfer(requestBody []byte, modelName, mode
 	// Get infer response
 	modelInferResponse, inferErr := t.modelHTTPInfer(modelName, modelVersion, requestBody, timeout)
 	if inferErr != nil {
-		return nil, inferErr
+		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
 	}
 	// decode Result
 	response, decodeErr := decoderFunc(modelInferResponse)
 	if decodeErr != nil {
-		return nil, decodeErr
+		return nil, fmt.Errorf("decodeErr: " + decodeErr.Error())
 	}
 	return response, nil
 }
