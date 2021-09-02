@@ -84,9 +84,6 @@ func (t *TritonClientService) modelHTTPInfer(modelName, modelVersion string, req
 	requestObj.SetBody(requestBody)
 	// ResponseObj
 	responseObj := fasthttp.AcquireResponse()
-	// Defer result
-	defer fasthttp.ReleaseRequest(requestObj)
-	defer fasthttp.ReleaseResponse(responseObj)
 	if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
 		return nil, err
 	}
