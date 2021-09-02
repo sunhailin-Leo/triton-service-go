@@ -74,27 +74,29 @@ type TritonClientService struct {
 	httpClient *fasthttp.Client
 }
 
-// modelHTTPInfer Call Triton with HTTP
+// modelHTTPInfer Call Triton Inference Server with HTTP
 func (t *TritonClientService) modelHTTPInfer(modelName, modelVersion string, requestBody []byte, timeout time.Duration) (interface{}, error) {
-	// RequestObj
+	// requestObj
 	requestObj := fasthttp.AcquireRequest()
 	requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/models/" + modelName + "/versions/" + modelVersion + "/infer")
 	requestObj.Header.SetMethod(HttpPostMethod)
 	requestObj.Header.SetContentType(JsonContentType)
 	requestObj.SetBody(requestBody)
-	// ResponseObj
+	// responseObj
 	responseObj := fasthttp.AcquireResponse()
-	if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
-		return nil, err
+	httpErr := t.httpClient.DoTimeout(requestObj, responseObj, timeout)
+	// for gc
+	requestBody = nil
+	if httpErr != nil {
+		return nil, httpErr
 	}
-	// Parse Response Body
-	respBody := responseObj.Body()
-	return respBody, nil
+	// return response body
+	return responseObj.Body(), nil
 }
 
 // ModelHTTPInfer Call Triton with HTTP
 func (t *TritonClientService) ModelHTTPInfer(requestBody []byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc) (interface{}, error) {
-	// Get infer response
+	// get infer response
 	modelInferResponse, inferErr := t.modelHTTPInfer(modelName, modelVersion, requestBody, timeout)
 	if inferErr != nil {
 		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
@@ -111,11 +113,10 @@ func (t *TritonClientService) ModelHTTPInfer(requestBody []byte, modelName, mode
 func (t *TritonClientService) modelGRPCInfer(inferRequest *ModelInferRequest, timeout time.Duration) (*ModelInferResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-
 	// Get infer response
 	modelInferResponse, inferErr := t.client.ModelInfer(ctx, inferRequest)
 	if inferErr != nil {
-		return nil, inferErr
+		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
 	}
 	return modelInferResponse, nil
 }
