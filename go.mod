@@ -3,6 +3,7 @@ module github.com/sunhailin-Leo/triton-service-go
 go 1.15
 
 require (
+	github.com/gofiber/fiber/v2 v2.18.0
 	github.com/tidwall/gjson v1.8.1
 	github.com/valyala/fasthttp v1.29.0
 	golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985

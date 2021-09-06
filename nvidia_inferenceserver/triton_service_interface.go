@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/tidwall/gjson"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
@@ -74,7 +75,31 @@ type TritonClientService struct {
 	httpClient *fasthttp.Client
 }
 
-// modelHTTPInfer Call Triton Inference Server with HTTP
+// modelHTTPInferWithFiber Call Triton Inference Server with fiber HTTP（core function）
+func (t *TritonClientService) modelHTTPInferWithFiber(modelName, modelVersion string, requestBody []byte, timeout time.Duration) (interface{}, error) {
+	_, retBody, retErrors := fiber.Post(HTTPPrefix + "://" + t.ServerURL + "/v2/models/" + modelName + "/versions/" + modelVersion + "/infer").JSONEncoder(json.Marshal).Timeout(timeout).JSON(requestBody).Bytes()
+	if len(retErrors) > 0 {
+		return nil, retErrors[0]
+	}
+	return retBody, nil
+}
+
+// ModelHTTPInferWithFiber Call Triton with fiber HTTP
+func (t *TritonClientService) ModelHTTPInferWithFiber(requestBody []byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc) (interface{}, error) {
+	// get infer response
+	modelInferResponse, inferErr := t.modelHTTPInferWithFiber(modelName, modelVersion, requestBody, timeout)
+	if inferErr != nil {
+		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
+	}
+	// decode Result
+	response, decodeErr := decoderFunc(modelInferResponse)
+	if decodeErr != nil {
+		return nil, fmt.Errorf("decodeErr: " + decodeErr.Error())
+	}
+	return response, nil
+}
+
+// modelHTTPInfer Call Triton Inference Server with HTTP（core function）
 func (t *TritonClientService) modelHTTPInfer(modelName, modelVersion string, requestBody []byte, timeout time.Duration) (interface{}, error) {
 	// requestObj
 	requestObj := fasthttp.AcquireRequest()
@@ -109,7 +134,7 @@ func (t *TritonClientService) ModelHTTPInfer(requestBody []byte, modelName, mode
 	return response, nil
 }
 
-// modelGRPCInfer Call Triton with GRPC
+// modelGRPCInfer Call Triton with GRPC（core function）
 func (t *TritonClientService) modelGRPCInfer(inferRequest *ModelInferRequest, timeout time.Duration) (*ModelInferResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
