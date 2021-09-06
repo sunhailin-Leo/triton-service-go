@@ -77,7 +77,7 @@ type TritonClientService struct {
 
 // modelHTTPInferWithFiber Call Triton Inference Server with fiber HTTP（core function）
 func (t *TritonClientService) modelHTTPInferWithFiber(modelName, modelVersion string, requestBody []byte, timeout time.Duration) (interface{}, error) {
-	_, retBody, retErrors := fiber.Post(HTTPPrefix + "://" + t.ServerURL + "/v2/models/" + modelName + "/versions/" + modelVersion + "/infer").JSONEncoder(json.Marshal).Timeout(timeout).JSON(requestBody).Bytes()
+	_, retBody, retErrors := fiber.Post(HTTPPrefix + "://" + t.ServerURL + "/v2/models/" + modelName + "/versions/" + modelVersion + "/infer").Timeout(timeout).Body(requestBody).Bytes()
 	if len(retErrors) > 0 {
 		return nil, retErrors[0]
 	}
