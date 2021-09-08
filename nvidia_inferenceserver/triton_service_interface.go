@@ -135,19 +135,9 @@ func (t *TritonClientService) ModelHTTPInfer(requestBody []byte, modelName, mode
 }
 
 // modelGRPCInfer Call Triton with GRPC（core function）
-func (t *TritonClientService) modelGRPCInfer(inferRequest *ModelInferRequest, timeout time.Duration) (*ModelInferResponse, error) {
+func (t *TritonClientService) modelGRPCInfer(inferInputs []*ModelInferRequest_InferInputTensor, inferOutputs []*ModelInferRequest_InferRequestedOutputTensor, rawInputs [][]byte, modelName, modelVersion string, timeout time.Duration) (*ModelInferResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	// Get infer response
-	modelInferResponse, inferErr := t.client.ModelInfer(ctx, inferRequest)
-	if inferErr != nil {
-		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
-	}
-	return modelInferResponse, nil
-}
-
-// ModelGRPCInfer Call Triton with GRPC
-func (t *TritonClientService) ModelGRPCInfer(inferInputs []*ModelInferRequest_InferInputTensor, inferOutputs []*ModelInferRequest_InferRequestedOutputTensor, rawInputs [][]byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc) (interface{}, error) {
 	// Create infer request for specific model/version
 	modelInferRequest := ModelInferRequest{
 		ModelName:        modelName,
@@ -157,7 +147,17 @@ func (t *TritonClientService) ModelGRPCInfer(inferInputs []*ModelInferRequest_In
 		RawInputContents: rawInputs,
 	}
 	// Get infer response
-	modelInferResponse, inferErr := t.modelGRPCInfer(&modelInferRequest, timeout)
+	modelInferResponse, inferErr := t.client.ModelInfer(ctx, &modelInferRequest)
+	if inferErr != nil {
+		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
+	}
+	return modelInferResponse, nil
+}
+
+// ModelGRPCInfer Call Triton with GRPC
+func (t *TritonClientService) ModelGRPCInfer(inferInputs []*ModelInferRequest_InferInputTensor, inferOutputs []*ModelInferRequest_InferRequestedOutputTensor, rawInputs [][]byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc) (interface{}, error) {
+	// Get infer response
+	modelInferResponse, inferErr := t.modelGRPCInfer(inferInputs, inferOutputs, rawInputs, modelName, modelVersion, timeout)
 	if inferErr != nil {
 		return nil, inferErr
 	}
