@@ -30,5 +30,8 @@ go get -u github.com/sunhailin-Leo/triton-service-go
 
 ### Version
 
+* version 1.1.2
+  * update go.mod
+
 * version 1.0.0
     * Implement about 90% API of Triton Inference Server HTTP/GRPC Protocol
