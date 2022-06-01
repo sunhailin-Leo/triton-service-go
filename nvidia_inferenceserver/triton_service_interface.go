@@ -29,9 +29,9 @@ type TritonGRPCService interface {
 	// ServerMetadata Get triton inference server metadata.
 	ServerMetadata(timeout time.Duration, isGRPC bool) (*ServerMetadataResponse, error)
 	// ModelGRPCInfer Call triton inference server infer with GRPC
-	ModelGRPCInfer(inferInputs []*ModelInferRequest_InferInputTensor, inferOutputs []*ModelInferRequest_InferRequestedOutputTensor, rawInputs [][]byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc) (interface{}, error)
+	ModelGRPCInfer(inferInputs []*ModelInferRequest_InferInputTensor, inferOutputs []*ModelInferRequest_InferRequestedOutputTensor, rawInputs [][]byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc, params ...interface{}) (interface{}, error)
 	// ModelHTTPInfer all triton inference server infer with HTTP
-	ModelHTTPInfer(requestBody []byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc) (interface{}, error)
+	ModelHTTPInfer(requestBody []byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc, params ...interface{}) (interface{}, error)
 	// ModelMetadataRequest Get triton inference server`s model metadata.
 	ModelMetadataRequest(modelName, modelVersion string, timeout time.Duration, isGRPC bool) (*ModelMetadataResponse, error)
 	// ModelIndex Get triton inference server model index.
@@ -64,7 +64,7 @@ type TritonGRPCService interface {
 }
 
 // DecoderFunc Infer Callback Function
-type DecoderFunc func(interface{}) (interface{}, error)
+type DecoderFunc func(response interface{}, params ...interface{}) (interface{}, error)
 
 // TritonClientService ServiceClient
 type TritonClientService struct {
@@ -85,14 +85,14 @@ func (t *TritonClientService) modelHTTPInferWithFiber(modelName, modelVersion st
 }
 
 // ModelHTTPInferWithFiber Call Triton with fiber HTTP
-func (t *TritonClientService) ModelHTTPInferWithFiber(requestBody []byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc) (interface{}, error) {
+func (t *TritonClientService) ModelHTTPInferWithFiber(requestBody []byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc, params ...interface{}) (interface{}, error) {
 	// get infer response
 	modelInferResponse, inferErr := t.modelHTTPInferWithFiber(modelName, modelVersion, requestBody, timeout)
 	if inferErr != nil {
 		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
 	}
 	// decode Result
-	response, decodeErr := decoderFunc(modelInferResponse)
+	response, decodeErr := decoderFunc(modelInferResponse, params)
 	if decodeErr != nil {
 		return nil, fmt.Errorf("decodeErr: " + decodeErr.Error())
 	}
@@ -120,14 +120,14 @@ func (t *TritonClientService) modelHTTPInfer(modelName, modelVersion string, req
 }
 
 // ModelHTTPInfer Call Triton with HTTP
-func (t *TritonClientService) ModelHTTPInfer(requestBody []byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc) (interface{}, error) {
+func (t *TritonClientService) ModelHTTPInfer(requestBody []byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc, params ...interface{}) (interface{}, error) {
 	// get infer response
 	modelInferResponse, inferErr := t.modelHTTPInfer(modelName, modelVersion, requestBody, timeout)
 	if inferErr != nil {
 		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
 	}
 	// decode Result
-	response, decodeErr := decoderFunc(modelInferResponse)
+	response, decodeErr := decoderFunc(modelInferResponse, params)
 	if decodeErr != nil {
 		return nil, fmt.Errorf("decodeErr: " + decodeErr.Error())
 	}
@@ -155,14 +155,14 @@ func (t *TritonClientService) modelGRPCInfer(inferInputs []*ModelInferRequest_In
 }
 
 // ModelGRPCInfer Call Triton with GRPC
-func (t *TritonClientService) ModelGRPCInfer(inferInputs []*ModelInferRequest_InferInputTensor, inferOutputs []*ModelInferRequest_InferRequestedOutputTensor, rawInputs [][]byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc) (interface{}, error) {
+func (t *TritonClientService) ModelGRPCInfer(inferInputs []*ModelInferRequest_InferInputTensor, inferOutputs []*ModelInferRequest_InferRequestedOutputTensor, rawInputs [][]byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc, params ...interface{}) (interface{}, error) {
 	// Get infer response
 	modelInferResponse, inferErr := t.modelGRPCInfer(inferInputs, inferOutputs, rawInputs, modelName, modelVersion, timeout)
 	if inferErr != nil {
 		return nil, inferErr
 	}
 	// decode Result
-	response, decodeErr := decoderFunc(modelInferResponse)
+	response, decodeErr := decoderFunc(modelInferResponse, params)
 	if decodeErr != nil {
 		return nil, decodeErr
 	}
