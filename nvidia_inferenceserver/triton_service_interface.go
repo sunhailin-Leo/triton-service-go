@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/tidwall/gjson"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -381,7 +380,7 @@ func (t *TritonClientService) ModelConfiguration(modelName, modelVersion string,
 		defer fasthttp.ReleaseRequest(requestObj)
 		defer fasthttp.ReleaseResponse(responseObj)
 		// Use *ModelConfigResponse in json.Unmarshal have some strange error
-		return gjson.ParseBytes(responseObj.Body()), nil
+		return responseObj.Body(), nil
 	}
 }
 
