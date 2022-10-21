@@ -530,13 +530,17 @@ func (t *TritonClientService) DisconnectToTritonWithGRPC() error {
 }
 
 // ConnectToTritonWithHTTP Create HTTP Connection
-func (t *TritonClientService) ConnectToTritonWithHTTP() error {
-	// HTTPClient global http client object
-	t.httpClient = &fasthttp.Client{
-		MaxConnsPerHost: 16384,
-		ReadTimeout:     5 * time.Second,
-		WriteTimeout:    5 * time.Second,
+func (t *TritonClientService) ConnectToTritonWithHTTP(client *fasthttp.Client) error {
+	if client == nil {
+		// HTTPClient global http client object
+		t.httpClient = &fasthttp.Client{
+			MaxConnsPerHost: 16384,
+			ReadTimeout:     5 * time.Second,
+			WriteTimeout:    5 * time.Second,
+		}
+		return nil
 	}
+	t.httpClient = client
 	return nil
 }
 
