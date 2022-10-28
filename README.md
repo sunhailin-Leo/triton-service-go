@@ -6,7 +6,7 @@ Triton Inference Server - Golang API
 
 ### Attention
 
-* Currently only supported up to version 21.05 (Triton Inference Server), but compatible with 99% of 21.07 versions
+* Currently only supported up to version 21.05 (Triton Inference Server), but compatible with 9x% of 22.07 versions
 
 ---
 
@@ -29,6 +29,12 @@ go get -u github.com/sunhailin-Leo/triton-service-go
 ---
 
 ### Version
+
+* version 1.1.6
+  * use `bytedance/sonic` instead of `encoding/json`
+  * use `errors.New` instead of `fmt.Errorf`
+  * remove `fmt` package usage
+  * update `go.mod`
 
 * version 1.1.2
   * update go.mod

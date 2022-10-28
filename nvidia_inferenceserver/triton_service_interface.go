@@ -1,10 +1,11 @@
 package nvidia_inferenceserver
 
 import (
-	"encoding/json"
-	"fmt"
+	"errors"
+	"strconv"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
@@ -88,12 +89,12 @@ func (t *TritonClientService) ModelHTTPInferWithFiber(requestBody []byte, modelN
 	// get infer response
 	modelInferResponse, inferErr := t.modelHTTPInferWithFiber(modelName, modelVersion, requestBody, timeout)
 	if inferErr != nil {
-		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
+		return nil, errors.New("inferErr: " + inferErr.Error())
 	}
 	// decode Result
 	response, decodeErr := decoderFunc(modelInferResponse, params)
 	if decodeErr != nil {
-		return nil, fmt.Errorf("decodeErr: " + decodeErr.Error())
+		return nil, errors.New("decodeErr: " + decodeErr.Error())
 	}
 	return response, nil
 }
@@ -123,12 +124,12 @@ func (t *TritonClientService) ModelHTTPInfer(requestBody []byte, modelName, mode
 	// get infer response
 	modelInferResponse, inferErr := t.modelHTTPInfer(modelName, modelVersion, requestBody, timeout)
 	if inferErr != nil {
-		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
+		return nil, errors.New("inferErr: " + inferErr.Error())
 	}
 	// decode Result
 	response, decodeErr := decoderFunc(modelInferResponse, params)
 	if decodeErr != nil {
-		return nil, fmt.Errorf("decodeErr: " + decodeErr.Error())
+		return nil, errors.New("decodeErr: " + decodeErr.Error())
 	}
 	return response, nil
 }
@@ -148,7 +149,7 @@ func (t *TritonClientService) modelGRPCInfer(inferInputs []*ModelInferRequest_In
 	// Get infer response
 	modelInferResponse, inferErr := t.client.ModelInfer(ctx, &modelInferRequest)
 	if inferErr != nil {
-		return nil, fmt.Errorf("inferErr: " + inferErr.Error())
+		return nil, errors.New("inferErr: " + inferErr.Error())
 	}
 	return modelInferResponse, nil
 }
@@ -182,7 +183,7 @@ func (t *TritonClientService) CheckServerAlive(timeout time.Duration, isGRPC boo
 		return serverLiveResponse.Live, nil
 	} else {
 		requestObj := fasthttp.AcquireRequest()
-		requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/health/live", HTTPPrefix, t.ServerURL))
+		requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/health/live")
 		responseObj := fasthttp.AcquireResponse()
 		if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
 			return false, err
@@ -190,7 +191,7 @@ func (t *TritonClientService) CheckServerAlive(timeout time.Duration, isGRPC boo
 		defer fasthttp.ReleaseRequest(requestObj)
 		defer fasthttp.ReleaseResponse(responseObj)
 		if responseObj.StatusCode() != 200 {
-			return false, fmt.Errorf("response code: %d", responseObj.StatusCode())
+			return false, errors.New("response code: " + strconv.Itoa(responseObj.StatusCode()))
 		}
 		return true, nil
 	}
@@ -210,7 +211,7 @@ func (t *TritonClientService) CheckServerReady(timeout time.Duration, isGRPC boo
 		return serverReadyResponse.Ready, nil
 	} else {
 		requestObj := fasthttp.AcquireRequest()
-		requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/health/ready", HTTPPrefix, t.ServerURL))
+		requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/health/ready")
 		responseObj := fasthttp.AcquireResponse()
 		if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
 			return false, err
@@ -218,7 +219,7 @@ func (t *TritonClientService) CheckServerReady(timeout time.Duration, isGRPC boo
 		defer fasthttp.ReleaseRequest(requestObj)
 		defer fasthttp.ReleaseResponse(responseObj)
 		if responseObj.StatusCode() != 200 {
-			return false, fmt.Errorf("response code: %d", responseObj.StatusCode())
+			return false, errors.New("response code: " + strconv.Itoa(responseObj.StatusCode()))
 		}
 		return true, nil
 	}
@@ -238,7 +239,7 @@ func (t *TritonClientService) CheckModelReady(modelName, modelVersion string, ti
 		return modelReadyResponse.Ready, nil
 	} else {
 		requestObj := fasthttp.AcquireRequest()
-		requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/models/%s/versions/%s/ready", HTTPPrefix, t.ServerURL, modelName, modelVersion))
+		requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/models/" + modelName + "/versions/" + modelVersion + "/ready")
 		responseObj := fasthttp.AcquireResponse()
 		if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
 			return false, err
@@ -246,7 +247,7 @@ func (t *TritonClientService) CheckModelReady(modelName, modelVersion string, ti
 		defer fasthttp.ReleaseRequest(requestObj)
 		defer fasthttp.ReleaseResponse(responseObj)
 		if responseObj.StatusCode() != 200 {
-			return false, fmt.Errorf("response code: %d", responseObj.StatusCode())
+			return false, errors.New("response code: " + strconv.Itoa(responseObj.StatusCode()))
 		}
 		return true, nil
 	}
@@ -266,7 +267,7 @@ func (t *TritonClientService) ServerMetadata(timeout time.Duration, isGRPC bool)
 		return serverMetadataResponse, nil
 	} else {
 		requestObj := fasthttp.AcquireRequest()
-		requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2", HTTPPrefix, t.ServerURL))
+		requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2")
 		responseObj := fasthttp.AcquireResponse()
 		if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
 			return nil, err
@@ -274,10 +275,10 @@ func (t *TritonClientService) ServerMetadata(timeout time.Duration, isGRPC bool)
 		defer fasthttp.ReleaseRequest(requestObj)
 		defer fasthttp.ReleaseResponse(responseObj)
 		if responseObj.StatusCode() != 200 {
-			return nil, fmt.Errorf("response code: %d", responseObj.StatusCode())
+			return nil, errors.New("response code: " + strconv.Itoa(responseObj.StatusCode()))
 		}
 		serverMetadataResponse := new(ServerMetadataResponse)
-		jsonDecodeErr := json.Unmarshal(responseObj.Body(), &serverMetadataResponse)
+		jsonDecodeErr := sonic.Unmarshal(responseObj.Body(), &serverMetadataResponse)
 		if jsonDecodeErr != nil {
 			return nil, jsonDecodeErr
 		}
@@ -299,7 +300,7 @@ func (t *TritonClientService) ModelMetadataRequest(modelName, modelVersion strin
 		return modelMetadataResponse, nil
 	} else {
 		requestObj := fasthttp.AcquireRequest()
-		requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/models/%s/versions/%s", HTTPPrefix, t.ServerURL, modelName, modelVersion))
+		requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/models/" + modelName + "/versions/" + modelVersion)
 		responseObj := fasthttp.AcquireResponse()
 		if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
 			return nil, err
@@ -307,10 +308,10 @@ func (t *TritonClientService) ModelMetadataRequest(modelName, modelVersion strin
 		defer fasthttp.ReleaseRequest(requestObj)
 		defer fasthttp.ReleaseResponse(responseObj)
 		if responseObj.StatusCode() != 200 {
-			return nil, fmt.Errorf("response code: %d", responseObj.StatusCode())
+			return nil, errors.New("response code: " + strconv.Itoa(responseObj.StatusCode()))
 		}
 		modelMetadataResponse := new(ModelMetadataResponse)
-		jsonDecodeErr := json.Unmarshal(responseObj.Body(), &modelMetadataResponse)
+		jsonDecodeErr := sonic.Unmarshal(responseObj.Body(), &modelMetadataResponse)
 		if jsonDecodeErr != nil {
 			return nil, jsonDecodeErr
 		}
@@ -332,7 +333,7 @@ func (t *TritonClientService) ModelIndex(isReady bool, timeout time.Duration, is
 		return repositoryIndexResponse, nil
 	} else {
 		requestObj := fasthttp.AcquireRequest()
-		requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/repository/index", HTTPPrefix, t.ServerURL))
+		requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/repository/index")
 		requestObj.Header.SetMethod(HttpPostMethod)
 		requestObj.Header.SetContentType(JsonContentType)
 		indexRequest := struct {
@@ -340,7 +341,7 @@ func (t *TritonClientService) ModelIndex(isReady bool, timeout time.Duration, is
 		}{
 			isReady,
 		}
-		reqBody, _ := json.Marshal(indexRequest)
+		reqBody, _ := sonic.Marshal(indexRequest)
 		requestObj.SetBody(reqBody)
 		responseObj := fasthttp.AcquireResponse()
 		if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
@@ -350,7 +351,7 @@ func (t *TritonClientService) ModelIndex(isReady bool, timeout time.Duration, is
 		defer fasthttp.ReleaseResponse(responseObj)
 		repositoryIndexResponse := new(RepositoryIndexResponse)
 		// TODO Maybe Have some bug here
-		jsonDecodeErr := json.Unmarshal(responseObj.Body(), &repositoryIndexResponse.Models)
+		jsonDecodeErr := sonic.Unmarshal(responseObj.Body(), &repositoryIndexResponse.Models)
 		if jsonDecodeErr != nil {
 			return nil, jsonDecodeErr
 		}
@@ -372,7 +373,7 @@ func (t *TritonClientService) ModelConfiguration(modelName, modelVersion string,
 		return modelConfigResponse, nil
 	} else {
 		requestObj := fasthttp.AcquireRequest()
-		requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/models/%s/versions/%s/config", HTTPPrefix, t.ServerURL, modelName, modelVersion))
+		requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/models/" + modelName + "/versions/" + modelVersion + "/config")
 		responseObj := fasthttp.AcquireResponse()
 		if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
 			return nil, err
@@ -398,7 +399,7 @@ func (t *TritonClientService) ModelInferStats(modelName, modelVersion string, ti
 		return modelStatisticsResponse, nil
 	} else {
 		requestObj := fasthttp.AcquireRequest()
-		requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/models/%s/versions/%s/stats", HTTPPrefix, t.ServerURL, modelName, modelVersion))
+		requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/models/" + modelName + "/versions/" + modelVersion + "/stats")
 		responseObj := fasthttp.AcquireResponse()
 		if err := t.httpClient.DoTimeout(requestObj, responseObj, timeout); err != nil {
 			return nil, err
@@ -406,7 +407,7 @@ func (t *TritonClientService) ModelInferStats(modelName, modelVersion string, ti
 		defer fasthttp.ReleaseRequest(requestObj)
 		defer fasthttp.ReleaseResponse(responseObj)
 		modelStatisticsResponse := new(ModelStatisticsResponse)
-		jsonDecodeErr := json.Unmarshal(responseObj.Body(), &modelStatisticsResponse)
+		jsonDecodeErr := sonic.Unmarshal(responseObj.Body(), &modelStatisticsResponse)
 		if jsonDecodeErr != nil {
 			return nil, jsonDecodeErr
 		}
@@ -478,9 +479,9 @@ func (t *TritonClientService) ShareMemoryStatus(isCUDA bool, regionName string, 
 
 		// SetRequestURI
 		if isCUDA {
-			requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/systemsharememory/region/%s/status", HTTPPrefix, t.ServerURL, regionName))
+			requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/cudasharememory/region/" + regionName + "/status")
 		} else {
-			requestObj.SetRequestURI(fmt.Sprintf("%s://%s/v2/cudasharememory/region/%s/status", HTTPPrefix, t.ServerURL, regionName))
+			requestObj.SetRequestURI(HTTPPrefix + "://" + t.ServerURL + "/v2/systemsharememory/region/" + regionName + "/status")
 		}
 
 		// Request
@@ -493,14 +494,14 @@ func (t *TritonClientService) ShareMemoryStatus(isCUDA bool, regionName string, 
 		// Parse Response
 		if isCUDA {
 			cudaSharedMemoryStatusResponse := new(CudaSharedMemoryStatusResponse)
-			jsonDecodeErr := json.Unmarshal(responseObj.Body(), &cudaSharedMemoryStatusResponse)
+			jsonDecodeErr := sonic.Unmarshal(responseObj.Body(), &cudaSharedMemoryStatusResponse)
 			if jsonDecodeErr != nil {
 				return nil, jsonDecodeErr
 			}
 			return cudaSharedMemoryStatusResponse, nil
 		} else {
 			systemSharedMemoryStatusResponse := new(SystemSharedMemoryStatusResponse)
-			jsonDecodeErr := json.Unmarshal(responseObj.Body(), &systemSharedMemoryStatusResponse)
+			jsonDecodeErr := sonic.Unmarshal(responseObj.Body(), &systemSharedMemoryStatusResponse)
 			if jsonDecodeErr != nil {
 				return nil, jsonDecodeErr
 			}
