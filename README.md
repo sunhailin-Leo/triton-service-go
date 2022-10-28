@@ -30,7 +30,7 @@ go get -u github.com/sunhailin-Leo/triton-service-go
 
 ### Version
 
-* version 1.1.6
+* version 1.1.7
   * use `bytedance/sonic` instead of `encoding/json`
   * use `errors.New` instead of `fmt.Errorf`
   * remove `fmt` package usage
