@@ -6,7 +6,8 @@ Triton Inference Server - Golang API
 
 ### Attention
 
-* Currently only supported up to version 21.05 (Triton Inference Server), but compatible with 9x% of 22.07 versions
+* ~~Currently only supported up to version 21.05 (Triton Inference Server), but compatible with 9x% of 22.07 versions~~
+* Currently supported base on version 22.07
 
 ---
 
@@ -29,6 +30,10 @@ go get -u github.com/sunhailin-Leo/triton-service-go
 ---
 
 ### Version
+
+* version 1.1.8 - [Not Release Now] - 2022/11/09
+  * update grpc proto base on 22.07 [protobuf](https://github.com/triton-inference-server/common/tree/r22.07/protobuf)
+  * update `nvidia_inferenceser` package for grpc service
 
 * version 1.1.7
   * use `bytedance/sonic` instead of `encoding/json`

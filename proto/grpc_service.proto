@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
+// Copyright 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -202,6 +202,15 @@ service GRPCInferenceService
   //@@
   rpc CudaSharedMemoryUnregister(CudaSharedMemoryUnregisterRequest)
       returns (CudaSharedMemoryUnregisterResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc TraceSetting(TraceSettingRequest)
+  //@@                   returns (TraceSettingResponse)
+  //@@
+  //@@     Update and get the trace setting of the Triton server.
+  //@@
+  rpc TraceSetting(TraceSettingRequest) returns (TraceSettingResponse)
   {
   }
 }
@@ -528,13 +537,13 @@ message InferTensorContents
   repeated double fp64_contents = 7;
 
   //@@
-  //@@  .. cpp:var:: bytes byte_contents (repeated)
+  //@@  .. cpp:var:: bytes bytes_contents (repeated)
   //@@
   //@@     Representation for BYTES data type. The size must match what is
   //@@     expected by the tensor's shape. The contents must be the flattened,
   //@@     one-dimensional, row-major order of the tensor elements.
   //@@
-  repeated bytes byte_contents = 8;
+  repeated bytes bytes_contents = 8;
 }
 
 //@@
@@ -666,8 +675,8 @@ message ModelInferRequest
   //@@     match what is expected by the tensor's shape and data
   //@@     type. The raw data must be the flattened, one-dimensional,
   //@@     row-major order of the tensor elements without any stride
-  //@@     or padding between the elements. Note that the FP16 data
-  //@@     type must be represented as raw content as there is no
+  //@@     or padding between the elements. Note that the FP16 and BF16 data
+  //@@     types must be represented as raw content as there is no
   //@@     specific data type for a 16-bit float type.
   //@@
   //@@     If this field is specified then InferInputTensor::contents
@@ -773,8 +782,8 @@ message ModelInferResponse
   //@@     match what is expected by the tensor's shape and data
   //@@     type. The raw data must be the flattened, one-dimensional,
   //@@     row-major order of the tensor elements without any stride
-  //@@     or padding between the elements. Note that the FP16 data
-  //@@     type must be represented as raw content as there is no
+  //@@     or padding between the elements. Note that the FP16 and BF16 data
+  //@@     types must be represented as raw content as there is no
   //@@     specific data type for a 16-bit float type.
   //@@
   //@@     If this field is specified then InferOutputTensor::contents
@@ -896,7 +905,8 @@ message InferStatistics
   //@@  .. cpp:var:: StatisticDuration success
   //@@
   //@@     Cumulative count and duration for successful inference
-  //@@     request.
+  //@@     request. The "success" count and cumulative duration includes
+  //@@     cache hits.
   //@@
   StatisticDuration success = 1;
 
@@ -910,21 +920,28 @@ message InferStatistics
   //@@  .. cpp:var:: StatisticDuration queue
   //@@
   //@@     The count and cumulative duration that inference requests wait in
-  //@@     scheduling or other queues.
+  //@@     scheduling or other queues. The "queue" count and cumulative
+  //@@     duration includes cache hits.
   //@@
   StatisticDuration queue = 3;
 
   //@@  .. cpp:var:: StatisticDuration compute_input
   //@@
-  //@@    The count and cumulative duration to prepare input tensor data as
-  //@@    required by the model framework / backend. For example, this duration
-  //@@    should include the time to copy input tensor data to the GPU.
+  //@@     The count and cumulative duration to prepare input tensor data as
+  //@@     required by the model framework / backend. For example, this duration
+  //@@     should include the time to copy input tensor data to the GPU.
+  //@@     The "compute_input" count and cumulative duration do not account for
+  //@@     requests that were a cache hit. See the "cache_hit" field for more
+  //@@     info.
   //@@
   StatisticDuration compute_input = 4;
 
   //@@  .. cpp:var:: StatisticDuration compute_infer
   //@@
   //@@     The count and cumulative duration to execute the model.
+  //@@     The "compute_infer" count and cumulative duration do not account for
+  //@@     requests that were a cache hit. See the "cache_hit" field for more
+  //@@     info.
   //@@
   StatisticDuration compute_infer = 5;
 
@@ -933,8 +950,43 @@ message InferStatistics
   //@@     The count and cumulative duration to extract output tensor data
   //@@     produced by the model framework / backend. For example, this duration
   //@@     should include the time to copy output tensor data from the GPU.
+  //@@     The "compute_output" count and cumulative duration do not account for
+  //@@     requests that were a cache hit. See the "cache_hit" field for more
+  //@@     info.
   //@@
   StatisticDuration compute_output = 6;
+
+  //@@  .. cpp:var:: StatisticDuration cache_hit
+  //@@
+  //@@     The count of response cache hits and cumulative duration to lookup
+  //@@     and extract output tensor data from the Response Cache on a cache
+  //@@     hit. For example, this duration should include the time to copy
+  //@@     output tensor data from the Response Cache to the response object.
+  //@@     On cache hits, triton does not need to go to the model/backend
+  //@@     for the output tensor data, so the "compute_input", "compute_infer",
+  //@@     and "compute_output" fields are not updated. Assuming the response
+  //@@     cache is enabled for a given model, a cache hit occurs for a
+  //@@     request to that model when the request metadata (model name,
+  //@@     model version, model inputs) hashes to an existing entry in the
+  //@@     cache. On a cache miss, the request hash and response output tensor
+  //@@     data is added to the cache. See response cache docs for more info:
+  //@@     https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
+  //@@
+  StatisticDuration cache_hit = 7;
+
+  //@@  .. cpp:var:: StatisticDuration cache_miss
+  //@@
+  //@@     The count of response cache misses and cumulative duration to lookup
+  //@@     and insert output tensor data from the computed response to the cache.
+  //@@     For example, this duration should include the time to copy
+  //@@     output tensor data from the response object to the Response Cache.
+  //@@     Assuming the response cache is enabled for a given model, a cache
+  //@@     miss occurs for a request to that model when the request metadata
+  //@@     does NOT hash to an existing entry in the cache. See the response
+  //@@     cache docs for more info:
+  //@@     https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
+  //@@
+  StatisticDuration cache_miss = 8;
 }
 
 //@@
@@ -1010,7 +1062,8 @@ message ModelStatistics
   //@@     inference request with batch size 64, "inference_count" will be
   //@@     incremented by 64. Similarly, if a clients sends 64 individual
   //@@     requests each with batch size 1, "inference_count" will be
-  //@@     incremented by 64.
+  //@@     incremented by 64. The "inference_count" value DOES NOT include
+  //@@     cache hits.
   //@@
   uint64 inference_count = 4;
 
@@ -1025,6 +1078,7 @@ message ModelStatistics
   //@@     incremented by 1. If, on the other hand, the dynamic batcher is not
   //@@     enabled for that each of the 64 individual requests is executed
   //@@     independently, then "execution_count" will be incremented by 64.
+  //@@     The "execution_count" value DOES NOT include cache hits.
   //@@
   uint64 execution_count = 5;
 
@@ -1090,6 +1144,12 @@ message ModelRepositoryParameter
     //@@       A string parameter value.
     //@@
     string string_param = 3;
+
+    //@@    .. cpp:var:: bytes bytes_param
+    //@@
+    //@@       A bytes parameter value.
+    //@@
+    bytes bytes_param = 4;
   }
 }
 
@@ -1183,6 +1243,12 @@ message RepositoryModelLoadRequest
   //@@     The name of the model to load, or reload.
   //@@
   string model_name = 2;
+
+  //@@  .. cpp:var:: map<string,ModelRepositoryParameter> parameters
+  //@@
+  //@@     Optional model repository request parameters.
+  //@@
+  map<string, ModelRepositoryParameter> parameters = 3;
 }
 
 //@@
@@ -1479,3 +1545,73 @@ message CudaSharedMemoryUnregisterRequest
 //@@   Response message for CudaSharedMemoryUnregister.
 //@@
 message CudaSharedMemoryUnregisterResponse {}
+
+//@@
+//@@.. cpp:var:: message TraceSettingRequest
+//@@
+//@@   Request message for TraceSetting.
+//@@
+message TraceSettingRequest
+{
+  //@@
+  //@@  .. cpp:var:: message SettingValue
+  //@@
+  //@@     The values to be associated with a trace setting.
+  //@@     If no value is provided, the setting will be clear and
+  //@@     the global setting value will be used.
+  //@@
+  message SettingValue
+  {
+    //@@
+    //@@    .. cpp:var:: string value (repeated)
+    //@@
+    //@@       The value.
+    //@@
+    repeated string value = 1;
+  }
+
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The new setting values to be updated,
+  //@@     settings that are not specified will remain unchanged.
+  //@@
+  map<string, SettingValue> settings = 1;
+
+  //@@
+  //@@  .. cpp:var:: string model_name
+  //@@
+  //@@     The name of the model to apply the new trace settings.
+  //@@     If not given, the new settings will be applied globally.
+  //@@
+  string model_name = 2;
+}
+
+//@@
+//@@.. cpp:var:: message TraceSettingResponse
+//@@
+//@@   Response message for TraceSetting.
+//@@
+message TraceSettingResponse
+{
+  //@@
+  //@@  .. cpp:var:: message SettingValue
+  //@@
+  //@@     The values to be associated with a trace setting.
+  //@@
+  message SettingValue
+  {
+    //@@
+    //@@    .. cpp:var:: string value (repeated)
+    //@@
+    //@@       The value.
+    //@@
+    repeated string value = 1;
+  }
+
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The current trace settings, including any changes specified
+  //@@     by TraceSettingRequest.
+  //@@
+  map<string, SettingValue> settings = 1;
+}
