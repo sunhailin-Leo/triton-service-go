@@ -16,7 +16,7 @@ Triton Inference Server - Golang API
 * Support HTTP/GRPC
 * Easy to use it
 * Maybe High Performance
-* Implement 90% API of Triton Inference Server HTTP/GRPC Protocol
+* Implement 98% API of Triton Inference Server HTTP/GRPC Protocol
 * Cannot Support HTTPS Now...(will test it soon...)
 
 --- 
