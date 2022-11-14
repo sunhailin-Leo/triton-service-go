@@ -96,34 +96,29 @@ type TritonClientService struct {
 
 	grpcConn   *grpc.ClientConn
 	grpcClient GRPCInferenceServiceClient
-
-	httpClient       *fasthttp.Client
-	httpRequestPool  *fasthttp.Request
-	httpResponsePool *fasthttp.Response
+	httpClient *fasthttp.Client
 }
 
-// acquireOrReleaseHttpRequest
-func (t *TritonClientService) acquireOrReleaseHttpRequest(isRelease bool) {
-	if isRelease {
-		if t.httpRequestPool != nil {
-			fasthttp.ReleaseRequest(t.httpRequestPool)
-		}
-		return
-	}
-	t.httpRequestPool = fasthttp.AcquireRequest()
-	t.httpRequestPool.Header.SetMethod(HttpPostMethod)
-	t.httpRequestPool.Header.SetContentType(JsonContentType)
+// acquireHttpRequest
+func (t *TritonClientService) acquireHttpRequest() *fasthttp.Request {
+	httpRequestPool := fasthttp.AcquireRequest()
+	httpRequestPool.Header.SetMethod(HttpPostMethod)
+	httpRequestPool.Header.SetContentType(JsonContentType)
+	return httpRequestPool
 }
 
-// acquireOrReleaseHttpResponse
-func (t *TritonClientService) acquireOrReleaseHttpResponse(isRelease bool) {
-	if isRelease {
-		if t.httpResponsePool != nil {
-			fasthttp.ReleaseResponse(t.httpResponsePool)
-		}
-		return
-	}
-	t.httpResponsePool = fasthttp.AcquireResponse()
+// releaseHttpRequest
+func (t *TritonClientService) releaseHttpRequest(requestObj *fasthttp.Request) {
+	fasthttp.ReleaseRequest(requestObj)
+}
+
+// acquireHttpResponse
+func (t *TritonClientService) acquireHttpResponse() *fasthttp.Response {
+	return fasthttp.AcquireResponse()
+}
+
+func (t *TritonClientService) releaseHttpResponse(responseObj *fasthttp.Response) {
+	fasthttp.ReleaseResponse(responseObj)
 }
 
 // makeHttpPostRequestWithDoTimeout
@@ -131,18 +126,20 @@ func (t *TritonClientService) makeHttpPostRequestWithDoTimeout(uri string, reqBo
 	if uri == "" {
 		return nil, -1, nil
 	}
+	requestObj := t.acquireHttpRequest()
+	responseObj := t.acquireHttpResponse()
 	defer func() {
-		t.acquireOrReleaseHttpRequest(true)
-		t.acquireOrReleaseHttpResponse(true)
+		t.releaseHttpRequest(requestObj)
+		t.releaseHttpResponse(responseObj)
 	}()
-	t.httpRequestPool.SetRequestURI(uri)
+	requestObj.SetRequestURI(uri)
 	if reqBody != nil {
-		t.httpRequestPool.SetBody(reqBody)
+		requestObj.SetBody(reqBody)
 	}
-	if httpErr := t.httpClient.DoTimeout(t.httpRequestPool, t.httpResponsePool, timeout); httpErr != nil {
-		return nil, t.httpResponsePool.StatusCode(), httpErr
+	if httpErr := t.httpClient.DoTimeout(requestObj, responseObj, timeout); httpErr != nil {
+		return nil, responseObj.StatusCode(), httpErr
 	}
-	return t.httpResponsePool.Body(), t.httpResponsePool.StatusCode(), nil
+	return responseObj.Body(), responseObj.StatusCode(), nil
 }
 
 // makeHttpGetRequestWithDoTimeout
@@ -150,15 +147,17 @@ func (t *TritonClientService) makeHttpGetRequestWithDoTimeout(uri string, timeou
 	if uri == "" {
 		return nil, -1, nil
 	}
+	requestObj := t.acquireHttpRequest()
+	responseObj := t.acquireHttpResponse()
 	defer func() {
-		t.acquireOrReleaseHttpRequest(true)
-		t.acquireOrReleaseHttpResponse(true)
+		t.releaseHttpRequest(requestObj)
+		t.releaseHttpResponse(responseObj)
 	}()
-	t.httpRequestPool.SetRequestURI(uri)
-	if httpErr := t.httpClient.DoTimeout(t.httpRequestPool, t.httpResponsePool, timeout); httpErr != nil {
-		return nil, t.httpResponsePool.StatusCode(), httpErr
+	requestObj.SetRequestURI(uri)
+	if httpErr := t.httpClient.DoTimeout(requestObj, responseObj, timeout); httpErr != nil {
+		return nil, responseObj.StatusCode(), httpErr
 	}
-	return t.httpResponsePool.Body(), t.httpResponsePool.StatusCode(), nil
+	return responseObj.Body(), responseObj.StatusCode(), nil
 }
 
 // modelGRPCInfer Call Triton with GRPC（core function）
@@ -756,8 +755,6 @@ func (t *TritonClientService) ConnectToTritonWithHTTP(client *fasthttp.Client) e
 		}
 		return nil
 	}
-	t.acquireOrReleaseHttpRequest(false)
-	t.acquireOrReleaseHttpResponse(false)
 	t.httpClient = client
 	return nil
 }
@@ -767,6 +764,4 @@ func (t *TritonClientService) DisconnectToTritonWithHTTP() {
 	t.httpClient.CloseIdleConnections()
 	// Make GC
 	t.httpClient = nil
-	t.acquireOrReleaseHttpRequest(true)
-	t.acquireOrReleaseHttpResponse(true)
 }
