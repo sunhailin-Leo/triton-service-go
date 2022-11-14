@@ -131,6 +131,10 @@ func (t *TritonClientService) makeHttpPostRequestWithDoTimeout(uri string, reqBo
 	if uri == "" {
 		return nil, -1, nil
 	}
+	defer func() {
+		t.acquireOrReleaseHttpRequest(true)
+		t.acquireOrReleaseHttpResponse(true)
+	}()
 	t.httpRequestPool.SetRequestURI(uri)
 	if reqBody != nil {
 		t.httpRequestPool.SetBody(reqBody)
@@ -146,6 +150,10 @@ func (t *TritonClientService) makeHttpGetRequestWithDoTimeout(uri string, timeou
 	if uri == "" {
 		return nil, -1, nil
 	}
+	defer func() {
+		t.acquireOrReleaseHttpRequest(true)
+		t.acquireOrReleaseHttpResponse(true)
+	}()
 	t.httpRequestPool.SetRequestURI(uri)
 	if httpErr := t.httpClient.DoTimeout(t.httpRequestPool, t.httpResponsePool, timeout); httpErr != nil {
 		return nil, t.httpResponsePool.StatusCode(), httpErr
