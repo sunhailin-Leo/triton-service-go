@@ -748,6 +748,8 @@ func (t *TritonClientService) ConnectToTritonWithHTTP(client *fasthttp.Client) e
 		}
 		return nil
 	}
+	t.acquireOrReleaseHttpRequest(false)
+	t.acquireOrReleaseHttpResponse(false)
 	t.httpClient = client
 	return nil
 }
@@ -757,4 +759,6 @@ func (t *TritonClientService) DisconnectToTritonWithHTTP() {
 	t.httpClient.CloseIdleConnections()
 	// Make GC
 	t.httpClient = nil
+	t.acquireOrReleaseHttpRequest(true)
+	t.acquireOrReleaseHttpResponse(true)
 }
