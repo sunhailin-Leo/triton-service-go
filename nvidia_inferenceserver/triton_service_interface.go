@@ -9,6 +9,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -727,7 +728,7 @@ func (t *TritonClientService) SetModelTracingSetting(modelName string, settingMa
 
 // ConnectToTritonWithGRPC Create GRPC Connection
 func (t *TritonClientService) ConnectToTritonWithGRPC() error {
-	conn, err := grpc.Dial(t.ServerURL, grpc.WithInsecure())
+	conn, err := grpc.Dial(t.ServerURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
 	}
