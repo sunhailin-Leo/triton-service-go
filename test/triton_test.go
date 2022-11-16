@@ -10,7 +10,7 @@ import (
 
 func TestTritonHTTPClientForCheckModelReady(t *testing.T) {
 	srv := nvidia_inferenceserver.TritonClientService{ServerURL: "<Your Triton HTTP Host>:<Your Triton HTTP Port>"}
-	httpErr := srv.ConnectToTritonWithHTTP(nil)
+	httpErr := srv.InitTritonConnection(nil, nil)
 	if httpErr != nil {
 		panic(httpErr)
 	}
@@ -23,7 +23,7 @@ func TestTritonHTTPClientForCheckModelReady(t *testing.T) {
 
 func TestTritonGRPCClientForCheckModelReady(t *testing.T) {
 	srv := nvidia_inferenceserver.TritonClientService{ServerURL: "<Your Triton GRPC Host>:<Your Triton GRPC Port>"}
-	grpcErr := srv.ConnectToTritonWithGRPC()
+	grpcErr := srv.InitTritonConnection(nil, nil)
 	if grpcErr != nil {
 		panic(grpcErr)
 	}

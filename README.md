@@ -17,7 +17,7 @@ Triton Inference Server - Golang API
 * Easy to use it
 * Maybe High Performance
 * Implement 98% API of Triton Inference Server HTTP/GRPC Protocol
-* Cannot Support HTTPS Now...(will test it soon...)
+* Cannot Support TLS/SSL now (https/grpc secure mode)...(will test it soon...)
 
 --- 
 
@@ -32,7 +32,15 @@ go get -u github.com/sunhailin-Leo/triton-service-go
 
 ### Version
 
-* version 1.1.8 - [Not Release Now] - 2022/11/09
+* version 1.2.3 - [Not Release Now] - 2022/11/XX
+  * update grpc connection code
+  * update connection api
+  * add some const for uri
+
+* version 1.2.2 - 2022/11/14
+  * fix empty request/response pool
+
+* version 1.1.8 - 2022/11/09
   * update grpc proto base on 22.07 [protobuf](https://github.com/triton-inference-server/common/tree/r22.07/protobuf)
   * update `nvidia_inferenceser` package for grpc service
   * use `github.com/goccy/go-json` instead of `github.com/bytedance/sonic`, because it will make memory pool larger than `goccy/go-json` with same QPS.
