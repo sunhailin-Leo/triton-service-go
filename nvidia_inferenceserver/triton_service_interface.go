@@ -761,10 +761,8 @@ func (t *TritonClientService) SetModelTracingSetting(modelName string, settingMa
 
 // InitTritonConnection init http and grpc connection
 // support kafka endpoint in the future (When after Triton Add-on)
-func (t *TritonClientService) InitTritonConnection(
-	grpcClient *grpc.ClientConn,
-	httpClient *fasthttp.Client,
-) (connectionErr error) {
+// It will be deprecated at 1.3.X
+func (t *TritonClientService) InitTritonConnection(grpcClient *grpc.ClientConn, httpClient *fasthttp.Client) (connectionErr error) {
 	if grpcClient != nil {
 		connectionErr = t.setGRPCConnection(grpcClient)
 	}
@@ -789,4 +787,36 @@ func (t *TritonClientService) ShutdownTritonConnection() (disconnectionErr error
 		return errors.New("[Triton]DisconnectionError: " + disconnectionErr.Error())
 	}
 	return nil
+}
+
+// NewTritonClientWithOnlyHttp init triton client
+func NewTritonClientWithOnlyHttp(uri string, httpClient *fasthttp.Client) *TritonClientService {
+	client := &TritonClientService{ServerURL: uri}
+	if httpCreateErr := client.setHTTPConnection(httpClient); httpCreateErr != nil {
+		return nil
+	}
+	return client
+}
+
+// NewTritonClientWithOnlyGRPC init triton client
+func NewTritonClientWithOnlyGRPC(grpcConn *grpc.ClientConn) *TritonClientService {
+	client := &TritonClientService{
+		grpcConn:   grpcConn,
+		grpcClient: NewGRPCInferenceServiceClient(grpcConn),
+	}
+	return client
+}
+
+// NewTritonClientForAll init triton client with http and grpc
+func NewTritonClientForAll(httpServerUrl string, httpClient *fasthttp.Client, grpcConn *grpc.ClientConn) *TritonClientService {
+	client := &TritonClientService{
+		ServerURL:  httpServerUrl,
+		grpcConn:   grpcConn,
+		grpcClient: NewGRPCInferenceServiceClient(grpcConn),
+	}
+	if httpCreateErr := client.setHTTPConnection(httpClient); httpCreateErr != nil {
+		return nil
+	}
+
+	return client
 }

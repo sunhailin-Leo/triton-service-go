@@ -37,6 +37,7 @@ go get -u github.com/sunhailin-Leo/triton-service-go
   * update connection api
   * add some const for uri
   * [API Update]split share system/cuda memory api
+  * [API Update]add three api for client initialize
 
 * version 1.2.2 - 2022/11/14
   * fix empty request/response pool
