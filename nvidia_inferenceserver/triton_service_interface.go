@@ -70,17 +70,17 @@ type TritonGRPCService interface {
 	ModelUnload(modelName string, timeout time.Duration, isGRPC bool) (*RepositoryModelUnloadResponse, error)
 	// ShareMemoryStatus Show share memory / share cuda memory status.
 	ShareMemoryStatus(isCUDA bool, regionName string, timeout time.Duration, isGRPC bool) (interface{}, error)
-	// ShareMemoryRegister Register share memory / share cuda memory).
-	ShareMemoryRegister(
-		isCUDA bool,
-		regionName, cpuMemRegionKey string,
-		cudaRawHandle []byte,
-		cudaDeviceId int64,
-		byteSize, cpuMemOffset uint64,
-		timeout time.Duration,
-		isGRPC bool) (interface{}, error)
-	// ShareMemoryUnRegister Unregister share memory / share cuda memory).
-	ShareMemoryUnRegister(isCUDA bool, regionName string, timeout time.Duration, isGRPC bool) (interface{}, error)
+
+	// ShareCUDAMemoryRegister Register share cuda memory.
+	ShareCUDAMemoryRegister(regionName string, cudaRawHandle []byte, cudaDeviceId int64, byteSize uint64, timeout time.Duration, isGRPC bool) (interface{}, error)
+	// ShareCUDAMemoryUnRegister Unregister share cuda memory
+	ShareCUDAMemoryUnRegister(regionName string, timeout time.Duration, isGRPC bool) (interface{}, error)
+
+	// ShareSystemMemoryRegister Register system share memory.
+	ShareSystemMemoryRegister(regionName, cpuMemRegionKey string, byteSize, cpuMemOffset uint64, timeout time.Duration, isGRPC bool) (interface{}, error)
+	// ShareSystemMemoryUnRegister Unregister system share memory
+	ShareSystemMemoryUnRegister(regionName string, timeout time.Duration, isGRPC bool) (interface{}, error)
+
 	// GetModelTracingSetting get the current trace setting
 	GetModelTracingSetting(modelName string, timeout time.Duration, isGRPC bool) (*TraceSettingResponse, error)
 	// SetModelTracingSetting set the current trace setting
@@ -587,129 +587,121 @@ func (t *TritonClientService) ShareMemoryStatus(isCUDA bool, regionName string, 
 	}
 }
 
-// ShareMemoryRegister Register share memory / cuda memory
-func (t *TritonClientService) ShareMemoryRegister(
-	isCUDA bool,
-	regionName, cpuMemRegionKey string,
-	cudaRawHandle []byte,
-	cudaDeviceId int64,
-	byteSize, cpuMemOffset uint64,
-	timeout time.Duration,
-	isGRPC bool) (interface{}, error) {
+// ShareCUDAMemoryRegister cuda share memory register
+func (t *TritonClientService) ShareCUDAMemoryRegister(regionName string, cudaRawHandle []byte, cudaDeviceId int64, byteSize uint64, timeout time.Duration, isGRPC bool) (*CudaSharedMemoryRegisterResponse, error) {
 	if isGRPC {
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
-		if isCUDA {
-			// CUDA Memory
-			cudaSharedMemoryRegisterResponse, registerErr := t.grpcClient.CudaSharedMemoryRegister(ctx, &CudaSharedMemoryRegisterRequest{
-				Name:      regionName,
-				RawHandle: cudaRawHandle,
-				DeviceId:  cudaDeviceId,
-				ByteSize:  byteSize,
-			})
-			if registerErr != nil {
-				return nil, t.grpcErrorHandler(registerErr)
-			}
-			return cudaSharedMemoryRegisterResponse, nil
-		} else {
-			// System Memory
-			systemSharedMemoryRegisterResponse, registerErr := t.grpcClient.SystemSharedMemoryRegister(ctx, &SystemSharedMemoryRegisterRequest{
-				Name:     regionName,
-				Key:      cpuMemRegionKey,
-				Offset:   cpuMemOffset,
-				ByteSize: byteSize,
-			})
-			if registerErr != nil {
-				return nil, t.grpcErrorHandler(registerErr)
-			}
-			return systemSharedMemoryRegisterResponse, nil
+		// CUDA Memory
+		cudaSharedMemoryRegisterResponse, registerErr := t.grpcClient.CudaSharedMemoryRegister(ctx, &CudaSharedMemoryRegisterRequest{
+			Name:      regionName,
+			RawHandle: cudaRawHandle,
+			DeviceId:  cudaDeviceId,
+			ByteSize:  byteSize,
+		})
+		if registerErr != nil {
+			return nil, t.grpcErrorHandler(registerErr)
 		}
+		return cudaSharedMemoryRegisterResponse, nil
 	} else {
-		// SetRequestURI (Experimental !!!)
-		var uri string
-		var reqBody []byte
-		var jsonEncodeErr error
-		if isCUDA {
-			uri = HTTPPrefix + t.ServerURL + TritonAPIForCudaMemoryRegionPrefix + regionName + "/register"
-			reqBody, jsonEncodeErr = json.Marshal(&CudaMemoryRegisterBodyHTTPObj{cudaRawHandle, cudaDeviceId, byteSize})
-			if jsonEncodeErr != nil {
-				return nil, jsonEncodeErr
-			}
-		} else {
-			uri = HTTPPrefix + t.ServerURL + TritonAPIForSystemMemoryRegionPrefix + regionName + "/register"
-			reqBody, jsonEncodeErr = json.Marshal(&SystemMemoryRegisterBodyHTTPObj{cpuMemRegionKey, cpuMemOffset, byteSize})
-			if jsonEncodeErr != nil {
-				return nil, jsonEncodeErr
-			}
+		reqBody, jsonEncodeErr := json.Marshal(&CudaMemoryRegisterBodyHTTPObj{cudaRawHandle, cudaDeviceId, byteSize})
+		if jsonEncodeErr != nil {
+			return nil, jsonEncodeErr
 		}
-		respBody, statusCode, httpErr := t.makeHttpPostRequestWithDoTimeout(uri, reqBody, timeout)
+		respBody, statusCode, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForCudaMemoryRegionPrefix+regionName+"/register", reqBody, timeout)
 		if httpErr != nil || statusCode != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(statusCode, httpErr)
 		}
-		// Parse Response
-		if isCUDA {
-			cudaSharedMemoryRegisterResponse := new(CudaSharedMemoryRegisterResponse)
-			if jsonDecodeErr := json.Unmarshal(respBody, &cudaSharedMemoryRegisterResponse); jsonDecodeErr != nil {
-				return nil, jsonDecodeErr
-			}
-			return cudaSharedMemoryRegisterResponse, nil
-		} else {
-			systemSharedMemoryRegisterResponse := new(SystemSharedMemoryRegisterResponse)
-			if jsonDecodeErr := json.Unmarshal(respBody, &systemSharedMemoryRegisterResponse); jsonDecodeErr != nil {
-				return nil, jsonDecodeErr
-			}
-			return systemSharedMemoryRegisterResponse, nil
+		cudaSharedMemoryRegisterResponse := new(CudaSharedMemoryRegisterResponse)
+		if jsonDecodeErr := json.Unmarshal(respBody, &cudaSharedMemoryRegisterResponse); jsonDecodeErr != nil {
+			return nil, jsonDecodeErr
 		}
+		return cudaSharedMemoryRegisterResponse, nil
 	}
 }
 
-func (t *TritonClientService) ShareMemoryUnRegister(isCUDA bool, regionName string, timeout time.Duration, isGRPC bool) (interface{}, error) {
+// ShareCUDAMemoryUnRegister cuda share memory unregister
+func (t *TritonClientService) ShareCUDAMemoryUnRegister(regionName string, timeout time.Duration, isGRPC bool) (*CudaSharedMemoryUnregisterResponse, error) {
 	if isGRPC {
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
-		if isCUDA {
-			// CUDA Memory
-			cudaSharedMemoryUnRegisterResponse, unRegisterErr := t.grpcClient.CudaSharedMemoryUnregister(ctx, &CudaSharedMemoryUnregisterRequest{Name: regionName})
-			if unRegisterErr != nil {
-				return nil, t.grpcErrorHandler(unRegisterErr)
-			}
-			return cudaSharedMemoryUnRegisterResponse, nil
-		} else {
-			// System Memory
-			systemSharedMemoryUnRegisterResponse, unRegisterErr := t.grpcClient.SystemSharedMemoryUnregister(ctx, &SystemSharedMemoryUnregisterRequest{Name: regionName})
-			if unRegisterErr != nil {
-				return nil, t.grpcErrorHandler(unRegisterErr)
-			}
-			return systemSharedMemoryUnRegisterResponse, nil
+		// CUDA Memory
+		cudaSharedMemoryUnRegisterResponse, unRegisterErr := t.grpcClient.CudaSharedMemoryUnregister(ctx, &CudaSharedMemoryUnregisterRequest{Name: regionName})
+		if unRegisterErr != nil {
+			return nil, t.grpcErrorHandler(unRegisterErr)
 		}
+		return cudaSharedMemoryUnRegisterResponse, nil
 	} else {
-		// SetRequestURI
-		var uri string
-		if isCUDA {
-			uri = HTTPPrefix + t.ServerURL + TritonAPIForCudaMemoryRegionPrefix + regionName + "/unregister"
-		} else {
-			uri = HTTPPrefix + t.ServerURL + TritonAPIForSystemMemoryRegionPrefix + regionName + "/unregister"
-		}
-		respBody, statusCode, httpErr := t.makeHttpPostRequestWithDoTimeout(uri, nil, timeout)
+		respBody, statusCode, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForCudaMemoryRegionPrefix+regionName+"/unregister", nil, timeout)
 		if httpErr != nil || statusCode != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(statusCode, httpErr)
 		}
-		// Parse Response
-		if isCUDA {
-			cudaSharedMemoryUnregisterResponse := new(CudaSharedMemoryUnregisterResponse)
-			if jsonDecodeErr := json.Unmarshal(respBody, &cudaSharedMemoryUnregisterResponse); jsonDecodeErr != nil {
-				return nil, jsonDecodeErr
-			}
-			return cudaSharedMemoryUnregisterResponse, nil
-		} else {
-			systemSharedMemoryUnregisterResponse := new(SystemSharedMemoryUnregisterResponse)
-			if jsonDecodeErr := json.Unmarshal(respBody, &systemSharedMemoryUnregisterResponse); jsonDecodeErr != nil {
-				return nil, jsonDecodeErr
-			}
-			return systemSharedMemoryUnregisterResponse, nil
+		cudaSharedMemoryUnregisterResponse := new(CudaSharedMemoryUnregisterResponse)
+		if jsonDecodeErr := json.Unmarshal(respBody, &cudaSharedMemoryUnregisterResponse); jsonDecodeErr != nil {
+			return nil, jsonDecodeErr
 		}
+		return cudaSharedMemoryUnregisterResponse, nil
+	}
+}
+
+// ShareSystemMemoryRegister system share memory register
+func (t *TritonClientService) ShareSystemMemoryRegister(regionName, cpuMemRegionKey string, byteSize, cpuMemOffset uint64, timeout time.Duration, isGRPC bool) (*SystemSharedMemoryRegisterResponse, error) {
+	if isGRPC {
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+
+		// System Memory
+		systemSharedMemoryRegisterResponse, registerErr := t.grpcClient.SystemSharedMemoryRegister(ctx, &SystemSharedMemoryRegisterRequest{
+			Name:     regionName,
+			Key:      cpuMemRegionKey,
+			Offset:   cpuMemOffset,
+			ByteSize: byteSize,
+		})
+		if registerErr != nil {
+			return nil, t.grpcErrorHandler(registerErr)
+		}
+		return systemSharedMemoryRegisterResponse, nil
+	} else {
+		reqBody, jsonEncodeErr := json.Marshal(&SystemMemoryRegisterBodyHTTPObj{cpuMemRegionKey, cpuMemOffset, byteSize})
+		if jsonEncodeErr != nil {
+			return nil, jsonEncodeErr
+		}
+		respBody, statusCode, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForSystemMemoryRegionPrefix+regionName+"/register", reqBody, timeout)
+		if httpErr != nil || statusCode != fasthttp.StatusOK {
+			return nil, t.httpErrorHandler(statusCode, httpErr)
+		}
+		systemSharedMemoryRegisterResponse := new(SystemSharedMemoryRegisterResponse)
+		if jsonDecodeErr := json.Unmarshal(respBody, &systemSharedMemoryRegisterResponse); jsonDecodeErr != nil {
+			return nil, jsonDecodeErr
+		}
+		return systemSharedMemoryRegisterResponse, nil
+	}
+}
+
+// ShareSystemMemoryUnRegister system share memory unregister
+func (t *TritonClientService) ShareSystemMemoryUnRegister(regionName string, timeout time.Duration, isGRPC bool) (*SystemSharedMemoryUnregisterResponse, error) {
+	if isGRPC {
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+
+		// System Memory
+		systemSharedMemoryUnRegisterResponse, unRegisterErr := t.grpcClient.SystemSharedMemoryUnregister(ctx, &SystemSharedMemoryUnregisterRequest{Name: regionName})
+		if unRegisterErr != nil {
+			return nil, t.grpcErrorHandler(unRegisterErr)
+		}
+		return systemSharedMemoryUnRegisterResponse, nil
+	} else {
+		respBody, statusCode, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForSystemMemoryRegionPrefix+regionName+"/unregister", nil, timeout)
+		if httpErr != nil || statusCode != fasthttp.StatusOK {
+			return nil, t.httpErrorHandler(statusCode, httpErr)
+		}
+		systemSharedMemoryUnregisterResponse := new(SystemSharedMemoryUnregisterResponse)
+		if jsonDecodeErr := json.Unmarshal(respBody, &systemSharedMemoryUnregisterResponse); jsonDecodeErr != nil {
+			return nil, jsonDecodeErr
+		}
+		return systemSharedMemoryUnregisterResponse, nil
 	}
 }
 
