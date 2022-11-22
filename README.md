@@ -36,8 +36,11 @@ go get -u github.com/sunhailin-Leo/triton-service-go
   * update grpc connection code
   * update connection api
   * add some const for uri
+  * add some test code
   * [API Update]split share system/cuda memory api
   * [API Update]add three api for client initialize
+  * [API Update]update model load/unload api
+  * [API Update]remove `isGRPC` parameter instead of determine `grpcClient` is nil or not.
 
 * version 1.2.2 - 2022/11/14
   * fix empty request/response pool
