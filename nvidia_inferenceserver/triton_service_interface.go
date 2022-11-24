@@ -304,6 +304,7 @@ func (t *TritonClientService) CheckServerAlive(timeout time.Duration) (bool, err
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
+		// server alive
 		serverLiveResponse, serverAliveErr := t.grpcClient.ServerLive(ctx, &ServerLiveRequest{})
 		if serverAliveErr != nil {
 			return false, t.grpcErrorHandler(serverAliveErr)
@@ -323,6 +324,8 @@ func (t *TritonClientService) CheckServerReady(timeout time.Duration) (bool, err
 	if t.grpcClient != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
+
+		// server ready
 		serverReadyResponse, serverReadyErr := t.grpcClient.ServerReady(ctx, &ServerReadyRequest{})
 		if serverReadyErr != nil {
 			return false, t.grpcErrorHandler(serverReadyErr)
@@ -343,6 +346,7 @@ func (t *TritonClientService) CheckModelReady(modelName, modelVersion string, ti
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
+		// model ready
 		modelReadyResponse, modelReadyErr := t.grpcClient.ModelReady(ctx, &ModelReadyRequest{Name: modelName, Version: modelVersion})
 		if modelReadyErr != nil {
 			return false, t.grpcErrorHandler(modelReadyErr)
@@ -363,6 +367,7 @@ func (t *TritonClientService) ServerMetadata(timeout time.Duration) (*ServerMeta
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
+		// server metadata
 		serverMetadataResponse, serverMetaErr := t.grpcClient.ServerMetadata(ctx, &ServerMetadataRequest{})
 		return serverMetadataResponse, t.grpcErrorHandler(serverMetaErr)
 	} else {
@@ -384,11 +389,9 @@ func (t *TritonClientService) ModelMetadataRequest(modelName, modelVersion strin
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
+		// model metadata
 		modelMetadataResponse, modelMetaErr := t.grpcClient.ModelMetadata(ctx, &ModelMetadataRequest{Name: modelName, Version: modelVersion})
-		if modelMetaErr != nil {
-			return nil, t.grpcErrorHandler(modelMetaErr)
-		}
-		return modelMetadataResponse, nil
+		return modelMetadataResponse, t.grpcErrorHandler(modelMetaErr)
 	} else {
 		respBody, statusCode, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion, nil, timeout)
 		if httpErr != nil || statusCode != fasthttp.StatusOK {
@@ -410,10 +413,7 @@ func (t *TritonClientService) ModelIndex(repoName string, isReady bool, timeout 
 
 		// The name of the repository. If empty the index is returned for all repositories.
 		repositoryIndexResponse, modelIndexErr := t.grpcClient.RepositoryIndex(ctx, &RepositoryIndexRequest{RepositoryName: repoName, Ready: isReady})
-		if modelIndexErr != nil {
-			return nil, t.grpcErrorHandler(modelIndexErr)
-		}
-		return repositoryIndexResponse, nil
+		return repositoryIndexResponse, t.grpcErrorHandler(modelIndexErr)
 	} else {
 		reqBody, jsonEncodeErr := json.Marshal(&ModelIndexRequestHTTPObj{repoName, isReady})
 		if jsonEncodeErr != nil {
@@ -438,10 +438,7 @@ func (t *TritonClientService) ModelConfiguration(modelName, modelVersion string,
 		defer cancel()
 
 		modelConfigResponse, getModelConfigErr := t.grpcClient.ModelConfig(ctx, &ModelConfigRequest{Name: modelName, Version: modelVersion})
-		if getModelConfigErr != nil {
-			return nil, t.grpcErrorHandler(getModelConfigErr)
-		}
-		return modelConfigResponse, nil
+		return modelConfigResponse, t.grpcErrorHandler(getModelConfigErr)
 	} else {
 		respBody, statusCode, httpErr := t.makeHttpGetRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/config", timeout)
 		if httpErr != nil || statusCode != fasthttp.StatusOK {
@@ -462,10 +459,7 @@ func (t *TritonClientService) ModelInferStats(modelName, modelVersion string, ti
 		defer cancel()
 
 		modelStatisticsResponse, getInferStatsErr := t.grpcClient.ModelStatistics(ctx, &ModelStatisticsRequest{Name: modelName, Version: modelVersion})
-		if getInferStatsErr != nil {
-			return nil, t.grpcErrorHandler(getInferStatsErr)
-		}
-		return modelStatisticsResponse, nil
+		return modelStatisticsResponse, t.grpcErrorHandler(getInferStatsErr)
 	} else {
 		respBody, statusCode, httpErr := t.makeHttpGetRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/stats", timeout)
 		if httpErr != nil || statusCode != fasthttp.StatusOK {
@@ -504,10 +498,7 @@ func (t *TritonClientService) ModelLoadWithGRPC(repoName, modelName string, mode
 		ModelName:      modelName,
 		Parameters:     modelConfigBody,
 	})
-	if loadErr != nil {
-		return nil, t.grpcErrorHandler(loadErr)
-	}
-	return loadResponse, nil
+	return loadResponse, t.grpcErrorHandler(loadErr)
 }
 
 // ModelUnloadWithHTTP Unload model with http
@@ -536,10 +527,7 @@ func (t *TritonClientService) ModelUnloadWithGRPC(repoName, modelName string, mo
 		ModelName:      modelName,
 		Parameters:     modelConfigBody,
 	})
-	if unloadErr != nil {
-		return nil, t.grpcErrorHandler(unloadErr)
-	}
-	return unloadResponse, nil
+	return unloadResponse, t.grpcErrorHandler(unloadErr)
 }
 
 // ShareMemoryStatus Get share memory / cuda memory status. Response: CudaSharedMemoryStatusResponse / SystemSharedMemoryStatusResponse
@@ -551,10 +539,7 @@ func (t *TritonClientService) ShareMemoryStatus(isCUDA bool, regionName string, 
 		if isCUDA {
 			// CUDA Memory
 			cudaSharedMemoryStatusResponse, cudaStatusErr := t.grpcClient.CudaSharedMemoryStatus(ctx, &CudaSharedMemoryStatusRequest{Name: regionName})
-			if cudaStatusErr != nil {
-				return nil, t.grpcErrorHandler(cudaStatusErr)
-			}
-			return cudaSharedMemoryStatusResponse, nil
+			return cudaSharedMemoryStatusResponse, t.grpcErrorHandler(cudaStatusErr)
 		} else {
 			// System Memory
 			systemSharedMemoryStatusResponse, systemStatusErr := t.grpcClient.SystemSharedMemoryStatus(ctx, &SystemSharedMemoryStatusRequest{Name: regionName})
@@ -605,10 +590,7 @@ func (t *TritonClientService) ShareCUDAMemoryRegister(regionName string, cudaRaw
 			DeviceId:  cudaDeviceId,
 			ByteSize:  byteSize,
 		})
-		if registerErr != nil {
-			return nil, t.grpcErrorHandler(registerErr)
-		}
-		return cudaSharedMemoryRegisterResponse, nil
+		return cudaSharedMemoryRegisterResponse, t.grpcErrorHandler(registerErr)
 	} else {
 		reqBody, jsonEncodeErr := json.Marshal(&CudaMemoryRegisterBodyHTTPObj{cudaRawHandle, cudaDeviceId, byteSize})
 		if jsonEncodeErr != nil {
@@ -634,10 +616,7 @@ func (t *TritonClientService) ShareCUDAMemoryUnRegister(regionName string, timeo
 
 		// CUDA Memory
 		cudaSharedMemoryUnRegisterResponse, unRegisterErr := t.grpcClient.CudaSharedMemoryUnregister(ctx, &CudaSharedMemoryUnregisterRequest{Name: regionName})
-		if unRegisterErr != nil {
-			return nil, t.grpcErrorHandler(unRegisterErr)
-		}
-		return cudaSharedMemoryUnRegisterResponse, nil
+		return cudaSharedMemoryUnRegisterResponse, t.grpcErrorHandler(unRegisterErr)
 	} else {
 		respBody, statusCode, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForCudaMemoryRegionPrefix+regionName+"/unregister", nil, timeout)
 		if httpErr != nil || statusCode != fasthttp.StatusOK {
@@ -664,10 +643,7 @@ func (t *TritonClientService) ShareSystemMemoryRegister(regionName, cpuMemRegion
 			Offset:   cpuMemOffset,
 			ByteSize: byteSize,
 		})
-		if registerErr != nil {
-			return nil, t.grpcErrorHandler(registerErr)
-		}
-		return systemSharedMemoryRegisterResponse, nil
+		return systemSharedMemoryRegisterResponse, t.grpcErrorHandler(registerErr)
 	} else {
 		reqBody, jsonEncodeErr := json.Marshal(&SystemMemoryRegisterBodyHTTPObj{cpuMemRegionKey, cpuMemOffset, byteSize})
 		if jsonEncodeErr != nil {
@@ -693,10 +669,7 @@ func (t *TritonClientService) ShareSystemMemoryUnRegister(regionName string, tim
 
 		// System Memory
 		systemSharedMemoryUnRegisterResponse, unRegisterErr := t.grpcClient.SystemSharedMemoryUnregister(ctx, &SystemSharedMemoryUnregisterRequest{Name: regionName})
-		if unRegisterErr != nil {
-			return nil, t.grpcErrorHandler(unRegisterErr)
-		}
-		return systemSharedMemoryUnRegisterResponse, nil
+		return systemSharedMemoryUnRegisterResponse, t.grpcErrorHandler(unRegisterErr)
 	} else {
 		respBody, statusCode, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForSystemMemoryRegionPrefix+regionName+"/unregister", nil, timeout)
 		if httpErr != nil || statusCode != fasthttp.StatusOK {
@@ -716,11 +689,9 @@ func (t *TritonClientService) GetModelTracingSetting(modelName string, timeout t
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
+		// Tracing
 		traceSettingResponse, getTraceSettingErr := t.grpcClient.TraceSetting(ctx, &TraceSettingRequest{ModelName: modelName})
-		if getTraceSettingErr != nil {
-			return nil, t.grpcErrorHandler(getTraceSettingErr)
-		}
-		return traceSettingResponse, nil
+		return traceSettingResponse, t.grpcErrorHandler(getTraceSettingErr)
 	} else {
 		respBody, statusCode, httpErr := t.makeHttpGetRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+"/trace/setting", timeout)
 		if httpErr != nil || statusCode != fasthttp.StatusOK {
@@ -742,10 +713,7 @@ func (t *TritonClientService) SetModelTracingSetting(modelName string, settingMa
 		defer cancel()
 
 		traceSettingResponse, setTraceSettingErr := t.grpcClient.TraceSetting(ctx, &TraceSettingRequest{ModelName: modelName, Settings: settingMap})
-		if setTraceSettingErr != nil {
-			return nil, t.grpcErrorHandler(setTraceSettingErr)
-		}
-		return traceSettingResponse, nil
+		return traceSettingResponse, t.grpcErrorHandler(setTraceSettingErr)
 	} else {
 		// Experimental
 		reqBody, jsonEncodeErr := json.Marshal(&TraceSettingRequestHTTPObj{settingMap})
