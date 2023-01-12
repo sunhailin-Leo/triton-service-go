@@ -32,7 +32,7 @@ go get -u github.com/sunhailin-Leo/triton-service-go
 
 ### Version
 
-* version 1.2.3 - [Not Release Now] - 2022/11/XX
+* version 1.2.3 - 2023/01/12
   * update grpc connection code
   * update connection api
   * add some const for uri
@@ -41,6 +41,7 @@ go get -u github.com/sunhailin-Leo/triton-service-go
   * [API Update]add three api for client initialize
   * [API Update]update model load/unload api
   * [API Update]remove `isGRPC` parameter instead of determine `grpcClient` is nil or not.
+  * [API Update]decodeFunc return `[]interface{}` instead of `interface{}` for support batch request.
 
 * version 1.2.2 - 2022/11/14
   * fix empty request/response pool

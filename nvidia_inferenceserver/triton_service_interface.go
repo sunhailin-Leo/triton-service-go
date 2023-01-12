@@ -28,7 +28,7 @@ const (
 )
 
 // DecoderFunc Infer Callback Function
-type DecoderFunc func(response interface{}, params ...interface{}) (interface{}, error)
+type DecoderFunc func(response interface{}, params ...interface{}) ([]interface{}, error)
 
 // TritonGRPCService Service interface
 type TritonGRPCService interface {
@@ -49,13 +49,13 @@ type TritonGRPCService interface {
 		timeout time.Duration,
 		decoderFunc DecoderFunc,
 		params ...interface{},
-	) (interface{}, error)
+	) ([]interface{}, error)
 	// ModelHTTPInfer all triton inference server infer with HTTP
 	ModelHTTPInfer(
 		requestBody []byte,
 		modelName, modelVersion string,
 		timeout time.Duration,
-		decoderFunc DecoderFunc, params ...interface{}) (interface{}, error)
+		decoderFunc DecoderFunc, params ...interface{}) ([]interface{}, error)
 	// ModelMetadataRequest Get triton inference server`s model metadata.
 	ModelMetadataRequest(modelName, modelVersion string, timeout time.Duration) (*ModelMetadataResponse, error)
 	// ModelIndex Get triton inference server model index.
@@ -258,7 +258,7 @@ func (t *TritonClientService) ModelHTTPInfer(
 	timeout time.Duration,
 	decoderFunc DecoderFunc,
 	params ...interface{},
-) (interface{}, error) {
+) ([]interface{}, error) {
 	// get infer response
 	modelInferResponse, modelInferStatusCode, inferErr := t.makeHttpPostRequestWithDoTimeout(
 		HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/infer",
@@ -284,7 +284,7 @@ func (t *TritonClientService) ModelGRPCInfer(
 	timeout time.Duration,
 	decoderFunc DecoderFunc,
 	params ...interface{},
-) (interface{}, error) {
+) ([]interface{}, error) {
 	// Get infer response
 	modelInferResponse, inferErr := t.modelGRPCInfer(inferInputs, inferOutputs, rawInputs, modelName, modelVersion, timeout)
 	if inferErr != nil {
