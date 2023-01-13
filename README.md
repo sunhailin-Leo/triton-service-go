@@ -32,6 +32,12 @@ go get -u github.com/sunhailin-Leo/triton-service-go
 
 ### Version
 
+* version 1.2.5 - 2023/01/13
+  * fix `makeHttpGetRequestWithDoTimeout` error Method.
+
+* version 1.2.4 - 2023/01/12
+  * fix `GOPROXY` can not get `go.mod`
+
 * version 1.2.3 - 2023/01/12
   * update grpc connection code
   * update connection api

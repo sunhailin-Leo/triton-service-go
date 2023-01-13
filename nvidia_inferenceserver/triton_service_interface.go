@@ -15,6 +15,7 @@ import (
 const (
 	HTTPPrefix                           string = "http://"
 	HttpPostMethod                       string = "POST"
+	HttpGetMethod                        string = "GET"
 	JsonContentType                      string = "application/json"
 	TritonAPIForModelVersionPrefix       string = "/versions/"
 	TritonAPIPrefix                      string = "/v2"
@@ -147,9 +148,9 @@ func (t *TritonClientService) disconnectToTritonWithHTTP() error {
 }
 
 // acquireHttpRequest
-func (t *TritonClientService) acquireHttpRequest() *fasthttp.Request {
+func (t *TritonClientService) acquireHttpRequest(method string) *fasthttp.Request {
 	httpRequestPool := fasthttp.AcquireRequest()
-	httpRequestPool.Header.SetMethod(HttpPostMethod)
+	httpRequestPool.Header.SetMethod(method)
 	httpRequestPool.Header.SetContentType(JsonContentType)
 	return httpRequestPool
 }
@@ -171,7 +172,7 @@ func (t *TritonClientService) releaseHttpResponse(responseObj *fasthttp.Response
 
 // makeHttpPostRequestWithDoTimeout
 func (t *TritonClientService) makeHttpPostRequestWithDoTimeout(uri string, reqBody []byte, timeout time.Duration) ([]byte, int, error) {
-	requestObj := t.acquireHttpRequest()
+	requestObj := t.acquireHttpRequest(HttpPostMethod)
 	responseObj := t.acquireHttpResponse()
 	defer func() {
 		t.releaseHttpRequest(requestObj)
@@ -189,7 +190,7 @@ func (t *TritonClientService) makeHttpPostRequestWithDoTimeout(uri string, reqBo
 
 // makeHttpGetRequestWithDoTimeout
 func (t *TritonClientService) makeHttpGetRequestWithDoTimeout(uri string, timeout time.Duration) ([]byte, int, error) {
-	requestObj := t.acquireHttpRequest()
+	requestObj := t.acquireHttpRequest(HttpGetMethod)
 	responseObj := t.acquireHttpResponse()
 	defer func() {
 		t.releaseHttpRequest(requestObj)
