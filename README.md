@@ -32,6 +32,10 @@ go get -u github.com/sunhailin-Leo/triton-service-go
 
 ### Version
 
+* version 1.2.6 - 2023/02/03
+  * add `Bert` service to call `Triton Inference Server`
+  * update `go.mod`
+
 * version 1.2.5 - 2023/01/13
   * fix `makeHttpGetRequestWithDoTimeout` error Method.
 

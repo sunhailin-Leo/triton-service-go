@@ -18,7 +18,7 @@ func TestTritonHTTPClientForCheckModelReady(t *testing.T) {
 	if httpErr != nil {
 		panic(httpErr)
 	}
-	isReady, err := srv.CheckModelReady("<Your Model Name>", "<Your Model Version>", 1*time.Second, false)
+	isReady, err := srv.CheckModelReady("<Your Model Name>", "<Your Model Version>", 1*time.Second)
 	if err != nil {
 		panic(err)
 	}
@@ -31,7 +31,7 @@ func TestTritonGRPCClientForCheckModelReady(t *testing.T) {
 	if grpcErr != nil {
 		panic(grpcErr)
 	}
-	isReady, err := srv.CheckModelReady("<Your Model Name>", "<Your Model Version>", 1*time.Second, true)
+	isReady, err := srv.CheckModelReady("<Your Model Name>", "<Your Model Version>", 1*time.Second)
 	if err != nil {
 		panic(err)
 	}
@@ -41,7 +41,7 @@ func TestTritonGRPCClientForCheckModelReady(t *testing.T) {
 func TestTritonHTTPClientInit(t *testing.T) {
 	client := &fasthttp.Client{}
 	trtClient := nvidia_inferenceserver.NewTritonClientWithOnlyHttp("<Your Triton HTTP Host>:<Your Triton HTTP Port>", client)
-	isReady, err := trtClient.CheckServerReady(1*time.Second, false)
+	isReady, err := trtClient.CheckServerReady(1 * time.Second)
 	if err != nil {
 		panic(err)
 	}
@@ -54,7 +54,7 @@ func TestTritonGRPCClientInit(t *testing.T) {
 		panic(err)
 	}
 	trtClient := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(grpcConn)
-	isReady, err := trtClient.CheckServerReady(1*time.Second, false)
+	isReady, err := trtClient.CheckServerReady(1 * time.Second)
 	if err != nil {
 		panic(err)
 	}
@@ -69,9 +69,18 @@ func TestTritonAllClientInit(t *testing.T) {
 	httpClient := &fasthttp.Client{}
 	trtClient := nvidia_inferenceserver.NewTritonClientForAll(
 		"<Your Triton HTTP Host>:<Your Triton HTTP Port>", httpClient, grpcConn)
-	isReady, err := trtClient.CheckServerReady(1*time.Second, false)
+	isReady, err := trtClient.CheckServerReady(1 * time.Second)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(isReady)
+}
+
+func TestGetTritonModelConfig(t *testing.T) {
+	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHttp("<Your Triton GRPC Host>:<Your Triton GRPC Port>", &fasthttp.Client{})
+	modelConfig, err := srv.ModelConfiguration("<Your Model Name>", "<Your Model Version>", 1*time.Second)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(modelConfig)
 }
