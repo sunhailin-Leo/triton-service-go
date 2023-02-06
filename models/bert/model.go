@@ -65,6 +65,16 @@ func (m *ModelService) UnsetModelInferWithGRPC() *ModelService {
 	return m
 }
 
+// GetModelInferIsGRPC Get isGRPC flag
+func (m *ModelService) GetModelInferIsGRPC() bool {
+	return m.isGRPC
+}
+
+// GetTokenizerIsChineseMode Get isChinese flag
+func (m *ModelService) GetTokenizerIsChineseMode() bool {
+	return m.isChinese
+}
+
 ////////////////////////////////////////////////// Flag Switch API //////////////////////////////////////////////////
 
 ///////////////////////////////////////// Bert Service Pre-Process Function /////////////////////////////////////////
