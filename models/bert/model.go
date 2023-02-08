@@ -75,6 +75,15 @@ func (m *ModelService) GetTokenizerIsChineseMode() bool {
 	return m.isChinese
 }
 
+// SetModelName Set model name must equal to Triton config.pbtxt model name
+func (m *ModelService) SetModelName(modelPrefix, modelName string) *ModelService {
+	m.modelName = modelPrefix + "-" + modelName
+	return m
+}
+
+// GetModelName Get model
+func (m *ModelService) GetModelName() string { return m.modelName }
+
 ////////////////////////////////////////////////// Flag Switch API //////////////////////////////////////////////////
 
 ///////////////////////////////////////// Bert Service Pre-Process Function /////////////////////////////////////////
@@ -215,14 +224,6 @@ func (m *ModelService) generateGRPCRequest(inferDataArr []string) ([][]byte, []*
 ///////////////////////////////////////// Bert Service Pre-Process Function /////////////////////////////////////////
 
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
-
-// SetModelName Set model name must equal to Triton config.pbtxt model name
-func (m *ModelService) SetModelName(modelPrefix, modelName string) {
-	m.modelName = modelPrefix + "-" + modelName
-}
-
-// GetModelName Get model
-func (m *ModelService) GetModelName() string { return m.modelName }
 
 // CheckServerReady check server is ready
 func (m *ModelService) CheckServerReady(requestTimeout time.Duration) (bool, error) {

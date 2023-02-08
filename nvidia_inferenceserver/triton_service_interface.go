@@ -9,7 +9,6 @@ import (
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -88,8 +87,6 @@ type TritonGRPCService interface {
 	// SetModelTracingSetting set the current trace setting
 	SetModelTracingSetting(modelName string, settingMap map[string]*TraceSettingRequest_SettingValue, timeout time.Duration) (*TraceSettingResponse, error)
 
-	// InitTritonConnection init connection
-	InitTritonConnection(grpcClient *grpc.ClientConn, httpClient *fasthttp.Client) (connectionErr error)
 	// ShutdownTritonConnection close client connection
 	ShutdownTritonConnection() (disconnectionErr error)
 }
@@ -101,22 +98,6 @@ type TritonClientService struct {
 	grpcConn   *grpc.ClientConn
 	grpcClient GRPCInferenceServiceClient
 	httpClient *fasthttp.Client
-}
-
-// setGRPCConnection Create GRPC Connection
-func (t *TritonClientService) setGRPCConnection(conn *grpc.ClientConn) error {
-	if conn == nil {
-		defaultConn, err := grpc.Dial(t.ServerURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if err != nil {
-			return err
-		}
-		t.grpcConn = defaultConn
-	} else {
-		t.grpcConn = conn
-	}
-	// use t.grpcConn
-	t.grpcClient = NewGRPCInferenceServiceClient(t.grpcConn)
-	return nil
 }
 
 // disconnectToTritonWithGRPC Disconnect GRPC Connection
@@ -731,22 +712,6 @@ func (t *TritonClientService) SetModelTracingSetting(modelName string, settingMa
 		}
 		return traceSettingResponse, nil
 	}
-}
-
-// InitTritonConnection init http and grpc connection
-// support kafka endpoint in the future (When after Triton Add-on)
-// It will be deprecated at 1.3.X
-func (t *TritonClientService) InitTritonConnection(grpcClient *grpc.ClientConn, httpClient *fasthttp.Client) (connectionErr error) {
-	if grpcClient != nil {
-		connectionErr = t.setGRPCConnection(grpcClient)
-	}
-	if httpClient != nil {
-		connectionErr = t.setHTTPConnection(httpClient)
-	}
-	if connectionErr != nil {
-		return errors.New("[Triton]InitConnectionError: " + connectionErr.Error())
-	}
-	return nil
 }
 
 // ShutdownTritonConnection shutdown http and grpc connection

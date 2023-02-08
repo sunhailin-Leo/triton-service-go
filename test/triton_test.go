@@ -13,11 +13,8 @@ import (
 )
 
 func TestTritonHTTPClientForCheckModelReady(t *testing.T) {
-	srv := nvidia_inferenceserver.TritonClientService{ServerURL: "<Your Triton HTTP Host>:<Your Triton HTTP Port>"}
-	httpErr := srv.InitTritonConnection(nil, nil)
-	if httpErr != nil {
-		panic(httpErr)
-	}
+	srv := nvidia_inferenceserver.NewTritonClientForAll(
+		"<Your Triton HTTP Host>:<Your Triton HTTP Port>", &fasthttp.Client{}, nil)
 	isReady, err := srv.CheckModelReady("<Your Model Name>", "<Your Model Version>", 1*time.Second)
 	if err != nil {
 		panic(err)
@@ -26,11 +23,12 @@ func TestTritonHTTPClientForCheckModelReady(t *testing.T) {
 }
 
 func TestTritonGRPCClientForCheckModelReady(t *testing.T) {
-	srv := nvidia_inferenceserver.TritonClientService{ServerURL: "<Your Triton GRPC Host>:<Your Triton GRPC Port>"}
-	grpcErr := srv.InitTritonConnection(nil, nil)
+	defaultGRPCClient, grpcErr := grpc.Dial("<Your Triton GRPC Host>:<Your Triton GRPC Port>",
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if grpcErr != nil {
 		panic(grpcErr)
 	}
+	srv := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(defaultGRPCClient)
 	isReady, err := srv.CheckModelReady("<Your Model Name>", "<Your Model Version>", 1*time.Second)
 	if err != nil {
 		panic(err)
