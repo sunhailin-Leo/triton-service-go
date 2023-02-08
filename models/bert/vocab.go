@@ -41,8 +41,8 @@ func VocabFromFile(path string) (Dict, error) {
 	return voc, nil
 }
 
-// VocabFromConfig will read vocab from config into a Dict
-func VocabFromConfig(vocabArr []string) (Dict, error) {
+// VocabFromSlice will read vocab from config into a Dict
+func VocabFromSlice(vocabArr []string) (Dict, error) {
 	if len(vocabArr) == 0 {
 		return Dict{}, errors.New("empty vocab")
 	}

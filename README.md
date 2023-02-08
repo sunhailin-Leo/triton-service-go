@@ -134,9 +134,14 @@ func main() {
 
 ### Version
 
+* version 1.3.0 - 2023/02/08
+  * Remove deprecated API
+  * update `go.mod`
+
 * version 1.2.7 - 2023/02/06
   * add `GetModelInferIsGRPC`, `GetTokenizerIsChineseMode` API
   * update `README.md`
+  * update `go.mod`
 
 * version 1.2.6 - 2023/02/03
   * add `Bert` service to call `Triton Inference Server`
