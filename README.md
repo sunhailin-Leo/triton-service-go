@@ -134,6 +134,9 @@ func main() {
 
 ### Version
 
+* version 1.3.1 - 2023/02/10
+  * update `go.mod`
+
 * version 1.3.0 - 2023/02/08
   * Remove deprecated API
   * update `go.mod`
