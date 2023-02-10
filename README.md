@@ -77,7 +77,7 @@ func testGenerateModelInferRequest(batchSize, maxSeqLength int) []*nvidia_infere
 }
 
 // testGenerateModelInferOutputRequest Triton Output
-func testGenerateModelInferOutputRequest() []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
+func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
   return []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor{
 	  {
             Name: tBertModelOutputProbabilitiesKey,
@@ -133,6 +133,9 @@ func main() {
 ---
 
 ### Version
+
+* version 1.3.2 - 2023/02/10
+  * update API support more params before infer or after infer.
 
 * version 1.3.1 - 2023/02/10
   * update `go.mod`

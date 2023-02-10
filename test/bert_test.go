@@ -47,7 +47,10 @@ func testGenerateModelInferRequest(batchSize, maxSeqLength int) []*nvidia_infere
 }
 
 // testGenerateModelInferOutputRequest Triton Output
-func testGenerateModelInferOutputRequest() []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
+func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
+	for _, param := range params {
+		println("Param: ", param)
+	}
 	return []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor{
 		{
 			Name: tBertModelOutputProbabilitiesKey,
@@ -90,7 +93,14 @@ func TestBertService(t *testing.T) {
 	}
 	bertService = bertService.SetChineseTokenize().SetMaxSeqLength(maxSeqLen)
 	// infer
-	inferResultV1, inferErr := bertService.ModelInfer([]string{"<Data>"}, "<Model Name>", "<Model Version>", 1*time.Second)
+	inferResultV1, inferErr := bertService.ModelInfer(
+		[]string{"<Data>"},
+		"<Model Name>",
+		"<Model Version>",
+		1*time.Second,
+		"params_1",
+		"params_2",
+	)
 	if inferErr != nil {
 		panic(inferErr)
 	}

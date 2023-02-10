@@ -6,7 +6,7 @@ import "github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 type GenerateModelInferRequest func(batchSize, maxSeqLength int) []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor
 
 // GenerateModelInferOutputRequest model output callback
-type GenerateModelInferOutputRequest func() []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
+type GenerateModelInferOutputRequest func(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
 
 // InputFeature Bert InputFeature
 type InputFeature struct {
@@ -19,9 +19,9 @@ type InputFeature struct {
 
 // InputObjects bert input objects for position record
 type InputObjects struct {
-	Input  string
-	Tokens []string
-	//PosArray []string
+	Input    string
+	Tokens   []string
+	PosArray []OffsetsType
 }
 
 // HTTPBatchInput Model HTTP Batch Request Input Struct.(Support batch 1)

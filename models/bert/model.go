@@ -18,6 +18,11 @@ const (
 	DefaultMaxSeqLength                      int    = 48
 	ModelRespBodyOutputBinaryDataKey         string = "binary_data"
 	ModelRespBodyOutputClassificationDataKey string = "classification"
+	ModelBertModelSegmentIdsKey              string = "segment_ids"
+	ModelBertModelInputIdsKey                string = "input_ids"
+	ModelBertModelInputMaskKey               string = "input_mask"
+	ModelInt32DataType                       string = "INT32"
+	ModelInt64DataType                       string = "INT64"
 )
 
 type ModelService struct {
@@ -136,15 +141,19 @@ func (m *ModelService) getBertInputFeature(inferData string) (*InputFeature, *In
 }
 
 // generateHTTPOutputs For HTTP Output
-func (m *ModelService) generateHTTPOutputs(inferOutputs []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor) []HTTPOutput {
+func (m *ModelService) generateHTTPOutputs(
+	inferOutputs []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor,
+) []HTTPOutput {
 	requestOutputs := make([]HTTPOutput, len(inferOutputs))
 	for i, output := range inferOutputs {
 		requestOutputs[i] = HTTPOutput{Name: output.Name}
 		if _, ok := output.Parameters[ModelRespBodyOutputBinaryDataKey]; ok {
-			requestOutputs[i].Parameters.BinaryData = output.Parameters[ModelRespBodyOutputBinaryDataKey].GetBoolParam()
+			requestOutputs[i].Parameters.BinaryData =
+				output.Parameters[ModelRespBodyOutputBinaryDataKey].GetBoolParam()
 		}
 		if _, ok := output.Parameters[ModelRespBodyOutputClassificationDataKey]; ok {
-			requestOutputs[i].Parameters.Classification = output.Parameters[ModelRespBodyOutputClassificationDataKey].GetInt64Param()
+			requestOutputs[i].Parameters.Classification =
+				output.Parameters[ModelRespBodyOutputClassificationDataKey].GetInt64Param()
 		}
 	}
 	return requestOutputs
@@ -153,7 +162,9 @@ func (m *ModelService) generateHTTPOutputs(inferOutputs []*nvidia_inferenceserve
 // generateHTTPInputs get bert input feature for http request
 // inferDataArr: model infer data slice
 // inferInputs: triton inference server input tensor
-func (m *ModelService) generateHTTPInputs(inferDataArr []string, inferInputs []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor) ([]HTTPBatchInput, []*InputObjects) {
+func (m *ModelService) generateHTTPInputs(
+	inferDataArr []string, inferInputs []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor,
+) ([]HTTPBatchInput, []*InputObjects) {
 	// Bert Feature
 	batchModelInputObjs := make([]*InputObjects, len(inferDataArr))
 	batchRequestInputs := make([]HTTPBatchInput, len(inferInputs))
@@ -195,8 +206,39 @@ func (m *ModelService) generateHTTPRequest(
 	return jsonBody, modelInputObj, nil
 }
 
+// grpcInt32SliceToLittleEndianByteSlice int32 slice to byte slice with little endian
+func (m *ModelService) grpcInt32SliceToLittleEndianByteSlice(
+	maxLen int, input []int32, inputType string,
+) []byte {
+	if inputType == ModelInt32DataType {
+		var returnByte []byte
+		bs := make([]byte, 4)
+		for i := 0; i < maxLen; i++ {
+			binary.LittleEndian.PutUint32(bs, uint32(input[i]))
+			returnByte = append(returnByte, bs...)
+		}
+		bs = nil
+		return returnByte
+	}
+	if inputType == ModelInt64DataType {
+		var returnByte []byte
+		bs := make([]byte, 8)
+		for i := 0; i < maxLen; i++ {
+			binary.LittleEndian.PutUint64(bs, uint64(input[i]))
+			returnByte = append(returnByte, bs...)
+		}
+		bs = nil
+		return returnByte
+	}
+	return nil
+}
+
 // generateGRPCRequest GRPC Request Data Generate
-func (m *ModelService) generateGRPCRequest(inferDataArr []string) ([][]byte, []*InputObjects, error) {
+func (m *ModelService) generateGRPCRequest(
+	inferDataArr []string,
+	inferInputTensor []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor,
+) ([][]byte, []*InputObjects, error) {
+	// size is: len(inferDataArr) * m.maxSeqLength * 4
 	var segmentIdsBytes, inputIdsBytes, inputMaskBytes []byte
 	batchModelInputObjs := make([]*InputObjects, len(inferDataArr))
 	for i, data := range inferDataArr {
@@ -205,17 +247,25 @@ func (m *ModelService) generateGRPCRequest(inferDataArr []string) ([][]byte, []*
 		// feature.TokenIDs == input_ids
 		// feature.Mask     == input_mask
 		// Temp variable to hold out converted int32 -> []byte
-		bs := make([]byte, 4)
-		for j := 0; j < m.maxSeqLength; j++ {
-			binary.LittleEndian.PutUint32(bs, uint32(feature.TypeIDs[j]))
-			segmentIdsBytes = append(segmentIdsBytes, bs...)
-			binary.LittleEndian.PutUint32(bs, uint32(feature.TokenIDs[j]))
-			inputIdsBytes = append(inputIdsBytes, bs...)
-			binary.LittleEndian.PutUint32(bs, uint32(feature.Mask[j]))
-			inputMaskBytes = append(inputMaskBytes, bs...)
+		for _, inputTensor := range inferInputTensor {
+			switch inputTensor.Name {
+			case ModelBertModelSegmentIdsKey:
+				segmentIdsBytes = append(
+					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TypeIDs, inputTensor.Datatype),
+					segmentIdsBytes...,
+				)
+			case ModelBertModelInputIdsKey:
+				inputIdsBytes = append(
+					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TokenIDs, inputTensor.Datatype),
+					inputIdsBytes...,
+				)
+			case ModelBertModelInputMaskKey:
+				inputMaskBytes = append(
+					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.Mask, inputTensor.Datatype),
+					inputMaskBytes...,
+				)
+			}
 		}
-		// for data gc
-		bs = nil
 		batchModelInputObjs[i] = inputObject
 	}
 	return [][]byte{segmentIdsBytes, inputIdsBytes, inputMaskBytes}, batchModelInputObjs, nil
@@ -236,50 +286,70 @@ func (m *ModelService) CheckServerAlive(requestTimeout time.Duration) (bool, err
 }
 
 // CheckModelReady check model is ready
-func (m *ModelService) CheckModelReady(modelName, modelVersion string, requestTimeout time.Duration) (bool, error) {
+func (m *ModelService) CheckModelReady(
+	modelName, modelVersion string, requestTimeout time.Duration,
+) (bool, error) {
 	return m.tritonService.CheckModelReady(modelName, modelVersion, requestTimeout)
 }
 
 // GetServerMeta get server meta
-func (m *ModelService) GetServerMeta(requestTimeout time.Duration) (*nvidia_inferenceserver.ServerMetadataResponse, error) {
+func (m *ModelService) GetServerMeta(
+	requestTimeout time.Duration,
+) (*nvidia_inferenceserver.ServerMetadataResponse, error) {
 	return m.tritonService.ServerMetadata(requestTimeout)
 }
 
 // GetModelMeta get model meta
-func (m *ModelService) GetModelMeta(modelName, modelVersion string, requestTimeout time.Duration) (*nvidia_inferenceserver.ModelMetadataResponse, error) {
+func (m *ModelService) GetModelMeta(
+	modelName, modelVersion string, requestTimeout time.Duration,
+) (*nvidia_inferenceserver.ModelMetadataResponse, error) {
 	return m.tritonService.ModelMetadataRequest(modelName, modelVersion, requestTimeout)
 }
 
 // GetAllModelInfo get all model info
-func (m *ModelService) GetAllModelInfo(repoName string, isReady bool, requestTimeout time.Duration) (*nvidia_inferenceserver.RepositoryIndexResponse, error) {
+func (m *ModelService) GetAllModelInfo(
+	repoName string, isReady bool, requestTimeout time.Duration,
+) (*nvidia_inferenceserver.RepositoryIndexResponse, error) {
 	return m.tritonService.ModelIndex(repoName, isReady, requestTimeout)
 }
 
 // GetModelConfig get model config
-func (m *ModelService) GetModelConfig(modelName, modelVersion string, requestTimeout time.Duration) (interface{}, error) {
+func (m *ModelService) GetModelConfig(
+	modelName, modelVersion string, requestTimeout time.Duration,
+) (interface{}, error) {
 	return m.tritonService.ModelConfiguration(modelName, modelVersion, requestTimeout)
 }
 
 // GetModelInferStats get model infer stats
-func (m *ModelService) GetModelInferStats(modelName, modelVersion string, requestTimeout time.Duration) (*nvidia_inferenceserver.ModelStatisticsResponse, error) {
+func (m *ModelService) GetModelInferStats(
+	modelName, modelVersion string, requestTimeout time.Duration,
+) (*nvidia_inferenceserver.ModelStatisticsResponse, error) {
 	return m.tritonService.ModelInferStats(modelName, modelVersion, requestTimeout)
 }
 
 // ModelInfer API to call Triton Inference Server
-func (m *ModelService) ModelInfer(inferData []string, modelName, modelVersion string, requestTimeout time.Duration) ([]interface{}, error) {
+func (m *ModelService) ModelInfer(
+	inferData []string,
+	modelName, modelVersion string,
+	requestTimeout time.Duration,
+	params ...interface{},
+) ([]interface{}, error) {
 	// Create request input/output tensors
 	inferInputs := m.generateModelInferRequest(len(inferData), m.maxSeqLength)
-	inferOutputs := m.generateModelInferOutputRequest()
+	inferOutputs := m.generateModelInferOutputRequest(params...)
 	if m.isGRPC {
 		// GRPC Infer
-		grpcRawInputs, grpcInputData, err := m.generateGRPCRequest(inferData)
+		grpcRawInputs, grpcInputData, err := m.generateGRPCRequest(inferData, inferInputs)
 		if err != nil {
 			return nil, err
 		}
 		if grpcRawInputs == nil {
 			return nil, errors.New("grpc request body is nil")
 		}
-		return m.tritonService.ModelGRPCInfer(inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion, requestTimeout, m.inferCallback, m, grpcInputData)
+		return m.tritonService.ModelGRPCInfer(
+			inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion, requestTimeout,
+			m.inferCallback, m, grpcInputData, params,
+		)
 	}
 	httpRequestBody, httpInputData, err := m.generateHTTPRequest(inferData, inferInputs, inferOutputs)
 	if err != nil {
@@ -289,7 +359,10 @@ func (m *ModelService) ModelInfer(inferData []string, modelName, modelVersion st
 		return nil, errors.New("http request body is nil")
 	}
 	// HTTP Infer
-	return m.tritonService.ModelHTTPInfer(httpRequestBody, modelName, modelVersion, requestTimeout, m.inferCallback, m, httpInputData)
+	return m.tritonService.ModelHTTPInfer(
+		httpRequestBody, modelName, modelVersion, requestTimeout,
+		m.inferCallback, m, httpInputData, params,
+	)
 }
 
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
