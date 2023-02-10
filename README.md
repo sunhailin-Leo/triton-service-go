@@ -134,6 +134,9 @@ func main() {
 
 ### Version
 
+* version 1.3.3 - 2023/02/10
+  * add API to return word offsets
+
 * version 1.3.2 - 2023/02/10
   * update API support more params before infer or after infer.
 

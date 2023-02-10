@@ -28,6 +28,7 @@ const (
 type ModelService struct {
 	isGRPC                          bool
 	isChinese                       bool
+	isReturnPosArray                bool
 	maxSeqLength                    int
 	modelName                       string
 	tritonService                   *nvidia_inferenceserver.TritonClientService
@@ -80,6 +81,18 @@ func (m *ModelService) GetTokenizerIsChineseMode() bool {
 	return m.isChinese
 }
 
+// SetTokenizerReturnPosInfo Set tokenizer return pos info
+func (m *ModelService) SetTokenizerReturnPosInfo() *ModelService {
+	m.isReturnPosArray = true
+	return m
+}
+
+// UnsetTokenizerReturnPosInfo Un-set tokenizer return pos info
+func (m *ModelService) UnsetTokenizerReturnPosInfo() *ModelService {
+	m.isReturnPosArray = false
+	return m
+}
+
 // SetModelName Set model name must equal to Triton config.pbtxt model name
 func (m *ModelService) SetModelName(modelPrefix, modelName string) *ModelService {
 	m.modelName = modelPrefix + "-" + modelName
@@ -96,9 +109,19 @@ func (m *ModelService) GetModelName() string { return m.modelName }
 // getTokenizerResult Get Tokenizer result from different tokenizers
 func (m *ModelService) getTokenizerResult(inferData string) []string {
 	if m.isChinese {
-		return GetStrings(m.BertTokenizer.TokenizeChinese(inferData))
+		return GetStrings(m.BertTokenizer.TokenizeChinese(strings.ToLower(inferData)))
 	}
 	return GetStrings(m.BertTokenizer.Tokenize(inferData))
+}
+
+// getTokenizerResultWithOffsets Get Tokenizer result from different tokenizers with offsets
+func (m *ModelService) getTokenizerResultWithOffsets(inferData string) ([]string, []OffsetsType) {
+	if m.isChinese {
+		tokenizerResult := m.BertTokenizer.TokenizeChinese(strings.ToLower(inferData))
+		return GetStrings(tokenizerResult), GetOffsets(tokenizerResult)
+	}
+	tokenizerResult := m.BertTokenizer.Tokenize(inferData)
+	return GetStrings(tokenizerResult), GetOffsets(tokenizerResult)
 }
 
 // getBertInputFeature Get Bert Feature (before Make HTTP or GRPC Request)
@@ -117,10 +140,15 @@ func (m *ModelService) getBertInputFeature(inferData string) (*InputFeature, *In
 		Mask:     make([]int32, m.maxSeqLength),
 		TypeIDs:  make([]int32, m.maxSeqLength),
 	}
+	inputObjects := &InputObjects{Input: inferData}
 	// inferData only a short text, so it`s length always 1.
 	// truncate w/ space for CLS/SEP, 1 for sequence length and 1 for the last index
 	sequence := make([][]string, 1)
-	sequence[0] = m.getTokenizerResult(inferData)
+	if m.isReturnPosArray {
+		sequence[0], inputObjects.PosArray = m.getTokenizerResultWithOffsets(inferData)
+	} else {
+		sequence[0] = m.getTokenizerResult(inferData)
+	}
 	sequence = utils.StringSliceTruncate(sequence, int(m.maxSeqLength)-2)
 	for i := 0; i <= len(sequence[0])+1; i++ {
 		feature.Mask[i] = 1
@@ -135,9 +163,10 @@ func (m *ModelService) getBertInputFeature(inferData string) (*InputFeature, *In
 			feature.Tokens[i] = sequence[0][i-1]
 		}
 	}
+	inputObjects.Tokens = feature.Tokens
 	// for data gc
 	sequence = nil
-	return feature, &InputObjects{Input: inferData, Tokens: feature.Tokens}
+	return feature, inputObjects
 }
 
 // generateHTTPOutputs For HTTP Output
