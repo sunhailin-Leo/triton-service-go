@@ -13,6 +13,7 @@ Triton Inference Server - Golang API
 
 ### Feature
 
+* Based On `Golang 1.18`
 * Support HTTP/GRPC
 * Easy to use it
 * Maybe High Performance
@@ -78,9 +79,9 @@ func testGenerateModelInferRequest(batchSize, maxSeqLength int) []*nvidia_infere
 
 // testGenerateModelInferOutputRequest Triton Output
 func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
-  return []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor{
-	  {
-            Name: tBertModelOutputProbabilitiesKey,
+    return []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor{
+	    {
+			Name: tBertModelOutputProbabilitiesKey,
             Parameters: map[string]*nvidia_inferenceserver.InferParameter{
                 tBertModelRespBodyOutputBinaryDataKey: {
                     ParameterChoice: &nvidia_inferenceserver.InferParameter_BoolParam{BoolParam: false},
@@ -89,8 +90,8 @@ func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_infere
                     ParameterChoice: &nvidia_inferenceserver.InferParameter_Int64Param{Int64Param: 1},
                 },
             },
-	  },
-  }
+	    },
+    }
 }
 
 // testModerInferCallback infer call back (process model infer data)
