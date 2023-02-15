@@ -135,6 +135,9 @@ func main() {
 
 ### Version
 
+* version 1.3.4 - 2023/02/15
+  * fix grpc input order
+
 * version 1.3.3 - 2023/02/10
   * add API to return word offsets
 
