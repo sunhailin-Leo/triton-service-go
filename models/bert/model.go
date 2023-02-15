@@ -280,18 +280,18 @@ func (m *ModelService) generateGRPCRequest(
 			switch inputTensor.Name {
 			case ModelBertModelSegmentIdsKey:
 				segmentIdsBytes = append(
-					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TypeIDs, inputTensor.Datatype),
-					segmentIdsBytes...,
+					segmentIdsBytes,
+					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TypeIDs, inputTensor.Datatype)...,
 				)
 			case ModelBertModelInputIdsKey:
 				inputIdsBytes = append(
-					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TokenIDs, inputTensor.Datatype),
-					inputIdsBytes...,
+					inputIdsBytes,
+					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TokenIDs, inputTensor.Datatype)...,
 				)
 			case ModelBertModelInputMaskKey:
 				inputMaskBytes = append(
-					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.Mask, inputTensor.Datatype),
-					inputMaskBytes...,
+					inputMaskBytes,
+					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.Mask, inputTensor.Datatype)...,
 				)
 			}
 		}
