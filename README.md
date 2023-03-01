@@ -135,6 +135,9 @@ func main() {
 
 ### Version
 
+* version 1.3.5 - 2023/03/01
+  * fix http response callback error
+
 * version 1.3.4 - 2023/02/15
   * fix grpc input order
 

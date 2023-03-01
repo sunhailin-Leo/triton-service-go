@@ -26,6 +26,7 @@ const (
 )
 
 type ModelService struct {
+	//isTraceDuration                 bool
 	isGRPC                          bool
 	isChinese                       bool
 	isReturnPosArray                bool
@@ -40,6 +41,18 @@ type ModelService struct {
 }
 
 ////////////////////////////////////////////////// Flag Switch API //////////////////////////////////////////////////
+
+//// SetModelInferWithTrace Set model infer trace obj
+//func (m *ModelService) SetModelInferWithTrace() *ModelService {
+//	m.isTraceDuration = true
+//	return m
+//}
+//
+//// UnsetModelInferWithTrace unset model infer trace obj
+//func (m *ModelService) UnsetModelInferWithTrace() *ModelService {
+//	m.isTraceDuration = false
+//	return m
+//}
 
 // SetMaxSeqLength Set model infer max sequence length
 func (m *ModelService) SetMaxSeqLength(maxSeqLen int) *ModelService {
