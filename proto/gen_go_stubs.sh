@@ -32,5 +32,5 @@ PACKAGE_PATH="nvidia_inferenceserver"
 
 mkdir -p ../${PACKAGE_PATH}
 # Requires protoc and protoc-gen-go plugin: https://github.com/golang/protobuf#installation
-protoc -I . --go_out=plugins=grpc:../${PACKAGE_PATH} model_config.proto grpc_service.proto
+protoc -I . --go_out=plugins=grpc:../${PACKAGE_PATH} model_config.proto grpc_service.proto health.proto
 

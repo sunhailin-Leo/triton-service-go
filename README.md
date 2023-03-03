@@ -7,7 +7,7 @@ Triton Inference Server - Golang API
 ### Attention
 
 * ~~Currently only supported up to version 21.05 (Triton Inference Server), but compatible with 9x% of 22.07 versions~~
-* Currently supported base on version 22.07
+* Currently supported base on version 23.02
 
 ---
 
@@ -134,6 +134,12 @@ func main() {
 ---
 
 ### Version
+
+* version 1.3.7 - 2023/03/03
+  * update grpc proto and grpc codes to compatible triton inference server 23.02
+
+* version 1.3.6 - 2023/03/01
+  * fix version error
 
 * version 1.3.5 - 2023/03/01
   * fix http response callback error
