@@ -135,6 +135,9 @@ func main() {
 
 ### Version
 
+* version 1.3.8 - 2023/03/06
+  * update `go.mod`
+
 * version 1.3.7 - 2023/03/03
   * update grpc proto and grpc codes to compatible triton inference server 23.02
 
