@@ -7,17 +7,13 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+var asciiWhitespace = [256]bool{' ': true, '\t': true, '\n': true, '\r': true}
+
 // IsWhitespace checks whether rune c is a BERT whitespace character
+//go:inline
 func IsWhitespace(c rune) bool {
-	switch c {
-	case ' ':
-		return true
-	case '\t':
-		return true
-	case '\n':
-		return true
-	case '\r':
-		return true
+	if c <= 0xFF {
+		return asciiWhitespace[c]
 	}
 	return unicode.Is(unicode.Zs, c)
 }
@@ -103,7 +99,7 @@ func CleanAndPadChineseWithWhiteSpace(text string) []string {
 	return strings.Fields(strings.TrimSpace(b.String()))
 }
 
-// StripAccentsAndLower stripAccentsAndLower
+// StripAccentsAndLower strip accents and lower
 func StripAccentsAndLower(text string) string {
 	var b strings.Builder
 	for _, c := range norm.NFD.String(text) {
@@ -118,7 +114,7 @@ func StripAccentsAndLower(text string) string {
 	return b.String()
 }
 
-// SplitPunctuation splitPunctuation
+// SplitPunctuation split punctuation
 func SplitPunctuation(text string) (toks []string) {
 	var b strings.Builder
 	for _, c := range text {

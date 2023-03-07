@@ -60,7 +60,7 @@ func GetOffsets(tokens []StringOffsetsPair) []OffsetsType {
 // BaseTokenizer is a straightforward tokenizer implementations, which
 // splits by whitespace and punctuation characters.
 type BaseTokenizer struct {
-	specialWords map[string]bool
+	specialWords map[string]struct{}
 }
 
 // OptionV1 allows to configure a new BaseTokenizer with your specific needs.
@@ -70,7 +70,7 @@ type OptionV1 func(*BaseTokenizer)
 func RegisterSpecialWords(specialWords ...string) OptionV1 {
 	return func(f *BaseTokenizer) {
 		for _, word := range specialWords {
-			f.specialWords[word] = true
+			f.specialWords[word] = struct{}{}
 		}
 	}
 }
@@ -78,7 +78,7 @@ func RegisterSpecialWords(specialWords ...string) OptionV1 {
 // NewBaseTokenizer returns a new base tokenizer ready to use.
 func NewBaseTokenizer(opts ...OptionV1) *BaseTokenizer {
 	t := &BaseTokenizer{
-		specialWords: make(map[string]bool),
+		specialWords: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
 		opt(t)
@@ -91,16 +91,14 @@ func NewBaseTokenizer(opts ...OptionV1) *BaseTokenizer {
 // The resulting tokens preserve the alignment with the portion of the original text they belong to.
 func (t *BaseTokenizer) Tokenize(text string) []StringOffsetsPair {
 	splitTokens := make([]StringOffsetsPair, 0)
-	spaceTokens := t.splitOn(text, utils.IsWhitespace, false)
 
-	for _, spaceToken := range spaceTokens {
+	for _, spaceToken := range t.splitOn(text, utils.IsWhitespace, false) {
 		if _, isSpecial := t.specialWords[spaceToken.String]; isSpecial {
 			splitTokens = append(splitTokens, spaceToken)
 			continue // TODO: this is temporary solution to don't split special tokens further; improve it.
 		}
 
-		puncTokens := t.splitOn(spaceToken.String, utils.IsPunctuation, true)
-		for _, puncToken := range puncTokens {
+		for _, puncToken := range t.splitOn(spaceToken.String, utils.IsPunctuation, true) {
 			splitTokens = append(splitTokens, StringOffsetsPair{
 				String: puncToken.String,
 				Offsets: OffsetsType{
@@ -116,16 +114,14 @@ func (t *BaseTokenizer) Tokenize(text string) []StringOffsetsPair {
 // TokenizeChinese Like Tokenize but focus on Chinese
 func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 	splitTokens := make([]StringOffsetsPair, 0)
-	spaceTokens := t.splitOnChinese(text, utils.IsWhiteSpaceOrChinese, false)
 
-	for _, spaceToken := range spaceTokens {
+	for _, spaceToken := range t.splitOnChinese(text, utils.IsWhiteSpaceOrChinese, false) {
 		if _, isSpecial := t.specialWords[spaceToken.String]; isSpecial {
 			splitTokens = append(splitTokens, spaceToken)
 			continue // TODO: this is temporary solution to don't split special tokens further; improve it.
 		}
 
-		puncTokens := t.splitOnChinese(utils.StripAccentsAndLower(spaceToken.String), utils.IsPunctuation, true)
-		for _, puncToken := range puncTokens {
+		for _, puncToken := range t.splitOnChinese(utils.StripAccentsAndLower(spaceToken.String), utils.IsPunctuation, true) {
 			splitTokens = append(splitTokens, StringOffsetsPair{
 				String: puncToken.String,
 				Offsets: OffsetsType{
@@ -141,8 +137,8 @@ func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 // splitOn splits the given string as the `shouldSplit` predicate dictates.
 // It keeps track of the offsets.
 func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includeSplitToken bool) []StringOffsetsPair {
-	words := make([]StringOffsetsPair, 0)
-	word := make([]rune, 0)
+	words := make([]StringOffsetsPair, 0, len(text)/2)
+	var word []rune
 
 	offset := 0
 	for _, r := range text {
@@ -183,8 +179,8 @@ func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includ
 // splitOnChinese splits the given string as the `shouldSplit` predicate dictates.
 // It keeps track of the offsets.
 func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool, includeSplitToken bool) []StringOffsetsPair {
-	words := make([]StringOffsetsPair, 0)
-	word := make([]rune, 0)
+	words := make([]StringOffsetsPair, 0, len(text)/2)
+	var word []rune
 
 	offset := 0
 	for _, r := range text {
