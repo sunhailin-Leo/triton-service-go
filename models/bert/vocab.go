@@ -47,8 +47,8 @@ func VocabFromSlice(vocabArr []string) (Dict, error) {
 		return Dict{}, errors.New("empty vocab")
 	}
 	voc := Dict{tokens: map[string]ID{}}
-	for _, vocab := range vocabArr {
-		voc.Add(vocab)
+	for i := range vocabArr {
+		voc.Add(vocabArr[i])
 	}
 	return voc, nil
 }
@@ -56,8 +56,8 @@ func VocabFromSlice(vocabArr []string) (Dict, error) {
 // New will return a vocab dict from the given tokens, IDs will match index
 func New(tokens []string) Dict {
 	v := make(map[string]ID, len(tokens))
-	for i, t := range tokens {
-		v[t] = ID(i)
+	for i := range tokens {
+		v[tokens[i]] = ID(i)
 	}
 	return Dict{tokens: v}
 }
@@ -96,8 +96,8 @@ func (v Dict) LongestSubstring(token string) string {
 // ConvertItems convert items to ids
 func (v Dict) ConvertItems(items []string) []ID {
 	ids := make([]ID, len(items))
-	for i, m := range items {
-		ids[i] = v.tokens[m]
+	for i := range items {
+		ids[i] = v.tokens[items[i]]
 	}
 	return ids
 }
@@ -107,6 +107,7 @@ func (v Dict) ConvertTokens(tokens []string) []ID {
 	return v.ConvertItems(tokens)
 }
 
+// IsInVocab token is in vocabs
 func (v Dict) IsInVocab(token string) bool {
 	_, exists := v.tokens[token]
 	return exists

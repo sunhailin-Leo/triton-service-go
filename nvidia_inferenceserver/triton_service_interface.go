@@ -13,8 +13,6 @@ import (
 
 const (
 	HTTPPrefix                           string = "http://"
-	HttpPostMethod                       string = "POST"
-	HttpGetMethod                        string = "GET"
 	JsonContentType                      string = "application/json"
 	TritonAPIForModelVersionPrefix       string = "/versions/"
 	TritonAPIPrefix                      string = "/v2"
@@ -42,20 +40,11 @@ type TritonGRPCService interface {
 	ServerMetadata(timeout time.Duration) (*ServerMetadataResponse, error)
 	// ModelGRPCInfer Call triton inference server infer with GRPC
 	ModelGRPCInfer(
-		inferInputs []*ModelInferRequest_InferInputTensor,
-		inferOutputs []*ModelInferRequest_InferRequestedOutputTensor,
-		rawInputs [][]byte,
-		modelName, modelVersion string,
-		timeout time.Duration,
-		decoderFunc DecoderFunc,
-		params ...interface{},
+		inferInputs []*ModelInferRequest_InferInputTensor, inferOutputs []*ModelInferRequest_InferRequestedOutputTensor,
+		rawInputs [][]byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc, params ...interface{},
 	) ([]interface{}, error)
 	// ModelHTTPInfer all triton inference server infer with HTTP
-	ModelHTTPInfer(
-		requestBody []byte,
-		modelName, modelVersion string,
-		timeout time.Duration,
-		decoderFunc DecoderFunc, params ...interface{}) ([]interface{}, error)
+	ModelHTTPInfer(requestBody []byte, modelName, modelVersion string, timeout time.Duration, decoderFunc DecoderFunc, params ...interface{}) ([]interface{}, error)
 	// ModelMetadataRequest Get triton inference server`s model metadata.
 	ModelMetadataRequest(modelName, modelVersion string, timeout time.Duration) (*ModelMetadataResponse, error)
 	// ModelIndex Get triton inference server model index.
@@ -143,26 +132,11 @@ func (t *TritonClientService) acquireHttpRequest(method string) *fasthttp.Reques
 	return httpRequestPool
 }
 
-// releaseHttpRequest
-func (t *TritonClientService) releaseHttpRequest(requestObj *fasthttp.Request) {
-	fasthttp.ReleaseRequest(requestObj)
-}
-
-// acquireHttpResponse
-func (t *TritonClientService) acquireHttpResponse() *fasthttp.Response {
-	return fasthttp.AcquireResponse()
-}
-
-// releaseHttpResponse
-func (t *TritonClientService) releaseHttpResponse(responseObj *fasthttp.Response) {
-	fasthttp.ReleaseResponse(responseObj)
-}
-
 // makeHttpPostRequestWithDoTimeout
 func (t *TritonClientService) makeHttpPostRequestWithDoTimeout(uri string, reqBody []byte, timeout time.Duration) (*fasthttp.Response, error) {
-	requestObj := t.acquireHttpRequest(HttpPostMethod)
-	responseObj := t.acquireHttpResponse()
-	defer t.releaseHttpRequest(requestObj)
+	requestObj := t.acquireHttpRequest(fasthttp.MethodPost)
+	responseObj := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseRequest(requestObj)
 
 	requestObj.SetRequestURI(uri)
 	if reqBody != nil {
@@ -176,9 +150,9 @@ func (t *TritonClientService) makeHttpPostRequestWithDoTimeout(uri string, reqBo
 
 // makeHttpGetRequestWithDoTimeout
 func (t *TritonClientService) makeHttpGetRequestWithDoTimeout(uri string, timeout time.Duration) (*fasthttp.Response, error) {
-	requestObj := t.acquireHttpRequest(HttpGetMethod)
-	responseObj := t.acquireHttpResponse()
-	defer t.releaseHttpRequest(requestObj)
+	requestObj := t.acquireHttpRequest(fasthttp.MethodGet)
+	responseObj := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseRequest(requestObj)
 
 	requestObj.SetRequestURI(uri)
 	if httpErr := t.httpClient.DoTimeout(requestObj, responseObj, timeout); httpErr != nil {
@@ -249,7 +223,7 @@ func (t *TritonClientService) ModelHTTPInfer(
 		HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/infer",
 		requestBody,
 		timeout)
-	defer t.releaseHttpResponse(modelInferResponse)
+	defer fasthttp.ReleaseResponse(modelInferResponse)
 
 	if inferErr != nil || modelInferResponse.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(modelInferResponse.StatusCode(), inferErr)
@@ -299,7 +273,7 @@ func (t *TritonClientService) CheckServerAlive(timeout time.Duration) (bool, err
 		return serverLiveResponse.Live, nil
 	} else {
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForServerIsLive, nil, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return false, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -321,7 +295,7 @@ func (t *TritonClientService) CheckServerReady(timeout time.Duration) (bool, err
 		return serverReadyResponse.Ready, nil
 	} else {
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForServerIsReady, nil, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return false, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -343,7 +317,7 @@ func (t *TritonClientService) CheckModelReady(modelName, modelVersion string, ti
 		return modelReadyResponse.Ready, nil
 	} else {
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/ready", nil, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return false, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -362,7 +336,7 @@ func (t *TritonClientService) ServerMetadata(timeout time.Duration) (*ServerMeta
 		return serverMetadataResponse, t.grpcErrorHandler(serverMetaErr)
 	} else {
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIPrefix, nil, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -385,7 +359,7 @@ func (t *TritonClientService) ModelMetadataRequest(modelName, modelVersion strin
 		return modelMetadataResponse, t.grpcErrorHandler(modelMetaErr)
 	} else {
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion, nil, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -412,7 +386,7 @@ func (t *TritonClientService) ModelIndex(repoName string, isReady bool, timeout 
 			return nil, jsonEncodeErr
 		}
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForRepoIndex, reqBody, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -434,7 +408,7 @@ func (t *TritonClientService) ModelConfiguration(modelName, modelVersion string,
 		return modelConfigResponse, t.grpcErrorHandler(getModelConfigErr)
 	} else {
 		apiResp, httpErr := t.makeHttpGetRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/config", timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -456,7 +430,7 @@ func (t *TritonClientService) ModelInferStats(modelName, modelVersion string, ti
 		return modelStatisticsResponse, t.grpcErrorHandler(getInferStatsErr)
 	} else {
 		apiResp, httpErr := t.makeHttpGetRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/stats", timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -473,7 +447,7 @@ func (t *TritonClientService) ModelInferStats(modelName, modelVersion string, ti
 // modelConfigBody ==> https://github.com/triton-inference-server/server/blob/main/docs/protocol/extension_model_repository.md#examples
 func (t *TritonClientService) ModelLoadWithHTTP(modelName string, modelConfigBody []byte, timeout time.Duration) (*RepositoryModelLoadResponse, error) {
 	apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForRepoModelPrefix+modelName+"/load", modelConfigBody, timeout)
-	defer t.releaseHttpResponse(apiResp)
+	defer fasthttp.ReleaseResponse(apiResp)
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -553,7 +527,7 @@ func (t *TritonClientService) ShareMemoryStatus(isCUDA bool, regionName string, 
 			uri = HTTPPrefix + t.ServerURL + TritonAPIForSystemMemoryRegionPrefix + regionName + "/status"
 		}
 		apiResp, httpErr := t.makeHttpGetRequestWithDoTimeout(uri, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -594,7 +568,7 @@ func (t *TritonClientService) ShareCUDAMemoryRegister(regionName string, cudaRaw
 			return nil, jsonEncodeErr
 		}
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForCudaMemoryRegionPrefix+regionName+"/register", reqBody, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -617,7 +591,7 @@ func (t *TritonClientService) ShareCUDAMemoryUnRegister(regionName string, timeo
 		return cudaSharedMemoryUnRegisterResponse, t.grpcErrorHandler(unRegisterErr)
 	} else {
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForCudaMemoryRegionPrefix+regionName+"/unregister", nil, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -649,7 +623,7 @@ func (t *TritonClientService) ShareSystemMemoryRegister(regionName, cpuMemRegion
 			return nil, jsonEncodeErr
 		}
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForSystemMemoryRegionPrefix+regionName+"/register", reqBody, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -672,7 +646,7 @@ func (t *TritonClientService) ShareSystemMemoryUnRegister(regionName string, tim
 		return systemSharedMemoryUnRegisterResponse, t.grpcErrorHandler(unRegisterErr)
 	} else {
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForSystemMemoryRegionPrefix+regionName+"/unregister", nil, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -695,7 +669,7 @@ func (t *TritonClientService) GetModelTracingSetting(modelName string, timeout t
 		return traceSettingResponse, t.grpcErrorHandler(getTraceSettingErr)
 	} else {
 		apiResp, httpErr := t.makeHttpGetRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+"/trace/setting", timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -723,7 +697,7 @@ func (t *TritonClientService) SetModelTracingSetting(modelName string, settingMa
 			return nil, jsonEncodeErr
 		}
 		apiResp, httpErr := t.makeHttpPostRequestWithDoTimeout(HTTPPrefix+t.ServerURL+TritonAPIForModelPrefix+modelName+"/trace/setting", reqBody, timeout)
-		defer t.releaseHttpResponse(apiResp)
+		defer fasthttp.ReleaseResponse(apiResp)
 		if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 			return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 		}
@@ -760,10 +734,10 @@ func NewTritonClientWithOnlyHttp(uri string, httpClient *fasthttp.Client) *Trito
 
 // NewTritonClientWithOnlyGRPC init triton client
 func NewTritonClientWithOnlyGRPC(grpcConn *grpc.ClientConn) *TritonClientService {
-	client := &TritonClientService{
-		grpcConn:   grpcConn,
-		grpcClient: NewGRPCInferenceServiceClient(grpcConn),
+	if grpcConn == nil {
+		return nil
 	}
+	client := &TritonClientService{grpcConn: grpcConn, grpcClient: NewGRPCInferenceServiceClient(grpcConn)}
 	return client
 }
 

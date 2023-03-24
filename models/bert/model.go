@@ -108,6 +108,7 @@ func (m *ModelService) UnsetTokenizerReturnPosInfo() *ModelService {
 
 // SetModelName Set model name must equal to Triton config.pbtxt model name
 func (m *ModelService) SetModelName(modelPrefix, modelName string) *ModelService {
+	// TODO maybe not use dash to separate modelPrefix and modelName
 	m.modelName = modelPrefix + "-" + modelName
 	return m
 }
@@ -187,15 +188,15 @@ func (m *ModelService) generateHTTPOutputs(
 	inferOutputs []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor,
 ) []HTTPOutput {
 	requestOutputs := make([]HTTPOutput, len(inferOutputs))
-	for i, output := range inferOutputs {
-		requestOutputs[i] = HTTPOutput{Name: output.Name}
-		if _, ok := output.Parameters[ModelRespBodyOutputBinaryDataKey]; ok {
+	for i := range inferOutputs {
+		requestOutputs[i] = HTTPOutput{Name: inferOutputs[i].Name}
+		if _, ok := inferOutputs[i].Parameters[ModelRespBodyOutputBinaryDataKey]; ok {
 			requestOutputs[i].Parameters.BinaryData =
-				output.Parameters[ModelRespBodyOutputBinaryDataKey].GetBoolParam()
+				inferOutputs[i].Parameters[ModelRespBodyOutputBinaryDataKey].GetBoolParam()
 		}
-		if _, ok := output.Parameters[ModelRespBodyOutputClassificationDataKey]; ok {
+		if _, ok := inferOutputs[i].Parameters[ModelRespBodyOutputClassificationDataKey]; ok {
 			requestOutputs[i].Parameters.Classification =
-				output.Parameters[ModelRespBodyOutputClassificationDataKey].GetInt64Param()
+				inferOutputs[i].Parameters[ModelRespBodyOutputClassificationDataKey].GetInt64Param()
 		}
 	}
 	return requestOutputs
@@ -212,18 +213,17 @@ func (m *ModelService) generateHTTPInputs(
 	batchRequestInputs := make([]HTTPBatchInput, len(inferInputs))
 
 	inferDataObjs := make([][][]int32, len(inferDataArr))
-	for i, inferData := range inferDataArr {
-		feature, inputObject := m.getBertInputFeature(inferData)
+	for i := range inferDataArr {
+		feature, inputObject := m.getBertInputFeature(inferDataArr[i])
 		batchModelInputObjs[i] = inputObject
 		inferDataObjs[i] = [][]int32{feature.TypeIDs, feature.TokenIDs, feature.Mask}
 	}
 	inferDataObjs = utils.SliceTransposeFor3D(inferDataObjs)
-
-	for i, input := range inferInputs {
+	for i := range inferInputs {
 		batchRequestInputs[i] = HTTPBatchInput{
-			Name:     input.Name,
-			Shape:    input.Shape,
-			DataType: input.Datatype,
+			Name:     inferInputs[i].Name,
+			Shape:    inferInputs[i].Shape,
+			DataType: inferInputs[i].Datatype,
 			Data:     inferDataObjs[i],
 		}
 	}
@@ -249,9 +249,7 @@ func (m *ModelService) generateHTTPRequest(
 }
 
 // grpcInt32SliceToLittleEndianByteSlice int32 slice to byte slice with little endian
-func (m *ModelService) grpcInt32SliceToLittleEndianByteSlice(
-	maxLen int, input []int32, inputType string,
-) []byte {
+func (m *ModelService) grpcInt32SliceToLittleEndianByteSlice(maxLen int, input []int32, inputType string) []byte {
 	if inputType == ModelInt32DataType {
 		var returnByte []byte
 		bs := make([]byte, 4)
@@ -283,28 +281,28 @@ func (m *ModelService) generateGRPCRequest(
 	// size is: len(inferDataArr) * m.maxSeqLength * 4
 	var segmentIdsBytes, inputIdsBytes, inputMaskBytes []byte
 	batchModelInputObjs := make([]*InputObjects, len(inferDataArr))
-	for i, data := range inferDataArr {
-		feature, inputObject := m.getBertInputFeature(data)
+	for i := range inferDataArr {
+		feature, inputObject := m.getBertInputFeature(inferDataArr[i])
 		// feature.TypeIDs  == segment_ids
 		// feature.TokenIDs == input_ids
 		// feature.Mask     == input_mask
 		// Temp variable to hold out converted int32 -> []byte
-		for _, inputTensor := range inferInputTensor {
-			switch inputTensor.Name {
+		for j := range inferInputTensor {
+			switch inferInputTensor[j].Name {
 			case ModelBertModelSegmentIdsKey:
 				segmentIdsBytes = append(
 					segmentIdsBytes,
-					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TypeIDs, inputTensor.Datatype)...,
+					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TypeIDs, inferInputTensor[j].Datatype)...,
 				)
 			case ModelBertModelInputIdsKey:
 				inputIdsBytes = append(
 					inputIdsBytes,
-					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TokenIDs, inputTensor.Datatype)...,
+					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.TokenIDs, inferInputTensor[j].Datatype)...,
 				)
 			case ModelBertModelInputMaskKey:
 				inputMaskBytes = append(
 					inputMaskBytes,
-					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.Mask, inputTensor.Datatype)...,
+					m.grpcInt32SliceToLittleEndianByteSlice(m.maxSeqLength, feature.Mask, inferInputTensor[j].Datatype)...,
 				)
 			}
 		}
@@ -403,7 +401,7 @@ func (m *ModelService) ModelInfer(
 	// HTTP Infer
 	return m.tritonService.ModelHTTPInfer(
 		httpRequestBody, modelName, modelVersion, requestTimeout,
-		m.inferCallback, m, httpInputData, params,
+		m.inferCallback, m, httpInputData,
 	)
 }
 

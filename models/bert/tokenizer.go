@@ -41,8 +41,8 @@ type OffsetsType struct {
 // of StringOffsetsPair.
 func GetStrings(tokens []StringOffsetsPair) []string {
 	result := make([]string, len(tokens))
-	for i, stringOffsetsPair := range tokens {
-		result[i] = stringOffsetsPair.String
+	for i := range tokens {
+		result[i] = tokens[i].String
 	}
 	return result
 }
@@ -51,8 +51,8 @@ func GetStrings(tokens []StringOffsetsPair) []string {
 // of StringOffsetsPair.
 func GetOffsets(tokens []StringOffsetsPair) []OffsetsType {
 	result := make([]OffsetsType, len(tokens))
-	for i, stringOffsetsPair := range tokens {
-		result[i] = stringOffsetsPair.Offsets
+	for i := range tokens {
+		result[i] = tokens[i].Offsets
 	}
 	return result
 }
@@ -69,8 +69,8 @@ type OptionV1 func(*BaseTokenizer)
 // RegisterSpecialWords is an option to register a special word.
 func RegisterSpecialWords(specialWords ...string) OptionV1 {
 	return func(f *BaseTokenizer) {
-		for _, word := range specialWords {
-			f.specialWords[word] = struct{}{}
+		for i := range specialWords {
+			f.specialWords[specialWords[i]] = struct{}{}
 		}
 	}
 }
@@ -80,8 +80,8 @@ func NewBaseTokenizer(opts ...OptionV1) *BaseTokenizer {
 	t := &BaseTokenizer{
 		specialWords: make(map[string]struct{}),
 	}
-	for _, opt := range opts {
-		opt(t)
+	for i := range opts {
+		opts[i](t)
 	}
 	return t
 }
@@ -91,19 +91,21 @@ func NewBaseTokenizer(opts ...OptionV1) *BaseTokenizer {
 // The resulting tokens preserve the alignment with the portion of the original text they belong to.
 func (t *BaseTokenizer) Tokenize(text string) []StringOffsetsPair {
 	splitTokens := make([]StringOffsetsPair, 0)
+	spaceTokens := t.splitOn(text, utils.IsWhitespace, false)
 
-	for _, spaceToken := range t.splitOn(text, utils.IsWhitespace, false) {
-		if _, isSpecial := t.specialWords[spaceToken.String]; isSpecial {
-			splitTokens = append(splitTokens, spaceToken)
+	for i := range spaceTokens {
+		if _, isSpecial := t.specialWords[spaceTokens[i].String]; isSpecial {
+			splitTokens = append(splitTokens, spaceTokens[i])
 			continue // TODO: this is temporary solution to don't split special tokens further; improve it.
 		}
 
-		for _, puncToken := range t.splitOn(spaceToken.String, utils.IsPunctuation, true) {
+		puncTokens := t.splitOn(spaceTokens[i].String, utils.IsPunctuation, true)
+		for j := range puncTokens {
 			splitTokens = append(splitTokens, StringOffsetsPair{
-				String: puncToken.String,
+				String: puncTokens[j].String,
 				Offsets: OffsetsType{
-					Start: spaceToken.Offsets.Start + puncToken.Offsets.Start,
-					End:   spaceToken.Offsets.Start + puncToken.Offsets.End,
+					Start: spaceTokens[i].Offsets.Start + puncTokens[j].Offsets.Start,
+					End:   spaceTokens[i].Offsets.Start + puncTokens[j].Offsets.End,
 				},
 			})
 		}
@@ -114,19 +116,21 @@ func (t *BaseTokenizer) Tokenize(text string) []StringOffsetsPair {
 // TokenizeChinese Like Tokenize but focus on Chinese
 func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 	splitTokens := make([]StringOffsetsPair, 0)
+	spaceTokens := t.splitOnChinese(text, utils.IsWhiteSpaceOrChinese, false)
 
-	for _, spaceToken := range t.splitOnChinese(text, utils.IsWhiteSpaceOrChinese, false) {
-		if _, isSpecial := t.specialWords[spaceToken.String]; isSpecial {
-			splitTokens = append(splitTokens, spaceToken)
+	for i := range spaceTokens {
+		if _, isSpecial := t.specialWords[spaceTokens[i].String]; isSpecial {
+			splitTokens = append(splitTokens, spaceTokens[i])
 			continue // TODO: this is temporary solution to don't split special tokens further; improve it.
 		}
 
-		for _, puncToken := range t.splitOnChinese(utils.StripAccentsAndLower(spaceToken.String), utils.IsPunctuation, true) {
+		puncTokens := t.splitOnChinese(utils.StripAccentsAndLower(spaceTokens[i].String), utils.IsPunctuation, true)
+		for j := range puncTokens {
 			splitTokens = append(splitTokens, StringOffsetsPair{
-				String: puncToken.String,
+				String: puncTokens[j].String,
 				Offsets: OffsetsType{
-					Start: spaceToken.Offsets.Start + puncToken.Offsets.Start,
-					End:   spaceToken.Offsets.Start + puncToken.Offsets.End,
+					Start: spaceTokens[i].Offsets.Start + puncTokens[j].Offsets.Start,
+					End:   spaceTokens[i].Offsets.Start + puncTokens[j].Offsets.End,
 				},
 			})
 		}
@@ -145,17 +149,11 @@ func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includ
 		if shouldSplit(r) {
 			wordLen := len(word)
 			if wordLen > 0 {
-				words = append(words, StringOffsetsPair{
-					String:  string(word),
-					Offsets: OffsetsType{Start: offset - wordLen, End: offset},
-				})
+				words = append(words, StringOffsetsPair{String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
 				word = make([]rune, 0, cap(word))
 			}
 			if includeSplitToken {
-				words = append(words, StringOffsetsPair{
-					String:  string(r),
-					Offsets: OffsetsType{Start: offset, End: offset + 1},
-				})
+				words = append(words, StringOffsetsPair{String: string(r), Offsets: OffsetsType{Start: offset, End: offset + 1}})
 			}
 		} else {
 			word = append(word, r)
@@ -166,10 +164,7 @@ func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includ
 	// Don't forget the potential last word
 	wordLen := len(word)
 	if wordLen > 0 {
-		words = append(words, StringOffsetsPair{
-			String:  string(word),
-			Offsets: OffsetsType{Start: offset - wordLen, End: offset},
-		})
+		words = append(words, StringOffsetsPair{String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
 	}
 	// for gc
 	word = nil
@@ -187,17 +182,11 @@ func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool,
 		if shouldSplit(r) {
 			wordLen := len(word)
 			if wordLen > 0 {
-				words = append(words, StringOffsetsPair{
-					String:  string(word),
-					Offsets: OffsetsType{Start: offset - wordLen, End: offset},
-				})
+				words = append(words, StringOffsetsPair{String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
 				word = make([]rune, 0, cap(word))
 			}
 			if includeSplitToken || utils.IsChinese(r) {
-				words = append(words, StringOffsetsPair{
-					String:  string(r),
-					Offsets: OffsetsType{Start: offset, End: offset + 1},
-				})
+				words = append(words, StringOffsetsPair{String: string(r), Offsets: OffsetsType{Start: offset, End: offset + 1}})
 			}
 		} else {
 			word = append(word, r)
@@ -208,10 +197,7 @@ func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool,
 	// Don't forget the potential last word
 	wordLen := len(word)
 	if wordLen > 0 {
-		words = append(words, StringOffsetsPair{
-			String:  string(word),
-			Offsets: OffsetsType{Start: offset - wordLen, End: offset},
-		})
+		words = append(words, StringOffsetsPair{String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
 	}
 	// for gc
 	word = nil
@@ -257,19 +243,14 @@ func (t *WordPieceTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 // The resulting tokens preserve the alignment with the portion of the original text they belong to.
 func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []StringOffsetsPair {
 	outputTokens := make([]StringOffsetsPair, 0)
-	for _, stringOffsetsPair := range tokens {
-		token := stringOffsetsPair.String
-		initialOffsets := stringOffsetsPair.Offsets
-		characters := []rune(token)
+	for i := range tokens {
+		characters := []rune(tokens[i].String)
 
 		if len(characters) > t.maxWordChars {
 			if t.vocabulary.GetID(t.unkToken) == -1 {
 				panic("Missing unk-token")
 			}
-			outputTokens = append(outputTokens, StringOffsetsPair{
-				String:  t.unkToken,
-				Offsets: initialOffsets,
-			})
+			outputTokens = append(outputTokens, StringOffsetsPair{String: t.unkToken, Offsets: tokens[i].Offsets})
 			continue
 		}
 
@@ -290,10 +271,7 @@ func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []Str
 				if t.vocabulary.GetID(subStr) != -1 {
 					found = true
 					curStrToken.String = subStr
-					curStrToken.Offsets = OffsetsType{
-						Start: initialOffsets.Start + start,
-						End:   initialOffsets.Start + end,
-					}
+					curStrToken.Offsets = OffsetsType{Start: tokens[i].Offsets.Start + start, End: tokens[i].Offsets.Start + end}
 					break
 				}
 				end--
@@ -310,10 +288,7 @@ func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []Str
 			if t.vocabulary.GetID(t.unkToken) == -1 {
 				panic("Missing unk-token")
 			}
-			outputTokens = append(outputTokens, StringOffsetsPair{
-				String:  t.unkToken,
-				Offsets: initialOffsets,
-			})
+			outputTokens = append(outputTokens, StringOffsetsPair{String: t.unkToken, Offsets: tokens[i].Offsets})
 		} else {
 			outputTokens = append(outputTokens, subTokens...)
 		}
@@ -341,14 +316,11 @@ type TokensRange struct {
 // the start and the end index of the tokens that form a complete word.
 func GroupPieces(tokens []StringOffsetsPair) []TokensRange {
 	groups := make([]TokensRange, 0)
-	for i, token := range tokens {
-		if strings.HasPrefix(token.String, NumPadToken) {
+	for i := range tokens {
+		if strings.HasPrefix(tokens[i].String, NumPadToken) {
 			groups[len(groups)-1].End = i
 		} else {
-			groups = append(groups, TokensRange{
-				Start: i,
-				End:   i,
-			})
+			groups = append(groups, TokensRange{Start: i, End: i})
 		}
 	}
 	return groups
@@ -358,8 +330,8 @@ func GroupPieces(tokens []StringOffsetsPair) []TokensRange {
 // elements from the given groups.
 func MakeOffsetPairsFromGroups(text string, tokens []StringOffsetsPair, groups []TokensRange) []StringOffsetsPair {
 	outputTokens := make([]StringOffsetsPair, len(groups))
-	for i, group := range groups {
-		startToken, endToken := tokens[group.Start], tokens[group.End]
+	for i := range groups {
+		startToken, endToken := tokens[groups[i].Start], tokens[groups[i].End]
 		outputTokens[i] = StringOffsetsPair{
 			String:  string([]rune(text)[startToken.Offsets.Start:endToken.Offsets.End]),
 			Offsets: OffsetsType{Start: startToken.Offsets.Start, End: endToken.Offsets.End},
