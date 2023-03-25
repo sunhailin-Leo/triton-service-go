@@ -1,13 +1,13 @@
 package nvidia_inferenceserver
 
 import (
+	"context"
 	"errors"
 	"strconv"
 	"time"
 
 	"github.com/goccy/go-json"
 	"github.com/valyala/fasthttp"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
