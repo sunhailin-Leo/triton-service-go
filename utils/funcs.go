@@ -9,7 +9,7 @@ import (
 
 var asciiWhitespace = [256]bool{' ': true, '\t': true, '\n': true, '\r': true}
 
-// IsWhitespace checks whether rune c is a BERT whitespace character
+// IsWhitespace checks whether rune c is a BERT whitespace character.
 //go:inline
 func IsWhitespace(c rune) bool {
 	if c <= 0xFF {
@@ -18,7 +18,7 @@ func IsWhitespace(c rune) bool {
 	return unicode.Is(unicode.Zs, c)
 }
 
-// IsControl checks whether rune c is a BERT control character
+// IsControl checks whether rune c is a BERT control character.
 func IsControl(c rune) bool {
 	switch c {
 	case '\t':
@@ -31,31 +31,32 @@ func IsControl(c rune) bool {
 	return unicode.In(c, unicode.Cc, unicode.Cf)
 }
 
-// IsPunctuation checks whether rune c is a BERT punctuation character
+// IsPunctuation checks whether rune c is a BERT punctuation character.
 func IsPunctuation(c rune) bool {
-	//return unicode.In(c, utils.Bp, unicode.P)
-	//return unicode.In(c, utils.AsciiPunctuation, unicode.P) && c != '-'
-	return unicode.In(c, AsciiPunctuation, unicode.P)
+	// return unicode.In(c, utils.Bp, unicode.P)
+	// return unicode.In(c, utils.AsciiPunctuation, unicode.P) && c != '-'
+	return unicode.In(c, ASCIIPunctuation, unicode.P)
 }
 
-// IsChinese validates that rune c is in the CJK range according to BERT spec
+// IsChinese validates that rune c is in the CJK range according to BERT spec.
 func IsChinese(c rune) bool {
 	// unicode.Is(unicode.Han, c)
 	return unicode.In(c, BertChineseChar, unicode.P)
 }
 
-// IsWhiteSpaceOrChinese validates that rune c is whitespace or is Chinese
+// IsWhiteSpaceOrChinese validates that rune c is whitespace or is Chinese.
 func IsWhiteSpaceOrChinese(c rune) bool {
 	return IsWhitespace(c) || IsChinese(c)
 }
 
-// Clean function will clear some characters
+// Clean function will clear some characters.
 func Clean(text string) string {
 	var b strings.Builder
 	for _, c := range text {
 		if c == 0 || c == 0xfffd || IsControl(c) {
 			continue
-		} else if IsWhitespace(c) {
+		}
+		if IsWhitespace(c) {
 			b.WriteRune(' ')
 		} else {
 			b.WriteRune(c)
@@ -65,7 +66,7 @@ func Clean(text string) string {
 }
 
 // PadChinese will add space padding around all CJK chars
-// This implementation matches BasicTokenizer._tokenize_chinese_chars
+// This implementation matches BasicTokenizer._tokenize_chinese_chars.
 func PadChinese(text string) string {
 	var b strings.Builder
 	for _, c := range text {
@@ -80,13 +81,14 @@ func PadChinese(text string) string {
 	return b.String()
 }
 
-// CleanAndPadChineseWithWhiteSpace combine three function clean, padChinese, tokenizeWhitespaceV1
+// CleanAndPadChineseWithWhiteSpace combine three function clean, padChinese, tokenizeWhitespaceV1.
 func CleanAndPadChineseWithWhiteSpace(text string) []string {
 	var b strings.Builder
 	for _, c := range text {
 		if c == 0 || c == 0xfffd || IsControl(c) {
 			continue
-		} else if IsChinese(c) {
+		}
+		if IsChinese(c) {
 			b.WriteRune(' ')
 			b.WriteRune(c)
 			b.WriteRune(' ')
@@ -99,7 +101,7 @@ func CleanAndPadChineseWithWhiteSpace(text string) []string {
 	return strings.Fields(strings.TrimSpace(b.String()))
 }
 
-// StripAccentsAndLower strip accents and lower
+// StripAccentsAndLower strip accents and lower.
 func StripAccentsAndLower(text string) string {
 	var b strings.Builder
 	for _, c := range norm.NFD.String(text) {
@@ -107,14 +109,14 @@ func StripAccentsAndLower(text string) string {
 			continue
 		}
 		b.WriteRune(unicode.ToLower(c))
-		//if !unicode.Is(unicode.Mn, c) {
+		// if !unicode.Is(unicode.Mn, c) {
 		//	b.WriteRune(unicode.ToLower(c))
-		//}
+		// }
 	}
 	return b.String()
 }
 
-// SplitPunctuation split punctuation
+// SplitPunctuation split punctuation.
 func SplitPunctuation(text string) (toks []string) {
 	var b strings.Builder
 	for _, c := range text {
@@ -132,8 +134,8 @@ func SplitPunctuation(text string) (toks []string) {
 	return
 }
 
-// AsciiPunctuation Ascii punctuation characters range
-var AsciiPunctuation = &unicode.RangeTable{
+// ASCIIPunctuation Ascii punctuation characters range.
+var ASCIIPunctuation = &unicode.RangeTable{
 	R16: []unicode.Range16{
 		{0x0021, 0x002f, 1}, // 33-47
 		{0x003a, 0x0040, 1}, // 58-64
@@ -143,7 +145,7 @@ var AsciiPunctuation = &unicode.RangeTable{
 	LatinOffset: 4, // All less than 0x00FF
 }
 
-// BertChineseChar maybe is the BERT Chinese Char...
+// BertChineseChar maybe is the BERT Chinese Char.
 var BertChineseChar = &unicode.RangeTable{
 	R16: []unicode.Range16{
 		{0x4e00, 0x9fff, 1},
@@ -159,7 +161,7 @@ var BertChineseChar = &unicode.RangeTable{
 	},
 }
 
-// StringSliceTruncate truncate uses heuristic of trimming seq with longest len until sequenceLen satisfied
+// StringSliceTruncate truncate uses heuristic of trimming seq with longest len until sequenceLen satisfied.
 func StringSliceTruncate(sequence [][]string, maxLen int) [][]string {
 	for sequenceLen := len(sequence[0]); sequenceLen > maxLen; sequenceLen-- {
 		// Sort to get the longest first
@@ -184,7 +186,7 @@ func StringSliceTruncate(sequence [][]string, maxLen int) [][]string {
 	return sequence
 }
 
-// SliceTransposeFor3D Transport 3-D Dimension Slice. Like NxM to MxN
+// SliceTransposeFor3D Transport 3-D Dimension Slice. Like NxM to MxN.
 func SliceTransposeFor3D[T comparable](slice [][][]T) [][][]T {
 	n, m := len(slice), len(slice[0])
 	transposed := make([][][]T, m)
@@ -200,7 +202,7 @@ func SliceTransposeFor3D[T comparable](slice [][][]T) [][][]T {
 	return transposed
 }
 
-// SliceTransposeFor2D Transport 2-D Dimension Slice. Like NxM to MxN
+// SliceTransposeFor2D Transport 2-D Dimension Slice. Like NxM to MxN.
 func SliceTransposeFor2D[T comparable](slice [][]T) [][]T {
 	n, m := len(slice), len(slice[0])
 	transposed := make([][]T, m)

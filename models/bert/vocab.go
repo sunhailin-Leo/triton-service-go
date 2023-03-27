@@ -6,26 +6,30 @@ import (
 	"os"
 )
 
-// Provider is an interface for exposing a vocab
+var (
+	errEmptyVocab = errors.New("empty vocab")
+)
+
+// Provider is an interface for exposing a vocab.
 type Provider interface {
 	Vocab() Dict
 }
 
-// ID is used to identify vocab items
+// ID is used to identify vocab items.
 type ID int32
 
-// Int64 int32 ID to int64
+// Int64 int32 ID to int64.
 func (id ID) Int64() int64 {
 	return int64(id)
 }
 
 // Dict is a container for tokens
-// NOTE: python uses an OrderedDict, unsure of implications
+// NOTE: python uses an OrderedDict, unsure of implications.
 type Dict struct {
 	tokens map[string]ID
 }
 
-// VocabFromFile will read a newline delimited file into a Dict
+// VocabFromFile will read a newline delimited file into a Dict.
 func VocabFromFile(path string) (Dict, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -41,10 +45,10 @@ func VocabFromFile(path string) (Dict, error) {
 	return voc, nil
 }
 
-// VocabFromSlice will read vocab from config into a Dict
+// VocabFromSlice will read vocab from config into a Dict.
 func VocabFromSlice(vocabArr []string) (Dict, error) {
 	if len(vocabArr) == 0 {
-		return Dict{}, errors.New("empty vocab")
+		return Dict{}, errEmptyVocab
 	}
 	voc := Dict{tokens: map[string]ID{}}
 	for i := range vocabArr {
@@ -53,7 +57,7 @@ func VocabFromSlice(vocabArr []string) (Dict, error) {
 	return voc, nil
 }
 
-// New will return a vocab dict from the given tokens, IDs will match index
+// New will return a vocab dict from the given tokens, IDs will match index.
 func New(tokens []string) Dict {
 	v := make(map[string]ID, len(tokens))
 	for i := range tokens {
@@ -62,12 +66,12 @@ func New(tokens []string) Dict {
 	return Dict{tokens: v}
 }
 
-// Add will add an item to the vocabulary, is not thread-safe
+// Add will add an item to the vocabulary, is not thread-safe.
 func (v Dict) Add(token string) {
 	v.tokens[token] = ID(v.Size())
 }
 
-// GetID will return the ID of the token in the vocab. Will be negative if it doesn't exist
+// GetID will return the ID of the token in the vocab. Will be negative if it doesn't exist.
 func (v Dict) GetID(token string) ID {
 	id, ok := v.tokens[token]
 	if !ok {
@@ -76,12 +80,12 @@ func (v Dict) GetID(token string) ID {
 	return id
 }
 
-// Size returns the size of the vocabulary
+// Size returns the size of the vocabulary.
 func (v Dict) Size() int {
 	return len(v.tokens)
 }
 
-// LongestSubstring returns the longest token that is a substring of the token
+// LongestSubstring returns the longest token that is a substring of the token.
 func (v Dict) LongestSubstring(token string) string {
 	// Greedt, optimize to trie if needed
 	for i := len(token); i > 0; i-- {
@@ -93,7 +97,7 @@ func (v Dict) LongestSubstring(token string) string {
 	return ""
 }
 
-// ConvertItems convert items to ids
+// ConvertItems convert items to ids.
 func (v Dict) ConvertItems(items []string) []ID {
 	ids := make([]ID, len(items))
 	for i := range items {
@@ -102,13 +106,14 @@ func (v Dict) ConvertItems(items []string) []ID {
 	return ids
 }
 
-// ConvertTokens convert token to id
+// ConvertTokens convert token to id.
 func (v Dict) ConvertTokens(tokens []string) []ID {
 	return v.ConvertItems(tokens)
 }
 
-// IsInVocab token is in vocabs
+// IsInVocab token is in vocabs.
 func (v Dict) IsInVocab(token string) bool {
 	_, exists := v.tokens[token]
+
 	return exists
 }

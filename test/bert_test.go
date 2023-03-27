@@ -1,7 +1,7 @@
 package test
 
 import (
-	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -25,8 +25,10 @@ const (
 	tBertModelRespBodyOutputClassificationDataKey string = "classification"
 )
 
-// testGenerateModelInferRequest Triton Input
-func testGenerateModelInferRequest(batchSize, maxSeqLength int) []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor {
+// testGenerateModelInferRequest Triton Input.
+func testGenerateModelInferRequest(
+	batchSize, maxSeqLength int,
+) []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor {
 	return []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor{
 		{
 			Name:     tBertModelSegmentIdsKey,
@@ -46,10 +48,12 @@ func testGenerateModelInferRequest(batchSize, maxSeqLength int) []*nvidia_infere
 	}
 }
 
-// testGenerateModelInferOutputRequest Triton Output
-func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
+// testGenerateModelInferOutputRequest Triton Output.
+func testGenerateModelInferOutputRequest(
+	params ...interface{},
+) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
 	for _, param := range params {
-		println("Param: ", param)
+		log.Println("Param: ", param)
 	}
 	return []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor{
 		{
@@ -66,19 +70,19 @@ func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_infere
 	}
 }
 
-// testModerInferCallback infer call back (process model infer data)
+// testModerInferCallback infer call back (process model infer data).
 func testModerInferCallback(inferResponse interface{}, params ...interface{}) ([]interface{}, error) {
-	fmt.Println(inferResponse)
-	fmt.Println(params...)
+	log.Println(inferResponse)
+	log.Println(params...)
 	return nil, nil
 }
 
-func TestBertService(t *testing.T) {
+func TestBertService(_ *testing.T) {
 	vocabPath := "<Your Bert Vocab Path>"
 	maxSeqLen := 48
 	httpAddr := "<HTTP URL>"
 	grpcAddr := "<GRPC URL>"
-	defaultHttpClient := &fasthttp.Client{}
+	defaultHTTPClient := &fasthttp.Client{}
 	defaultGRPCClient, grpcErr := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if grpcErr != nil {
 		panic(grpcErr)
@@ -86,7 +90,7 @@ func TestBertService(t *testing.T) {
 
 	// Service
 	bertService, initErr := bert.NewModelService(
-		vocabPath, httpAddr, defaultHttpClient, defaultGRPCClient,
+		vocabPath, httpAddr, defaultHTTPClient, defaultGRPCClient,
 		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback)
 	if initErr != nil {
 		panic(initErr)
@@ -104,5 +108,5 @@ func TestBertService(t *testing.T) {
 	if inferErr != nil {
 		panic(inferErr)
 	}
-	println(inferResultV1)
+	log.Println(inferResultV1)
 }

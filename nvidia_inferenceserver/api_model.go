@@ -7,7 +7,7 @@ type ModelIndexRequestHTTPObj struct {
 
 type CudaMemoryRegisterBodyHTTPObj struct {
 	RawHandle interface{} `json:"raw_handle"`
-	DeviceId  int64       `json:"device_id"`
+	DeviceID  int64       `json:"device_id"`
 	ByteSize  uint64      `json:"byte_size"`
 }
 

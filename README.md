@@ -137,6 +137,7 @@ func main() {
 
 * version 1.3.9 - 2023/03/07
   * optimize a bit of performance on tokenizer.
+  * do `golangci-lint` jobs
 
 * version 1.3.8 - 2023/03/06
   * update `go.mod`

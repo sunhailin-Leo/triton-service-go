@@ -113,7 +113,7 @@ func (t *BaseTokenizer) Tokenize(text string) []StringOffsetsPair {
 	return splitTokens
 }
 
-// TokenizeChinese Like Tokenize but focus on Chinese
+// TokenizeChinese Like Tokenize but focus on Chinese.
 func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 	splitTokens := make([]StringOffsetsPair, 0)
 	spaceTokens := t.splitOnChinese(text, utils.IsWhiteSpaceOrChinese, false)
@@ -124,7 +124,8 @@ func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 			continue // TODO: this is temporary solution to don't split special tokens further; improve it.
 		}
 
-		puncTokens := t.splitOnChinese(utils.StripAccentsAndLower(spaceTokens[i].String), utils.IsPunctuation, true)
+		puncTokens := t.splitOnChinese(
+			utils.StripAccentsAndLower(spaceTokens[i].String), utils.IsPunctuation, true)
 		for j := range puncTokens {
 			splitTokens = append(splitTokens, StringOffsetsPair{
 				String: puncTokens[j].String,
@@ -141,7 +142,7 @@ func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 // splitOn splits the given string as the `shouldSplit` predicate dictates.
 // It keeps track of the offsets.
 func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includeSplitToken bool) []StringOffsetsPair {
-	words := make([]StringOffsetsPair, 0, len(text)/2)
+	words := make([]StringOffsetsPair, 0)
 	var word []rune
 
 	offset := 0
@@ -149,11 +150,13 @@ func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includ
 		if shouldSplit(r) {
 			wordLen := len(word)
 			if wordLen > 0 {
-				words = append(words, StringOffsetsPair{String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
+				words = append(words, StringOffsetsPair{
+					String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
 				word = make([]rune, 0, cap(word))
 			}
 			if includeSplitToken {
-				words = append(words, StringOffsetsPair{String: string(r), Offsets: OffsetsType{Start: offset, End: offset + 1}})
+				words = append(words, StringOffsetsPair{
+					String: string(r), Offsets: OffsetsType{Start: offset, End: offset + 1}})
 			}
 		} else {
 			word = append(word, r)
@@ -162,19 +165,19 @@ func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includ
 	}
 
 	// Don't forget the potential last word
-	wordLen := len(word)
-	if wordLen > 0 {
-		words = append(words, StringOffsetsPair{String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
+	if len(word) > 0 {
+		words = append(words, StringOffsetsPair{
+			String: string(word), Offsets: OffsetsType{Start: offset - len(word), End: offset}})
 	}
-	// for gc
-	word = nil
 	return words
 }
 
 // splitOnChinese splits the given string as the `shouldSplit` predicate dictates.
 // It keeps track of the offsets.
-func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool, includeSplitToken bool) []StringOffsetsPair {
-	words := make([]StringOffsetsPair, 0, len(text)/2)
+func (t *BaseTokenizer) splitOnChinese(
+	text string, shouldSplit func(rune) bool, includeSplitToken bool,
+) []StringOffsetsPair {
+	words := make([]StringOffsetsPair, 0)
 	var word []rune
 
 	offset := 0
@@ -182,11 +185,13 @@ func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool,
 		if shouldSplit(r) {
 			wordLen := len(word)
 			if wordLen > 0 {
-				words = append(words, StringOffsetsPair{String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
+				words = append(words, StringOffsetsPair{
+					String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
 				word = make([]rune, 0, cap(word))
 			}
 			if includeSplitToken || utils.IsChinese(r) {
-				words = append(words, StringOffsetsPair{String: string(r), Offsets: OffsetsType{Start: offset, End: offset + 1}})
+				words = append(words, StringOffsetsPair{
+					String: string(r), Offsets: OffsetsType{Start: offset, End: offset + 1}})
 			}
 		} else {
 			word = append(word, r)
@@ -195,12 +200,10 @@ func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool,
 	}
 
 	// Don't forget the potential last word
-	wordLen := len(word)
-	if wordLen > 0 {
-		words = append(words, StringOffsetsPair{String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
+	if len(word) > 0 {
+		words = append(words, StringOffsetsPair{
+			String: string(word), Offsets: OffsetsType{Start: offset - len(word), End: offset}})
 	}
-	// for gc
-	word = nil
 	return words
 }
 
@@ -239,7 +242,8 @@ func (t *WordPieceTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 	return t.WordPieceTokenize(t.baseTokenizer.TokenizeChinese(text))
 }
 
-// WordPieceTokenize transforms the input token in a new slice of words or sub-words units based on the supplied vocabulary.
+// WordPieceTokenize
+//transforms the input token in a new slice of words or sub-words units based on the supplied vocabulary.
 // The resulting tokens preserve the alignment with the portion of the original text they belong to.
 func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []StringOffsetsPair {
 	outputTokens := make([]StringOffsetsPair, 0)
@@ -271,13 +275,15 @@ func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []Str
 				if t.vocabulary.GetID(subStr) != -1 {
 					found = true
 					curStrToken.String = subStr
-					curStrToken.Offsets = OffsetsType{Start: tokens[i].Offsets.Start + start, End: tokens[i].Offsets.Start + end}
+					curStrToken.Offsets = OffsetsType{
+						Start: tokens[i].Offsets.Start + start, End: tokens[i].Offsets.Start + end}
 					break
 				}
 				end--
 			}
 			if !found {
 				isBad = true
+
 				break
 			}
 			subTokens = append(subTokens, curStrToken)

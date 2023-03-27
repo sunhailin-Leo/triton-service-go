@@ -2,13 +2,15 @@ package bert
 
 import "github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 
-// GenerateModelInferRequest model input callback
-type GenerateModelInferRequest func(batchSize, maxSeqLength int) []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor
+// GenerateModelInferRequest model input callback.
+type GenerateModelInferRequest func(
+	batchSize, maxSeqLength int) []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor
 
-// GenerateModelInferOutputRequest model output callback
-type GenerateModelInferOutputRequest func(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
+// GenerateModelInferOutputRequest model output callback.
+type GenerateModelInferOutputRequest func(
+	params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
 
-// InputFeature Bert InputFeature
+// InputFeature Bert InputFeature.
 type InputFeature struct {
 	Text     string   // origin text
 	Tokens   []string // token. like CLS/SEP after tokenizer
@@ -17,14 +19,14 @@ type InputFeature struct {
 	TypeIDs  []int32  // segment_ids
 }
 
-// InputObjects bert input objects for position record
+// InputObjects bert input objects for position record.
 type InputObjects struct {
 	Input    string
 	Tokens   []string
 	PosArray []OffsetsType
 }
 
-// HTTPBatchInput Model HTTP Batch Request Input Struct.(Support batch 1)
+// HTTPBatchInput Model HTTP Batch Request Input Struct (Support batch 1).
 type HTTPBatchInput struct {
 	Name     string    `json:"name"`
 	Shape    []int64   `json:"shape"`
@@ -32,19 +34,19 @@ type HTTPBatchInput struct {
 	Data     [][]int32 `json:"data"`
 }
 
-// InferOutputParameter triton inference server infer parameters
+// InferOutputParameter triton inference server infer parameters.
 type InferOutputParameter struct {
 	BinaryData     bool  `json:"binary_data"`
 	Classification int64 `json:"classification"`
 }
 
-// HTTPOutput Model HTTP Request Output Struct
+// HTTPOutput Model HTTP Request Output Struct.
 type HTTPOutput struct {
 	Name       string               `json:"name"`
 	Parameters InferOutputParameter `json:"parameters"`
 }
 
-// HTTPRequestBody Model HTTP Request Body
+// HTTPRequestBody Model HTTP Request Body.
 type HTTPRequestBody struct {
 	Inputs  []HTTPBatchInput `json:"inputs"`
 	Outputs []HTTPOutput     `json:"outputs"`

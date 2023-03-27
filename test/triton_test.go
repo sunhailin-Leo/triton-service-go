@@ -1,7 +1,7 @@
 package test
 
 import (
-	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -12,42 +12,47 @@ import (
 	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 )
 
-func TestTritonHTTPClientForCheckModelReady(t *testing.T) {
+func TestTritonHTTPClientForCheckModelReady(_ *testing.T) {
 	srv := nvidia_inferenceserver.NewTritonClientForAll(
 		"<Your Triton HTTP Host>:<Your Triton HTTP Port>", &fasthttp.Client{}, nil)
-	isReady, err := srv.CheckModelReady("<Your Model Name>", "<Your Model Version>", 1*time.Second)
+	isReady, err := srv.CheckModelReady(
+		"<Your Model Name>", "<Your Model Version>", 1*time.Second)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(isReady)
+	log.Println(isReady)
 }
 
-func TestTritonGRPCClientForCheckModelReady(t *testing.T) {
+func TestTritonGRPCClientForCheckModelReady(_ *testing.T) {
 	defaultGRPCClient, grpcErr := grpc.Dial("<Your Triton GRPC Host>:<Your Triton GRPC Port>",
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if grpcErr != nil {
 		panic(grpcErr)
 	}
 	srv := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(defaultGRPCClient)
-	isReady, err := srv.CheckModelReady("<Your Model Name>", "<Your Model Version>", 1*time.Second)
+	isReady, err := srv.CheckModelReady(
+		"<Your Model Name>", "<Your Model Version>", 1*time.Second)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(isReady)
+	log.Println(isReady)
 }
 
-func TestTritonHTTPClientInit(t *testing.T) {
+func TestTritonHTTPClientInit(_ *testing.T) {
 	client := &fasthttp.Client{}
-	trtClient := nvidia_inferenceserver.NewTritonClientWithOnlyHttp("<Your Triton HTTP Host>:<Your Triton HTTP Port>", client)
+	trtClient := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP(
+		"<Your Triton HTTP Host>:<Your Triton HTTP Port>", client)
 	isReady, err := trtClient.CheckServerReady(1 * time.Second)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(isReady)
+	log.Println(isReady)
 }
 
-func TestTritonGRPCClientInit(t *testing.T) {
-	grpcConn, err := grpc.Dial("<Your Triton GRPC Host>:<Your Triton GRPC Port>", grpc.WithTransportCredentials(insecure.NewCredentials()))
+func TestTritonGRPCClientInit(_ *testing.T) {
+	grpcConn, err := grpc.Dial(
+		"<Your Triton GRPC Host>:<Your Triton GRPC Port>",
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
@@ -56,11 +61,13 @@ func TestTritonGRPCClientInit(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(isReady)
+	log.Println(isReady)
 }
 
-func TestTritonAllClientInit(t *testing.T) {
-	grpcConn, err := grpc.Dial("<Your Triton GRPC Host>:<Your Triton GRPC Port>", grpc.WithTransportCredentials(insecure.NewCredentials()))
+func TestTritonAllClientInit(_ *testing.T) {
+	grpcConn, err := grpc.Dial(
+		"<Your Triton GRPC Host>:<Your Triton GRPC Port>",
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
@@ -71,14 +78,16 @@ func TestTritonAllClientInit(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(isReady)
+	log.Println(isReady)
 }
 
-func TestGetTritonModelConfig(t *testing.T) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHttp("<Your Triton GRPC Host>:<Your Triton GRPC Port>", &fasthttp.Client{})
-	modelConfig, err := srv.ModelConfiguration("<Your Model Name>", "<Your Model Version>", 1*time.Second)
+func TestGetTritonModelConfig(_ *testing.T) {
+	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP(
+		"<Your Triton GRPC Host>:<Your Triton GRPC Port>", &fasthttp.Client{})
+	modelConfig, err := srv.ModelConfiguration(
+		"<Your Model Name>", "<Your Model Version>", 1*time.Second)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(modelConfig)
+	log.Println(modelConfig)
 }
