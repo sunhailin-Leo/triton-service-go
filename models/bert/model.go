@@ -2,7 +2,6 @@ package bert
 
 import (
 	"encoding/binary"
-	"errors"
 	"strings"
 	"time"
 
@@ -12,12 +11,6 @@ import (
 
 	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 	"github.com/sunhailin-Leo/triton-service-go/utils"
-)
-
-var (
-	errEmptyCallbackFunc    = errors.New("callback function is nil")
-	errEmptyHTTPRequestBody = errors.New("http request body is nil")
-	errEmptyGRPCRequestBody = errors.New("grpc request body is nil")
 )
 
 const (
@@ -264,7 +257,8 @@ func (m *ModelService) generateHTTPRequest(
 
 // grpcInt32SliceToLittleEndianByteSlice int32 slice to byte slice with little endian
 func (m *ModelService) grpcInt32SliceToLittleEndianByteSlice(maxLen int, input []int32, inputType string) []byte {
-	if inputType == ModelInt32DataType {
+	switch inputType {
+	case ModelInt32DataType:
 		var returnByte []byte
 		bs := make([]byte, 4)
 		for i := 0; i < maxLen; i++ {
@@ -272,8 +266,7 @@ func (m *ModelService) grpcInt32SliceToLittleEndianByteSlice(maxLen int, input [
 			returnByte = append(returnByte, bs...)
 		}
 		return returnByte
-	}
-	if inputType == ModelInt64DataType {
+	case ModelInt64DataType:
 		var returnByte []byte
 		bs := make([]byte, 8)
 		for i := 0; i < maxLen; i++ {
@@ -281,8 +274,9 @@ func (m *ModelService) grpcInt32SliceToLittleEndianByteSlice(maxLen int, input [
 			returnByte = append(returnByte, bs...)
 		}
 		return returnByte
+	default:
+		return nil
 	}
-	return nil
 }
 
 // generateGRPCRequest GRPC Request Data Generate
@@ -396,7 +390,7 @@ func (m *ModelService) ModelInfer(
 		// GRPC Infer
 		grpcRawInputs, grpcInputData := m.generateGRPCRequest(inferData, inferInputs)
 		if grpcRawInputs == nil {
-			return nil, errEmptyGRPCRequestBody
+			return nil, utils.ErrorEmptyGRPCRequestBody
 		}
 		return m.tritonService.ModelGRPCInfer(
 			inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion, requestTimeout,
@@ -408,7 +402,7 @@ func (m *ModelService) ModelInfer(
 		return nil, err
 	}
 	if httpRequestBody == nil {
-		return nil, errEmptyHTTPRequestBody
+		return nil, utils.ErrorEmptyHTTPRequestBody
 	}
 	// HTTP Infer
 	return m.tritonService.ModelHTTPInfer(
@@ -428,7 +422,7 @@ func NewModelService(
 ) (*ModelService, error) {
 	// 0、callback function validation
 	if modelInputCallback == nil || modelOutputCallback == nil || modelInferCallback == nil {
-		return nil, errEmptyCallbackFunc
+		return nil, utils.ErrorEmptyCallbackFunc
 	}
 	// 1、Init Vocab
 	voc, vocabReadErr := VocabFromFile(bertVocabPath)

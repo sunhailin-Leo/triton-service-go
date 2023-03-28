@@ -141,7 +141,9 @@ func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 
 // splitOn splits the given string as the `shouldSplit` predicate dictates.
 // It keeps track of the offsets.
-func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includeSplitToken bool) []StringOffsetsPair {
+func (t *BaseTokenizer) splitOn(
+	text string, shouldSplit func(rune) bool, includeSplitToken bool,
+) []StringOffsetsPair {
 	words := make([]StringOffsetsPair, 0)
 	var word []rune
 

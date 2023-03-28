@@ -2,12 +2,9 @@ package bert
 
 import (
 	"bufio"
-	"errors"
 	"os"
-)
 
-var (
-	errEmptyVocab = errors.New("empty vocab")
+	"github.com/sunhailin-Leo/triton-service-go/utils"
 )
 
 // Provider is an interface for exposing a vocab.
@@ -48,7 +45,7 @@ func VocabFromFile(path string) (Dict, error) {
 // VocabFromSlice will read vocab from config into a Dict.
 func VocabFromSlice(vocabArr []string) (Dict, error) {
 	if len(vocabArr) == 0 {
-		return Dict{}, errEmptyVocab
+		return Dict{}, utils.ErrorEmptyVocab
 	}
 	voc := Dict{tokens: map[string]ID{}}
 	for i := range vocabArr {
@@ -87,7 +84,7 @@ func (v Dict) Size() int {
 
 // LongestSubstring returns the longest token that is a substring of the token.
 func (v Dict) LongestSubstring(token string) string {
-	// Greedt, optimize to trie if needed
+	// Greedy, optimize to trie if needed
 	for i := len(token); i > 0; i-- {
 		sub := token[:i]
 		if v.IsInVocab(sub) {

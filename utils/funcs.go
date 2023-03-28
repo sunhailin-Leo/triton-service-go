@@ -1,20 +1,21 @@
 package utils
 
 import (
+	"encoding/binary"
+	"math"
 	"strings"
 	"unicode"
 
 	"golang.org/x/text/unicode/norm"
 )
 
-var asciiWhitespace = [256]bool{' ': true, '\t': true, '\n': true, '\r': true}
-
 // IsWhitespace checks whether rune c is a BERT whitespace character.
 //go:inline
 func IsWhitespace(c rune) bool {
 	if c <= 0xFF {
-		return asciiWhitespace[c]
+		return ASCIIWhiteSpace[c]
 	}
+
 	return unicode.Is(unicode.Zs, c)
 }
 
@@ -28,6 +29,7 @@ func IsControl(c rune) bool {
 	case '\r':
 		return false
 	}
+
 	return unicode.In(c, unicode.Cc, unicode.Cf)
 }
 
@@ -134,33 +136,6 @@ func SplitPunctuation(text string) (toks []string) {
 	return
 }
 
-// ASCIIPunctuation Ascii punctuation characters range.
-var ASCIIPunctuation = &unicode.RangeTable{
-	R16: []unicode.Range16{
-		{0x0021, 0x002f, 1}, // 33-47
-		{0x003a, 0x0040, 1}, // 58-64
-		{0x005b, 0x0060, 1}, // 91-96
-		{0x007b, 0x007e, 1}, // 123-126
-	},
-	LatinOffset: 4, // All less than 0x00FF
-}
-
-// BertChineseChar maybe is the BERT Chinese Char.
-var BertChineseChar = &unicode.RangeTable{
-	R16: []unicode.Range16{
-		{0x4e00, 0x9fff, 1},
-		{0x3400, 0x4dbf, 1},
-		{0xf900, 0xfaff, 1},
-	},
-	R32: []unicode.Range32{
-		{Lo: 0x20000, Hi: 0x2a6df, Stride: 1},
-		{Lo: 0x2a700, Hi: 0x2b73f, Stride: 1},
-		{Lo: 0x2b740, Hi: 0x2b81f, Stride: 1},
-		{Lo: 0x2b820, Hi: 0x2ceaf, Stride: 1},
-		{Lo: 0x2f800, Hi: 0x2fa1f, Stride: 1},
-	},
-}
-
 // StringSliceTruncate truncate uses heuristic of trimming seq with longest len until sequenceLen satisfied.
 func StringSliceTruncate(sequence [][]string, maxLen int) [][]string {
 	for sequenceLen := len(sequence[0]); sequenceLen > maxLen; sequenceLen-- {
@@ -216,4 +191,72 @@ func SliceTransposeFor2D[T comparable](slice [][]T) [][]T {
 		}
 	}
 	return transposed
+}
+
+// SliceToInterfaceSlice any slice to []interface{}
+func SliceToInterfaceSlice[T any](arr []T) []interface{} {
+	result := make([]interface{}, len(arr))
+	for i := range arr {
+		result[i] = arr[i]
+	}
+	return result
+}
+
+// BinaryFilter []byte filter space
+func BinaryFilter(arr []byte) []byte {
+	result := make([]byte, 0)
+	for i := range arr {
+		if arr[i] == 0 {
+			continue
+		}
+		if arr[i] != 0 && i != len(arr)-1 && arr[i+1] == 0 {
+			if i != 0 {
+				result = append(result, byte(' '))
+			}
+			continue
+		}
+		result = append(result, arr[i])
+	}
+	return result
+}
+
+// convert functions
+var convertFuncMap = map[string]func([]uint8) interface{}{
+	SliceFloat32Type: func(b []uint8) interface{} {
+		return math.Float32frombits(binary.LittleEndian.Uint32(b))
+	},
+	TritonFP16Type: func(b []uint8) interface{} {
+		return math.Float32frombits(binary.LittleEndian.Uint32(b))
+	},
+	SliceFloat64Type: func(b []uint8) interface{} {
+		return float64(math.Float32frombits(binary.LittleEndian.Uint32(b)))
+	},
+	TritonFP32Type: func(b []uint8) interface{} {
+		return float64(math.Float32frombits(binary.LittleEndian.Uint32(b)))
+	},
+	SliceInt64Type: func(b []uint8) interface{} {
+		return int64(binary.LittleEndian.Uint32(b))
+	},
+	SliceIntType: func(b []uint8) interface{} {
+		return int(binary.LittleEndian.Uint32(b))
+	},
+}
+
+// BinaryToSlice []byte to slice
+func BinaryToSlice(body []uint8, bytesLen int, returnType string) []interface{} {
+	// special process BYTES and []byte
+	if returnType == TritonBytesType || returnType == SliceByteType {
+		return SliceToInterfaceSlice(strings.Fields(string(BinaryFilter(body))))
+	}
+	// response body split by chunk (other types need convert functions)
+	convertFunc := convertFuncMap[returnType]
+	convertFuncResult := make([]interface{}, cap(body)/bytesLen)
+	for i := 0; i < len(convertFuncResult); i++ {
+		if i*bytesLen+bytesLen > len(body) {
+			convertFuncResult[i] = convertFunc(body[i*bytesLen:])
+		} else {
+			convertFuncResult[i] = convertFunc(body[i*bytesLen : i*bytesLen+bytesLen])
+		}
+	}
+	return convertFuncResult
 }

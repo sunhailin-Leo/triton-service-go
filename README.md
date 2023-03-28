@@ -135,6 +135,9 @@ func main() {
 
 ### Version
 
+* version 1.4.0 - 2023/03/28
+  * add some functions for utils and some consts
+
 * version 1.3.9 - 2023/03/07
   * optimize a bit of performance on tokenizer.
   * do `golangci-lint` jobs
