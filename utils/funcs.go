@@ -253,7 +253,10 @@ func BinaryToSlice(body []uint8, bytesLen int, returnType string) []interface{} 
 	convertFuncResult := make([]interface{}, cap(body)/bytesLen)
 	for i := 0; i < len(convertFuncResult); i++ {
 		if i*bytesLen+bytesLen > len(body) {
-			convertFuncResult[i] = convertFunc(body[i*bytesLen:])
+			if len(body[i*bytesLen:]) > 0 {
+				convertFuncResult[i] = convertFunc(body[i*bytesLen:])
+			}
+			break
 		} else {
 			convertFuncResult[i] = convertFunc(body[i*bytesLen : i*bytesLen+bytesLen])
 		}
