@@ -1,0 +1,42 @@
+name: Benchmark
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**'
+      - '!**.md'
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+jobs:
+  Compare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.20.x
+      - name: Fetch Repository
+        uses: actions/checkout@v3
+      - name: Run Benchmark
+        run: set -o pipefail; cd test && go test ./... -benchmem -run=^$ -bench . | tee output.txt
+      - name: Get Previous Benchmark Results
+        uses: actions/cache@v3
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
+      - name: Save Benchmark Results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'go'
+          output-file-path: output.txt
+          github-token: ${{ secrets.BENCHMARK_TOKEN }}
+          benchmark-data-dir-path: 'benchmarks'
+          fail-on-alert: true
+          comment-on-alert: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+          # Enable Job Summary for PRs - deactivated because of issues
+          summary-always: ${{ github.event_name != 'push' && github.event_name != 'workflow_dispatch' }}
+          auto-push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+          save-data-file: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}

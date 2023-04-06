@@ -3,13 +3,12 @@ package test
 import (
 	"log"
 	"testing"
-	"time"
 
+	"github.com/sunhailin-Leo/triton-service-go/models/bert"
 	"github.com/valyala/fasthttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/sunhailin-Leo/triton-service-go/models/bert"
 	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 )
 
@@ -77,18 +76,16 @@ func testModerInferCallback(inferResponse interface{}, params ...interface{}) ([
 	return nil, nil
 }
 
-func TestBertService(_ *testing.T) {
-	vocabPath := "<Your Bert Vocab Path>"
+func TestBertServiceForBertChinese(t *testing.T) {
+	vocabPath := "bert-chinese-vocab.txt"
 	maxSeqLen := 48
-	httpAddr := "<HTTP URL>"
-	grpcAddr := "<GRPC URL>"
+	httpAddr := "127.0.0.1:9001"
+	grpcAddr := "127.0.0.1:9000"
 	defaultHTTPClient := &fasthttp.Client{}
 	defaultGRPCClient, grpcErr := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if grpcErr != nil {
 		panic(grpcErr)
 	}
-
-	// Service
 	bertService, initErr := bert.NewModelService(
 		vocabPath, httpAddr, defaultHTTPClient, defaultGRPCClient,
 		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback)
@@ -96,17 +93,31 @@ func TestBertService(_ *testing.T) {
 		panic(initErr)
 	}
 	bertService = bertService.SetChineseTokenize().SetMaxSeqLength(maxSeqLen)
-	// infer
-	inferResultV1, inferErr := bertService.ModelInfer(
-		[]string{"<Data>"},
-		"<Model Name>",
-		"<Model Version>",
-		1*time.Second,
-		"params_1",
-		"params_2",
-	)
-	if inferErr != nil {
-		panic(inferErr)
+	vocabSize := bertService.BertVocab.Size()
+	if bertService.BertVocab.Size() != 21128 {
+		t.Errorf("Expected '%d', but got '%d'", vocabSize, 21128)
 	}
-	log.Println(inferResultV1)
+}
+
+func TestBertServiceForBertMultilingual(t *testing.T) {
+	vocabPath := "bert-multilingual-vocab.txt"
+	maxSeqLen := 64
+	httpAddr := "127.0.0.1:9001"
+	grpcAddr := "127.0.0.1:9000"
+	defaultHTTPClient := &fasthttp.Client{}
+	defaultGRPCClient, grpcErr := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if grpcErr != nil {
+		panic(grpcErr)
+	}
+	bertService, initErr := bert.NewModelService(
+		vocabPath, httpAddr, defaultHTTPClient, defaultGRPCClient,
+		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback)
+	if initErr != nil {
+		panic(initErr)
+	}
+	bertService = bertService.SetMaxSeqLength(maxSeqLen)
+	vocabSize := bertService.BertVocab.Size()
+	if bertService.BertVocab.Size() != 119547 {
+		t.Errorf("Expected '%d', but got '%d'", vocabSize, 119547)
+	}
 }

@@ -1,0 +1,30 @@
+name: Vulnerability Check
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**'
+      - '!**.md'
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+jobs:
+  Security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.20.x
+          check-latest: true
+      - name: Fetch Repository
+        uses: actions/checkout@v3
+      - name: Install Govulncheck
+        run: |
+          export GO111MODULE=on
+          export PATH=${PATH}:`go env GOPATH`/bin
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+      - name: Run Govulncheck
+        run: "cd test && `go env GOPATH`/bin/govulncheck ./..."
