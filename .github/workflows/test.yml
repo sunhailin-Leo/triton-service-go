@@ -45,4 +45,4 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 15
-          command: cd test && go test ./... -v -race
+          command: go test ./... -v -race
