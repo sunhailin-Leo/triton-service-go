@@ -2,6 +2,15 @@
 Unofficial golang package for the Triton Inference Server(https://github.com/triton-inference-server/server)
 Triton Inference Server - Golang API
 
+[![Docs](https://pkg.go.dev/badge/github.com/valyala/fasthttp)](https://pkg.go.dev/badge/github.com/valyala/fasthttp)
+[![Report Card](https://goreportcard.com/badge/github.com/sunhailin-Leo/triton-service-go)](https://goreportcard.com/badge/github.com/sunhailin-Leo/triton-service-go)
+
+[![Benchmark](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/benchmark.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/benchmark.yml)
+[![Lint Check](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/lint.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/lint.yml)
+[![Security Check](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/sercurity.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/sercurity.yml)
+[![Test](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/test.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/test.yml)
+[![Vulnerability Check](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/vulncheck.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/vulncheck.yml)
+
 ---
 
 ### Attention
