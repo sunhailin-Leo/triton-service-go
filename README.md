@@ -2,7 +2,7 @@
 Unofficial golang package for the Triton Inference Server(https://github.com/triton-inference-server/server)
 Triton Inference Server - Golang API
 
-[![Docs](https://pkg.go.dev/badge/github.com/valyala/fasthttp)](https://pkg.go.dev/badge/github.com/valyala/fasthttp)
+[![Docs](https://pkg.go.dev/badge/github.com/sunhailin-Leo/triton-service-go)](https://pkg.go.dev/badge/github.com/sunhailin-Leo/triton-service-go)
 [![Report Card](https://goreportcard.com/badge/github.com/sunhailin-Leo/triton-service-go)](https://goreportcard.com/badge/github.com/sunhailin-Leo/triton-service-go)
 
 [![Benchmark](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/benchmark.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/benchmark.yml)
