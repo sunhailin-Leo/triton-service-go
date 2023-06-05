@@ -123,6 +123,14 @@ func (m *ModelService) SetModelName(modelPrefix, modelName string) *ModelService
 // GetModelName Get model name.
 func (m *ModelService) GetModelName() string { return m.modelName }
 
+// SetSecondaryServerURL set secondary server url【Only HTTP】
+func (m *ModelService) SetSecondaryServerURL(url string) *ModelService {
+	if m.tritonService != nil {
+		m.tritonService.SetSecondaryServerURL(url)
+	}
+	return m
+}
+
 ////////////////////////////////////////////////// Flag Switch API //////////////////////////////////////////////////
 
 ///////////////////////////////////////// Bert Service Pre-Process Function /////////////////////////////////////////
