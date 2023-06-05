@@ -144,6 +144,9 @@ func main() {
 
 ### Version
 
+* version 1.4.2 - 2023/06/05
+  * add `SetSecondaryServerURL` API for some special test environment.
+
 * version 1.4.0 - 2023/03/28
   * add some functions for utils and some consts
 

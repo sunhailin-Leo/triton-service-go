@@ -175,13 +175,14 @@ func (m *ModelService) getBertInputFeature(inferData string) (*InputFeature, *In
 	sequence = utils.StringSliceTruncate(sequence, m.maxSeqLength-2)
 	for i := 0; i <= len(sequence[0])+1; i++ {
 		feature.Mask[i] = 1
-		if i == 0 {
+		switch {
+		case i == 0:
 			feature.TokenIDs[i] = int32(m.BertVocab.GetID(DefaultCLS))
 			feature.Tokens[i] = DefaultCLS
-		} else if i == len(sequence[0])+1 {
+		case i == len(sequence[0])+1:
 			feature.TokenIDs[i] = int32(m.BertVocab.GetID(DefaultSEP))
 			feature.Tokens[i] = DefaultSEP
-		} else {
+		default:
 			feature.TokenIDs[i] = int32(m.BertVocab.GetID(sequence[0][i-1]))
 			feature.Tokens[i] = sequence[0][i-1]
 		}
@@ -255,7 +256,7 @@ func (m *ModelService) generateHTTPRequest(
 	return jsonBody, modelInputObj, nil
 }
 
-// grpcInt32SliceToLittleEndianByteSlice int32 slice to byte slice with little endian
+// grpcInt32SliceToLittleEndianByteSlice int32 slice to byte slice with little endian.
 func (m *ModelService) grpcInt32SliceToLittleEndianByteSlice(maxLen int, input []int32, inputType string) []byte {
 	switch inputType {
 	case ModelInt32DataType:
@@ -390,7 +391,7 @@ func (m *ModelService) ModelInfer(
 		// GRPC Infer
 		grpcRawInputs, grpcInputData := m.generateGRPCRequest(inferData, inferInputs)
 		if grpcRawInputs == nil {
-			return nil, utils.ErrorEmptyGRPCRequestBody
+			return nil, utils.ErrEmptyGRPCRequestBody
 		}
 		return m.tritonService.ModelGRPCInfer(
 			inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion, requestTimeout,
@@ -402,7 +403,7 @@ func (m *ModelService) ModelInfer(
 		return nil, err
 	}
 	if httpRequestBody == nil {
-		return nil, utils.ErrorEmptyHTTPRequestBody
+		return nil, utils.ErrEmptyHTTPRequestBody
 	}
 	// HTTP Infer
 	return m.tritonService.ModelHTTPInfer(
@@ -422,7 +423,7 @@ func NewModelService(
 ) (*ModelService, error) {
 	// 0、callback function validation
 	if modelInputCallback == nil || modelOutputCallback == nil || modelInferCallback == nil {
-		return nil, utils.ErrorEmptyCallbackFunc
+		return nil, utils.ErrEmptyCallbackFunc
 	}
 	// 1、Init Vocab
 	voc, vocabReadErr := VocabFromFile(bertVocabPath)

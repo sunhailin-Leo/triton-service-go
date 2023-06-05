@@ -90,16 +90,19 @@ func CleanAndPadChineseWithWhiteSpace(text string) []string {
 		if c == 0 || c == 0xfffd || IsControl(c) {
 			continue
 		}
-		if IsChinese(c) {
+
+		switch {
+		case IsChinese(c):
 			b.WriteRune(' ')
 			b.WriteRune(c)
 			b.WriteRune(' ')
-		} else if IsWhitespace(c) {
+		case IsWhitespace(c):
 			b.WriteRune(' ')
-		} else {
+		default:
 			b.WriteRune(c)
 		}
 	}
+
 	return strings.Fields(strings.TrimSpace(b.String()))
 }
 
@@ -115,6 +118,7 @@ func StripAccentsAndLower(text string) string {
 		//	b.WriteRune(unicode.ToLower(c))
 		// }
 	}
+
 	return b.String()
 }
 
@@ -193,7 +197,7 @@ func SliceTransposeFor2D[T comparable](slice [][]T) [][]T {
 	return transposed
 }
 
-// SliceToInterfaceSlice any slice to []interface{}
+// SliceToInterfaceSlice any slice to []interface{}.
 func SliceToInterfaceSlice[T any](arr []T) []interface{} {
 	result := make([]interface{}, len(arr))
 	for i := range arr {
@@ -202,7 +206,7 @@ func SliceToInterfaceSlice[T any](arr []T) []interface{} {
 	return result
 }
 
-// BinaryFilter []byte filter space
+// BinaryFilter []byte filter space.
 func BinaryFilter(arr []byte) []byte {
 	result := make([]byte, 0)
 	for i := range arr {
@@ -220,7 +224,7 @@ func BinaryFilter(arr []byte) []byte {
 	return result
 }
 
-// convert functions
+// convert functions.
 var convertFuncMap = map[string]func([]uint8) interface{}{
 	SliceFloat32Type: func(b []uint8) interface{} {
 		return math.Float32frombits(binary.LittleEndian.Uint32(b))
@@ -242,7 +246,7 @@ var convertFuncMap = map[string]func([]uint8) interface{}{
 	},
 }
 
-// BinaryToSlice []byte to slice
+// BinaryToSlice []byte to slice.
 func BinaryToSlice(body []uint8, bytesLen int, returnType string) []interface{} {
 	// special process BYTES and []byte
 	if returnType == TritonBytesType || returnType == SliceByteType {

@@ -45,7 +45,7 @@ func VocabFromFile(path string) (Dict, error) {
 // VocabFromSlice will read vocab from config into a Dict.
 func VocabFromSlice(vocabArr []string) (Dict, error) {
 	if len(vocabArr) == 0 {
-		return Dict{}, utils.ErrorEmptyVocab
+		return Dict{}, utils.ErrEmptyVocab
 	}
 	voc := Dict{tokens: map[string]ID{}}
 	for i := range vocabArr {

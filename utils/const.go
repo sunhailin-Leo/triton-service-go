@@ -17,12 +17,12 @@ const (
 )
 
 var (
-	ErrorEmptyVocab           = errors.New("empty vocab")              // empty vocab error.
-	ErrorEmptyCallbackFunc    = errors.New("callback function is nil") // empty callback function.
-	ErrorEmptyHTTPRequestBody = errors.New("http request body is nil") // empty http request body.
-	ErrorEmptyGRPCRequestBody = errors.New("grpc request body is nil") // empty grpc request body.
+	ErrEmptyVocab           = errors.New("empty vocab")              // empty vocab error.
+	ErrEmptyCallbackFunc    = errors.New("callback function is nil") // empty callback function.
+	ErrEmptyHTTPRequestBody = errors.New("http request body is nil") // empty http request body.
+	ErrEmptyGRPCRequestBody = errors.New("grpc request body is nil") // empty grpc request body.
 
-	// ASCIIWhiteSpace ascii white space array
+	// ASCIIWhiteSpace ascii white space array.
 	ASCIIWhiteSpace = [256]bool{' ': true, '\t': true, '\n': true, '\r': true}
 
 	// ASCIIPunctuation Ascii punctuation characters range.
