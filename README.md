@@ -144,6 +144,9 @@ func main() {
 
 ### Version
 
+* version 1.4.3 - 2023/06/29
+  * fix miss `params` parameters in `models/bert/model.go`
+
 * version 1.4.2 - 2023/06/05
   * add `SetSecondaryServerURL` API for some special test environment.
 
