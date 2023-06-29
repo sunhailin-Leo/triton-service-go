@@ -416,7 +416,7 @@ func (m *ModelService) ModelInfer(
 	// HTTP Infer
 	return m.tritonService.ModelHTTPInfer(
 		httpRequestBody, modelName, modelVersion, requestTimeout,
-		m.inferCallback, m, httpInputData,
+		m.inferCallback, m, httpInputData, params,
 	)
 }
 
