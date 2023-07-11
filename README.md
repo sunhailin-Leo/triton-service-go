@@ -144,7 +144,7 @@ func main() {
 
 ### Version
 
-* version 1.4.3 - 2023/07/11
+* version 1.4.4 - 2023/07/11
   * tokenize Chinese-English-Number text with char mode for NER task.
 
 * version 1.4.3 - 2023/06/29
