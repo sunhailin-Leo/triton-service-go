@@ -28,6 +28,7 @@ type ModelService struct {
 	// isTraceDuration                 bool
 	isGRPC                          bool
 	isChinese                       bool
+	isChineseCharMode               bool
 	isReturnPosArray                bool
 	maxSeqLength                    int
 	modelName                       string
@@ -61,8 +62,9 @@ func (m *ModelService) SetMaxSeqLength(maxSeqLen int) *ModelService {
 }
 
 // SetChineseTokenize Use Chinese Tokenize when tokenize infer data.
-func (m *ModelService) SetChineseTokenize() *ModelService {
+func (m *ModelService) SetChineseTokenize(isCharMode bool) *ModelService {
 	m.isChinese = true
+	m.isChineseCharMode = isCharMode
 
 	return m
 }
@@ -70,6 +72,7 @@ func (m *ModelService) SetChineseTokenize() *ModelService {
 // UnsetChineseTokenize Un-use Chinese Tokenize when tokenize infer data.
 func (m *ModelService) UnsetChineseTokenize() *ModelService {
 	m.isChinese = false
+	m.isChineseCharMode = false
 
 	return m
 }
@@ -146,7 +149,12 @@ func (m *ModelService) getTokenizerResult(inferData string) []string {
 // getTokenizerResultWithOffsets Get Tokenizer result from different tokenizers with offsets.
 func (m *ModelService) getTokenizerResultWithOffsets(inferData string) ([]string, []OffsetsType) {
 	if m.isChinese {
-		tokenizerResult := m.BertTokenizer.TokenizeChinese(strings.ToLower(inferData))
+		var tokenizerResult []StringOffsetsPair
+		if m.isChineseCharMode {
+			tokenizerResult = m.BertTokenizer.TokenizeChineseCharMode(strings.ToLower(inferData))
+		} else {
+			tokenizerResult = m.BertTokenizer.TokenizeChinese(strings.ToLower(inferData))
+		}
 
 		return GetStrings(tokenizerResult), GetOffsets(tokenizerResult)
 	}
