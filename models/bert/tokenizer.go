@@ -19,6 +19,8 @@ const (
 // TokenizerV1 is implemented by any value that has the Tokenize method.
 type TokenizerV1 interface {
 	Tokenize(text string) []StringOffsetsPair
+	TokenizeChinese(text string) []StringOffsetsPair
+	TokenizeChineseCharMode(text string) []StringOffsetsPair
 }
 
 // StringOffsetsPair represents a string value paired with offsets bounds.
@@ -116,7 +118,7 @@ func (t *BaseTokenizer) Tokenize(text string) []StringOffsetsPair {
 // TokenizeChinese Like Tokenize but focus on Chinese.
 func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 	splitTokens := make([]StringOffsetsPair, 0)
-	spaceTokens := t.splitOnChinese(text, utils.IsWhiteSpaceOrChinese, false)
+	spaceTokens := t.splitOnChinese(text, utils.IsWhiteSpaceOrChinese, false, utils.IsChinese)
 
 	for i := range spaceTokens {
 		if _, isSpecial := t.specialWords[spaceTokens[i].String]; isSpecial {
@@ -125,7 +127,33 @@ func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 		}
 
 		puncTokens := t.splitOnChinese(
-			utils.StripAccentsAndLower(spaceTokens[i].String), utils.IsPunctuation, true)
+			utils.StripAccentsAndLower(spaceTokens[i].String), utils.IsPunctuation, true, utils.IsChinese)
+		for j := range puncTokens {
+			splitTokens = append(splitTokens, StringOffsetsPair{
+				String: puncTokens[j].String,
+				Offsets: OffsetsType{
+					Start: spaceTokens[i].Offsets.Start + puncTokens[j].Offsets.Start,
+					End:   spaceTokens[i].Offsets.Start + puncTokens[j].Offsets.End,
+				},
+			})
+		}
+	}
+	return splitTokens
+}
+
+// TokenizeChineseCharMode Like TokenizeChinese but focus on Chinese NER.
+func (t *BaseTokenizer) TokenizeChineseCharMode(text string) []StringOffsetsPair {
+	splitTokens := make([]StringOffsetsPair, 0)
+	spaceTokens := t.splitOnChinese(text, utils.IsWhiteSpaceOrChineseOrNumber, false, utils.IsChineseOrNumber)
+
+	for i := range spaceTokens {
+		if _, isSpecial := t.specialWords[spaceTokens[i].String]; isSpecial {
+			splitTokens = append(splitTokens, spaceTokens[i])
+			continue // TODO: this is temporary solution to don't split special tokens further; improve it.
+		}
+
+		puncTokens := t.splitOnChinese(
+			utils.StripAccentsAndLower(spaceTokens[i].String), utils.IsPunctuation, true, utils.IsChineseOrNumber)
 		for j := range puncTokens {
 			splitTokens = append(splitTokens, StringOffsetsPair{
 				String: puncTokens[j].String,
@@ -141,9 +169,7 @@ func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 
 // splitOn splits the given string as the `shouldSplit` predicate dictates.
 // It keeps track of the offsets.
-func (t *BaseTokenizer) splitOn(
-	text string, shouldSplit func(rune) bool, includeSplitToken bool,
-) []StringOffsetsPair {
+func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includeSplitToken bool) []StringOffsetsPair {
 	words := make([]StringOffsetsPair, 0)
 	var word []rune
 
@@ -176,9 +202,7 @@ func (t *BaseTokenizer) splitOn(
 
 // splitOnChinese splits the given string as the `shouldSplit` predicate dictates.
 // It keeps track of the offsets.
-func (t *BaseTokenizer) splitOnChinese(
-	text string, shouldSplit func(rune) bool, includeSplitToken bool,
-) []StringOffsetsPair {
+func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool, includeSplitToken bool, includeSplitFunc func(rune) bool) []StringOffsetsPair {
 	words := make([]StringOffsetsPair, 0)
 	var word []rune
 
@@ -191,7 +215,7 @@ func (t *BaseTokenizer) splitOnChinese(
 					String: string(word), Offsets: OffsetsType{Start: offset - wordLen, End: offset}})
 				word = make([]rune, 0, cap(word))
 			}
-			if includeSplitToken || utils.IsChinese(r) {
+			if includeSplitToken || includeSplitFunc(r) {
 				words = append(words, StringOffsetsPair{
 					String: string(r), Offsets: OffsetsType{Start: offset, End: offset + 1}})
 			}
@@ -242,6 +266,11 @@ func (t *WordPieceTokenizer) Tokenize(text string) []StringOffsetsPair {
 // TokenizeChinese Like Tokenize but focus on Chinese
 func (t *WordPieceTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 	return t.WordPieceTokenize(t.baseTokenizer.TokenizeChinese(text))
+}
+
+// TokenizeChineseCharMode Like TokenizeChinese but focus on Chinese NER
+func (t *WordPieceTokenizer) TokenizeChineseCharMode(text string) []StringOffsetsPair {
+	return t.WordPieceTokenize(t.baseTokenizer.TokenizeChineseCharMode(text))
 }
 
 // WordPieceTokenize

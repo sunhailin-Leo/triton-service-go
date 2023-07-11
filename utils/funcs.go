@@ -46,9 +46,19 @@ func IsChinese(c rune) bool {
 	return unicode.In(c, BertChineseChar, unicode.P)
 }
 
+// IsChineseOrNumber validates that rune c is in the CJK range according to BERT spec or Number.
+func IsChineseOrNumber(c rune) bool {
+	return unicode.In(c, BertChineseChar, unicode.P) || unicode.IsNumber(c)
+}
+
 // IsWhiteSpaceOrChinese validates that rune c is whitespace or is Chinese.
 func IsWhiteSpaceOrChinese(c rune) bool {
 	return IsWhitespace(c) || IsChinese(c)
+}
+
+// IsWhiteSpaceOrChineseOrNumber validates that rune c is whitespace or is Chinese or is Number.
+func IsWhiteSpaceOrChineseOrNumber(c rune) bool {
+	return IsWhitespace(c) || IsChineseOrNumber(c)
 }
 
 // Clean function will clear some characters.
