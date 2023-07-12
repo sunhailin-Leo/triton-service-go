@@ -130,7 +130,7 @@ func main() {
 	if initErr != nil {
 		panic(initErr)
 	}
-	bertService = bertService.SetChineseTokenize().SetMaxSeqLength(maxSeqLen)
+	bertService = bertService.SetChineseTokenize(false).SetMaxSeqLength(maxSeqLen)
 	// infer
 	inferResultV1, inferErr := bertService.ModelInfer([]string{"<Data>"}, "<Model Name>", "<Model Version>", 1*time.Second)
 	if inferErr != nil {
@@ -143,6 +143,10 @@ func main() {
 ---
 
 ### Version
+
+* version 1.4.5 - 2023/07/12
+  * update go.mod
+  * fix Chinese tokenizer error
 
 * version 1.4.4 - 2023/07/11
   * tokenize Chinese-English-Number text with char mode for NER task.

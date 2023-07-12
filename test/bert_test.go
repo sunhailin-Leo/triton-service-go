@@ -92,7 +92,7 @@ func TestBertServiceForBertChinese(t *testing.T) {
 	if initErr != nil {
 		panic(initErr)
 	}
-	bertService = bertService.SetChineseTokenize().SetMaxSeqLength(maxSeqLen)
+	bertService = bertService.SetChineseTokenize(false).SetMaxSeqLength(maxSeqLen)
 	vocabSize := bertService.BertVocab.Size()
 	if bertService.BertVocab.Size() != 21128 {
 		t.Errorf("Expected '%d', but got '%d'", vocabSize, 21128)

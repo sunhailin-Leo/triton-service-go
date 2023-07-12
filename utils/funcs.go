@@ -20,6 +20,7 @@ func IsWhitespace(c rune) bool {
 }
 
 // IsControl checks whether rune c is a BERT control character.
+//go:inline
 func IsControl(c rune) bool {
 	switch c {
 	case '\t':
@@ -34,6 +35,7 @@ func IsControl(c rune) bool {
 }
 
 // IsPunctuation checks whether rune c is a BERT punctuation character.
+//go:inline
 func IsPunctuation(c rune) bool {
 	// return unicode.In(c, utils.Bp, unicode.P)
 	// return unicode.In(c, utils.AsciiPunctuation, unicode.P) && c != '-'
@@ -41,22 +43,26 @@ func IsPunctuation(c rune) bool {
 }
 
 // IsChinese validates that rune c is in the CJK range according to BERT spec.
+//go:inline
 func IsChinese(c rune) bool {
 	// unicode.Is(unicode.Han, c)
 	return unicode.In(c, BertChineseChar, unicode.P)
 }
 
 // IsChineseOrNumber validates that rune c is in the CJK range according to BERT spec or Number.
+//go:inline
 func IsChineseOrNumber(c rune) bool {
 	return unicode.In(c, BertChineseChar, unicode.P) || unicode.IsNumber(c)
 }
 
 // IsWhiteSpaceOrChinese validates that rune c is whitespace or is Chinese.
+//go:inline
 func IsWhiteSpaceOrChinese(c rune) bool {
 	return IsWhitespace(c) || IsChinese(c)
 }
 
 // IsWhiteSpaceOrChineseOrNumber validates that rune c is whitespace or is Chinese or is Number.
+//go:inline
 func IsWhiteSpaceOrChineseOrNumber(c rune) bool {
 	return IsWhitespace(c) || IsChineseOrNumber(c)
 }
@@ -236,6 +242,12 @@ func BinaryFilter(arr []byte) []byte {
 
 // convert functions.
 var convertFuncMap = map[string]func([]uint8) interface{}{
+	TritonINT32Type: func(b []uint8) interface{} {
+		return int32(binary.LittleEndian.Uint32(b))
+	},
+	TritonINT64Type: func(b []uint8) interface{} {
+		return int64(binary.LittleEndian.Uint64(b))
+	},
 	SliceFloat32Type: func(b []uint8) interface{} {
 		return math.Float32frombits(binary.LittleEndian.Uint32(b))
 	},

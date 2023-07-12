@@ -141,6 +141,9 @@ func (m *ModelService) SetSecondaryServerURL(url string) *ModelService {
 // getTokenizerResult Get Tokenizer result from different tokenizers.
 func (m *ModelService) getTokenizerResult(inferData string) []string {
 	if m.isChinese {
+		if m.isChineseCharMode {
+			return GetStrings(m.BertTokenizer.TokenizeChineseCharMode(strings.ToLower(inferData)))
+		}
 		return GetStrings(m.BertTokenizer.TokenizeChinese(strings.ToLower(inferData)))
 	}
 	return GetStrings(m.BertTokenizer.Tokenize(inferData))

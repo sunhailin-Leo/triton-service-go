@@ -3,12 +3,10 @@ package bert
 import "github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 
 // GenerateModelInferRequest model input callback.
-type GenerateModelInferRequest func(
-	batchSize, maxSeqLength int) []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor
+type GenerateModelInferRequest func(batchSize, maxSeqLength int) []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor
 
 // GenerateModelInferOutputRequest model output callback.
-type GenerateModelInferOutputRequest func(
-	params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
+type GenerateModelInferOutputRequest func(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
 
 // InputFeature Bert InputFeature.
 type InputFeature struct {

@@ -7,6 +7,8 @@ import (
 
 const (
 	TritonBytesType  string = "BYTES"
+	TritonINT32Type  string = "INT32"
+	TritonINT64Type  string = "INT64"
 	TritonFP16Type   string = "FP16"
 	TritonFP32Type   string = "FP32"
 	SliceByteType    string = "[]byte"
