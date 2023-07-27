@@ -5,12 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goccy/go-json"
-	"github.com/valyala/fasthttp"
-	"google.golang.org/grpc"
-
 	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 	"github.com/sunhailin-Leo/triton-service-go/utils"
+	"github.com/valyala/fasthttp"
+	"google.golang.org/grpc"
 )
 
 const (
@@ -25,7 +23,6 @@ const (
 )
 
 type ModelService struct {
-	// isTraceDuration                 bool
 	isGRPC                          bool
 	isChinese                       bool
 	isChineseCharMode               bool
@@ -41,18 +38,6 @@ type ModelService struct {
 }
 
 ////////////////////////////////////////////////// Flag Switch API //////////////////////////////////////////////////
-
-//// SetModelInferWithTrace Set model infer trace obj.
-// func (m *ModelService) SetModelInferWithTrace() *ModelService {
-//	 m.isTraceDuration = true
-//	 return m
-// }
-//
-//// UnsetModelInferWithTrace unset model infer trace obj.
-// func (m *ModelService) UnsetModelInferWithTrace() *ModelService {
-// 	m.isTraceDuration = false
-// 	return m
-// }
 
 // SetMaxSeqLength Set model infer max sequence length.
 func (m *ModelService) SetMaxSeqLength(maxSeqLen int) *ModelService {
@@ -131,6 +116,18 @@ func (m *ModelService) SetSecondaryServerURL(url string) *ModelService {
 	if m.tritonService != nil {
 		m.tritonService.SetSecondaryServerURL(url)
 	}
+	return m
+}
+
+// SetJsonEncoder set json encoder
+func (m *ModelService) SetJsonEncoder(encoder utils.JSONMarshal) *ModelService {
+	m.tritonService.SetJSONEncoder(encoder)
+	return m
+}
+
+// SetJsonDecoder set json decoder
+func (m *ModelService) SetJsonDecoder(decoder utils.JSONUnmarshal) *ModelService {
+	m.tritonService.SetJsonDecoder(decoder)
 	return m
 }
 
@@ -265,7 +262,7 @@ func (m *ModelService) generateHTTPRequest(
 ) ([]byte, []*InputObjects, error) {
 	// Generate batch request json body
 	requestInputBody, modelInputObj := m.generateHTTPInputs(inferDataArr, inferInputs)
-	jsonBody, jsonEncodeErr := json.Marshal(&HTTPRequestBody{
+	jsonBody, jsonEncodeErr := m.tritonService.JsonMarshal(&HTTPRequestBody{
 		Inputs:  requestInputBody,
 		Outputs: m.generateHTTPOutputs(inferOutputs),
 	})

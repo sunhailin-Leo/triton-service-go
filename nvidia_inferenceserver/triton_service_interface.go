@@ -2,11 +2,12 @@ package nvidia_inferenceserver
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strconv"
 	"time"
 
-	"github.com/goccy/go-json"
+	"github.com/sunhailin-Leo/triton-service-go/utils"
 	"github.com/valyala/fasthttp"
 	"google.golang.org/grpc"
 )
@@ -122,6 +123,12 @@ type TritonClientService struct {
 	grpcConn   *grpc.ClientConn
 	grpcClient GRPCInferenceServiceClient
 	httpClient *fasthttp.Client
+
+	// Default: json.Marshal
+	JSONEncoder utils.JSONMarshal
+
+	// Default: json.Unmarshal
+	JSONDecoder utils.JSONUnmarshal
 }
 
 // disconnectToTritonWithGRPC Disconnect GRPC Connection.
@@ -246,6 +253,28 @@ func (t *TritonClientService) decodeFuncErrorHandler(err error, isGRPC bool) err
 }
 
 ///////////////////////////////////////////// expose API below /////////////////////////////////////////////
+
+// JsonMarshal Json Encoder
+func (t *TritonClientService) JsonMarshal(v interface{}) ([]byte, error) {
+	return t.JSONEncoder(v)
+}
+
+// JsonUnmarshal Json Decoder
+func (t *TritonClientService) JsonUnmarshal(data []byte, v interface{}) error {
+	return t.JSONDecoder(data, v)
+}
+
+// SetJSONEncoder set json encoder
+func (t *TritonClientService) SetJSONEncoder(encoder utils.JSONMarshal) *TritonClientService {
+	t.JSONEncoder = encoder
+	return t
+}
+
+// SetJsonDecoder set json decoder
+func (t *TritonClientService) SetJsonDecoder(decoder utils.JSONUnmarshal) *TritonClientService {
+	t.JSONDecoder = decoder
+	return t
+}
 
 // ModelHTTPInfer Call Triton Infer with HTTP.
 func (t *TritonClientService) ModelHTTPInfer(
@@ -379,7 +408,7 @@ func (t *TritonClientService) ServerMetadata(timeout time.Duration) (*ServerMeta
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	serverMetadataResponse := new(ServerMetadataResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &serverMetadataResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &serverMetadataResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return serverMetadataResponse, nil
@@ -406,7 +435,7 @@ func (t *TritonClientService) ModelMetadataRequest(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	modelMetadataResponse := new(ModelMetadataResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &modelMetadataResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &modelMetadataResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return modelMetadataResponse, nil
@@ -425,7 +454,7 @@ func (t *TritonClientService) ModelIndex(
 			ctx, &RepositoryIndexRequest{RepositoryName: repoName, Ready: isReady})
 		return repositoryIndexResponse, t.grpcErrorHandler(modelIndexErr)
 	}
-	reqBody, jsonEncodeErr := json.Marshal(&ModelIndexRequestHTTPObj{repoName, isReady})
+	reqBody, jsonEncodeErr := t.JsonMarshal(&ModelIndexRequestHTTPObj{repoName, isReady})
 	if jsonEncodeErr != nil {
 		return nil, jsonEncodeErr
 	}
@@ -435,7 +464,7 @@ func (t *TritonClientService) ModelIndex(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	repositoryIndexResponse := new(RepositoryIndexResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &repositoryIndexResponse.Models); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &repositoryIndexResponse.Models); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return repositoryIndexResponse, nil
@@ -461,7 +490,7 @@ func (t *TritonClientService) ModelConfiguration(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	modelConfigResponse := new(ModelConfigResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &modelConfigResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &modelConfigResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return modelConfigResponse, nil
@@ -487,7 +516,7 @@ func (t *TritonClientService) ModelInferStats(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	modelStatisticsResponse := new(ModelStatisticsResponse)
-	jsonDecodeErr := json.Unmarshal(apiResp.Body(), &modelStatisticsResponse)
+	jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &modelStatisticsResponse)
 	if jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
@@ -507,7 +536,7 @@ func (t *TritonClientService) ModelLoadWithHTTP(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	repositoryModelLoadResponse := new(RepositoryModelLoadResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &repositoryModelLoadResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &repositoryModelLoadResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return repositoryModelLoadResponse, nil
@@ -539,7 +568,7 @@ func (t *TritonClientService) ModelUnloadWithHTTP(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	repositoryModelUnloadResponse := new(RepositoryModelUnloadResponse)
-	jsonDecodeErr := json.Unmarshal(apiResp.Body(), &repositoryModelUnloadResponse)
+	jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &repositoryModelUnloadResponse)
 	if jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
@@ -601,13 +630,13 @@ func (t *TritonClientService) ShareMemoryStatus(
 	// Parse Response
 	if isCUDA {
 		cudaSharedMemoryStatusResponse := new(CudaSharedMemoryStatusResponse)
-		if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &cudaSharedMemoryStatusResponse); jsonDecodeErr != nil {
+		if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &cudaSharedMemoryStatusResponse); jsonDecodeErr != nil {
 			return nil, jsonDecodeErr
 		}
 		return cudaSharedMemoryStatusResponse, nil
 	}
 	systemSharedMemoryStatusResponse := new(SystemSharedMemoryStatusResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &systemSharedMemoryStatusResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &systemSharedMemoryStatusResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return systemSharedMemoryStatusResponse, nil
@@ -632,7 +661,7 @@ func (t *TritonClientService) ShareCUDAMemoryRegister(
 		)
 		return cudaSharedMemoryRegisterResponse, t.grpcErrorHandler(registerErr)
 	}
-	reqBody, jsonEncodeErr := json.Marshal(
+	reqBody, jsonEncodeErr := t.JsonMarshal(
 		&CudaMemoryRegisterBodyHTTPObj{cudaRawHandle, cudaDeviceID, byteSize})
 	if jsonEncodeErr != nil {
 		return nil, jsonEncodeErr
@@ -644,7 +673,7 @@ func (t *TritonClientService) ShareCUDAMemoryRegister(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	cudaSharedMemoryRegisterResponse := new(CudaSharedMemoryRegisterResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &cudaSharedMemoryRegisterResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &cudaSharedMemoryRegisterResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return cudaSharedMemoryRegisterResponse, nil
@@ -670,7 +699,7 @@ func (t *TritonClientService) ShareCUDAMemoryUnRegister(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	cudaSharedMemoryUnregisterResponse := new(CudaSharedMemoryUnregisterResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &cudaSharedMemoryUnregisterResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &cudaSharedMemoryUnregisterResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return cudaSharedMemoryUnregisterResponse, nil
@@ -695,7 +724,7 @@ func (t *TritonClientService) ShareSystemMemoryRegister(
 		)
 		return systemSharedMemoryRegisterResponse, t.grpcErrorHandler(registerErr)
 	}
-	reqBody, jsonEncodeErr := json.Marshal(
+	reqBody, jsonEncodeErr := t.JsonMarshal(
 		&SystemMemoryRegisterBodyHTTPObj{cpuMemRegionKey, cpuMemOffset, byteSize})
 	if jsonEncodeErr != nil {
 		return nil, jsonEncodeErr
@@ -707,7 +736,7 @@ func (t *TritonClientService) ShareSystemMemoryRegister(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	systemSharedMemoryRegisterResponse := new(SystemSharedMemoryRegisterResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &systemSharedMemoryRegisterResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &systemSharedMemoryRegisterResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return systemSharedMemoryRegisterResponse, nil
@@ -733,7 +762,7 @@ func (t *TritonClientService) ShareSystemMemoryUnRegister(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	systemSharedMemoryUnregisterResponse := new(SystemSharedMemoryUnregisterResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), &systemSharedMemoryUnregisterResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &systemSharedMemoryUnregisterResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return systemSharedMemoryUnregisterResponse, nil
@@ -759,7 +788,7 @@ func (t *TritonClientService) GetModelTracingSetting(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	traceSettingResponse := new(TraceSettingResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), traceSettingResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), traceSettingResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return traceSettingResponse, nil
@@ -780,7 +809,7 @@ func (t *TritonClientService) SetModelTracingSetting(
 		return traceSettingResponse, t.grpcErrorHandler(setTraceSettingErr)
 	}
 	// Experimental
-	reqBody, jsonEncodeErr := json.Marshal(&TraceSettingRequestHTTPObj{settingMap})
+	reqBody, jsonEncodeErr := t.JsonMarshal(&TraceSettingRequestHTTPObj{settingMap})
 	if jsonEncodeErr != nil {
 		return nil, jsonEncodeErr
 	}
@@ -791,7 +820,7 @@ func (t *TritonClientService) SetModelTracingSetting(
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	traceSettingResponse := new(TraceSettingResponse)
-	if jsonDecodeErr := json.Unmarshal(apiResp.Body(), traceSettingResponse); jsonDecodeErr != nil {
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), traceSettingResponse); jsonDecodeErr != nil {
 		return nil, jsonDecodeErr
 	}
 	return traceSettingResponse, nil
@@ -818,7 +847,7 @@ func (t *TritonClientService) ShutdownTritonConnection() (disconnectionErr error
 
 // NewTritonClientWithOnlyHTTP init triton client.
 func NewTritonClientWithOnlyHTTP(uri string, httpClient *fasthttp.Client) *TritonClientService {
-	client := &TritonClientService{serverURL: uri}
+	client := &TritonClientService{serverURL: uri, JSONEncoder: json.Marshal, JSONDecoder: json.Unmarshal}
 	client.setHTTPConnection(httpClient)
 	return client
 }
@@ -828,7 +857,12 @@ func NewTritonClientWithOnlyGRPC(grpcConn *grpc.ClientConn) *TritonClientService
 	if grpcConn == nil {
 		return nil
 	}
-	client := &TritonClientService{grpcConn: grpcConn, grpcClient: NewGRPCInferenceServiceClient(grpcConn)}
+	client := &TritonClientService{
+		grpcConn:    grpcConn,
+		grpcClient:  NewGRPCInferenceServiceClient(grpcConn),
+		JSONEncoder: json.Marshal,
+		JSONDecoder: json.Unmarshal,
+	}
 	return client
 }
 
@@ -837,9 +871,11 @@ func NewTritonClientForAll(
 	httpServerURL string, httpClient *fasthttp.Client, grpcConn *grpc.ClientConn,
 ) *TritonClientService {
 	client := &TritonClientService{
-		serverURL:  httpServerURL,
-		grpcConn:   grpcConn,
-		grpcClient: NewGRPCInferenceServiceClient(grpcConn),
+		serverURL:   httpServerURL,
+		grpcConn:    grpcConn,
+		grpcClient:  NewGRPCInferenceServiceClient(grpcConn),
+		JSONEncoder: json.Marshal,
+		JSONDecoder: json.Unmarshal,
 	}
 	client.setHTTPConnection(httpClient)
 

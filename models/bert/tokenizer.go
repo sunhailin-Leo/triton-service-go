@@ -93,6 +93,7 @@ func NewBaseTokenizer(opts ...OptionV1) *BaseTokenizer {
 // The resulting tokens preserve the alignment with the portion of the original text they belong to.
 func (t *BaseTokenizer) Tokenize(text string) []StringOffsetsPair {
 	splitTokens := make([]StringOffsetsPair, 0)
+	text = utils.Clean(text)
 	spaceTokens := t.splitOn(text, utils.IsWhitespace, false)
 
 	for i := range spaceTokens {

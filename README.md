@@ -144,6 +144,10 @@ func main() {
 
 ### Version
 
+* version 1.4.6 - 2023/07/27
+  * remove `github.com/goccy/go-json` and set `encoding/json` to default json marshal/unmarshal.
+  * add `JsonEncoder` and `JsonDecoder` API to adapt other json parser.
+
 * version 1.4.5 - 2023/07/12
   * update go.mod
   * fix Chinese tokenizer error

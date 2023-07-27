@@ -3,7 +3,6 @@ module github.com/sunhailin-Leo/triton-service-go
 go 1.18
 
 require (
-	github.com/goccy/go-json v0.10.2
 	github.com/valyala/fasthttp v1.48.0
 	golang.org/x/text v0.11.0
 	google.golang.org/grpc v1.56.2
