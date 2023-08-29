@@ -525,7 +525,7 @@ func (t *TritonClientService) ModelInferStats(
 
 // ModelLoadWithHTTP Load Model with http
 // modelConfigBody ==>
-//https://github.com/triton-inference-server/server/blob/main/docs/protocol/extension_model_repository.md#examples
+// https://github.com/triton-inference-server/server/blob/main/docs/protocol/extension_model_repository.md#examples
 func (t *TritonClientService) ModelLoadWithHTTP(
 	modelName string, modelConfigBody []byte, timeout time.Duration,
 ) (*RepositoryModelLoadResponse, error) {
@@ -796,7 +796,7 @@ func (t *TritonClientService) GetModelTracingSetting(
 
 // SetModelTracingSetting set model tracing setting.
 // Param: settingMap ==>
-//https://github.com/triton-inference-server/server/blob/main/docs/protocol/extension_trace.md#trace-setting-response-json-object
+// https://github.com/triton-inference-server/server/blob/main/docs/protocol/extension_trace.md#trace-setting-response-json-object
 func (t *TritonClientService) SetModelTracingSetting(
 	modelName string, settingMap map[string]*TraceSettingRequest_SettingValue, timeout time.Duration,
 ) (*TraceSettingResponse, error) {

@@ -215,12 +215,12 @@ func (m *ModelService) generateHTTPOutputs(
 	for i := range inferOutputs {
 		requestOutputs[i] = HTTPOutput{Name: inferOutputs[i].Name}
 		if _, ok := inferOutputs[i].Parameters[ModelRespBodyOutputBinaryDataKey]; ok {
-			requestOutputs[i].Parameters.BinaryData =
-				inferOutputs[i].Parameters[ModelRespBodyOutputBinaryDataKey].GetBoolParam()
+			requestOutputs[i].Parameters.BinaryData = inferOutputs[i].Parameters[ModelRespBodyOutputBinaryDataKey].
+				GetBoolParam()
 		}
 		if _, ok := inferOutputs[i].Parameters[ModelRespBodyOutputClassificationDataKey]; ok {
-			requestOutputs[i].Parameters.Classification =
-				inferOutputs[i].Parameters[ModelRespBodyOutputClassificationDataKey].GetInt64Param()
+			requestOutputs[i].Parameters.Classification = inferOutputs[i].Parameters[ModelRespBodyOutputClassificationDataKey].
+				GetInt64Param()
 		}
 	}
 	return requestOutputs

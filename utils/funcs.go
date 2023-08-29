@@ -10,6 +10,7 @@ import (
 )
 
 // IsWhitespace checks whether rune c is a BERT whitespace character.
+//
 //go:inline
 func IsWhitespace(c rune) bool {
 	if c <= 0xFF {
@@ -20,6 +21,7 @@ func IsWhitespace(c rune) bool {
 }
 
 // IsControl checks whether rune c is a BERT control character.
+//
 //go:inline
 func IsControl(c rune) bool {
 	switch c {
@@ -35,6 +37,7 @@ func IsControl(c rune) bool {
 }
 
 // IsPunctuation checks whether rune c is a BERT punctuation character.
+//
 //go:inline
 func IsPunctuation(c rune) bool {
 	// return unicode.In(c, utils.Bp, unicode.P)
@@ -43,6 +46,7 @@ func IsPunctuation(c rune) bool {
 }
 
 // IsChinese validates that rune c is in the CJK range according to BERT spec.
+//
 //go:inline
 func IsChinese(c rune) bool {
 	// unicode.Is(unicode.Han, c)
@@ -50,18 +54,21 @@ func IsChinese(c rune) bool {
 }
 
 // IsChineseOrNumber validates that rune c is in the CJK range according to BERT spec or Number.
+//
 //go:inline
 func IsChineseOrNumber(c rune) bool {
 	return unicode.In(c, BertChineseChar, unicode.P) || unicode.IsNumber(c)
 }
 
 // IsWhiteSpaceOrChinese validates that rune c is whitespace or is Chinese.
+//
 //go:inline
 func IsWhiteSpaceOrChinese(c rune) bool {
 	return IsWhitespace(c) || IsChinese(c)
 }
 
 // IsWhiteSpaceOrChineseOrNumber validates that rune c is whitespace or is Chinese or is Number.
+//
 //go:inline
 func IsWhiteSpaceOrChineseOrNumber(c rune) bool {
 	return IsWhitespace(c) || IsChineseOrNumber(c)
