@@ -1,10 +1,11 @@
-package bert
+package transformers
 
 import (
 	"encoding/binary"
 	"strings"
 	"time"
 
+	"github.com/sunhailin-Leo/triton-service-go/models"
 	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 	"github.com/sunhailin-Leo/triton-service-go/utils"
 	"github.com/valyala/fasthttp"
@@ -22,123 +23,19 @@ const (
 	ModelInt64DataType                       string = "INT64"
 )
 
-type ModelService struct {
-	isGRPC                          bool
-	isChinese                       bool
-	isChineseCharMode               bool
-	isReturnPosArray                bool
-	maxSeqLength                    int
-	modelName                       string
-	tritonService                   *nvidia_inferenceserver.TritonClientService
-	inferCallback                   nvidia_inferenceserver.DecoderFunc
-	BertVocab                       Dict
-	BertTokenizer                   *WordPieceTokenizer
-	generateModelInferRequest       GenerateModelInferRequest
-	generateModelInferOutputRequest GenerateModelInferOutputRequest
+type BertModelService struct {
+	models.ModelService
+
+	BertVocab     Dict
+	BertTokenizer *WordPieceTokenizer
 }
-
-////////////////////////////////////////////////// Flag Switch API //////////////////////////////////////////////////
-
-// SetMaxSeqLength Set model infer max sequence length.
-func (m *ModelService) SetMaxSeqLength(maxSeqLen int) *ModelService {
-	m.maxSeqLength = maxSeqLen
-
-	return m
-}
-
-// SetChineseTokenize Use Chinese Tokenize when tokenize infer data.
-func (m *ModelService) SetChineseTokenize(isCharMode bool) *ModelService {
-	m.isChinese = true
-	m.isChineseCharMode = isCharMode
-
-	return m
-}
-
-// UnsetChineseTokenize Un-use Chinese Tokenize when tokenize infer data.
-func (m *ModelService) UnsetChineseTokenize() *ModelService {
-	m.isChinese = false
-	m.isChineseCharMode = false
-
-	return m
-}
-
-// SetModelInferWithGRPC Use grpc to call triton.
-func (m *ModelService) SetModelInferWithGRPC() *ModelService {
-	m.isGRPC = true
-
-	return m
-}
-
-// UnsetModelInferWithGRPC Un-use grpc to call triton.
-func (m *ModelService) UnsetModelInferWithGRPC() *ModelService {
-	m.isGRPC = false
-
-	return m
-}
-
-// GetModelInferIsGRPC Get isGRPC flag.
-func (m *ModelService) GetModelInferIsGRPC() bool {
-	return m.isGRPC
-}
-
-// GetTokenizerIsChineseMode Get isChinese flag.
-func (m *ModelService) GetTokenizerIsChineseMode() bool {
-	return m.isChinese
-}
-
-// SetTokenizerReturnPosInfo Set tokenizer return pos info.
-func (m *ModelService) SetTokenizerReturnPosInfo() *ModelService {
-	m.isReturnPosArray = true
-
-	return m
-}
-
-// UnsetTokenizerReturnPosInfo Un-set tokenizer return pos info.
-func (m *ModelService) UnsetTokenizerReturnPosInfo() *ModelService {
-	m.isReturnPosArray = false
-
-	return m
-}
-
-// SetModelName Set model name must equal to Triton config.pbtxt model name.
-func (m *ModelService) SetModelName(modelPrefix, modelName string) *ModelService {
-	// TODO maybe not use dash to separate modelPrefix and modelName
-	m.modelName = modelPrefix + "-" + modelName
-
-	return m
-}
-
-// GetModelName Get model name.
-func (m *ModelService) GetModelName() string { return m.modelName }
-
-// SetSecondaryServerURL set secondary server url【Only HTTP】
-func (m *ModelService) SetSecondaryServerURL(url string) *ModelService {
-	if m.tritonService != nil {
-		m.tritonService.SetSecondaryServerURL(url)
-	}
-	return m
-}
-
-// SetJsonEncoder set json encoder
-func (m *ModelService) SetJsonEncoder(encoder utils.JSONMarshal) *ModelService {
-	m.tritonService.SetJSONEncoder(encoder)
-	return m
-}
-
-// SetJsonDecoder set json decoder
-func (m *ModelService) SetJsonDecoder(decoder utils.JSONUnmarshal) *ModelService {
-	m.tritonService.SetJsonDecoder(decoder)
-	return m
-}
-
-////////////////////////////////////////////////// Flag Switch API //////////////////////////////////////////////////
 
 ///////////////////////////////////////// Bert Service Pre-Process Function /////////////////////////////////////////
 
 // getTokenizerResult Get Tokenizer result from different tokenizers.
-func (m *ModelService) getTokenizerResult(inferData string) []string {
-	if m.isChinese {
-		if m.isChineseCharMode {
+func (m *BertModelService) getTokenizerResult(inferData string) []string {
+	if m.IsChinese {
+		if m.IsChineseCharMode {
 			return GetStrings(m.BertTokenizer.TokenizeChineseCharMode(strings.ToLower(inferData)))
 		}
 		return GetStrings(m.BertTokenizer.TokenizeChinese(strings.ToLower(inferData)))
@@ -147,10 +44,10 @@ func (m *ModelService) getTokenizerResult(inferData string) []string {
 }
 
 // getTokenizerResultWithOffsets Get Tokenizer result from different tokenizers with offsets.
-func (m *ModelService) getTokenizerResultWithOffsets(inferData string) ([]string, []OffsetsType) {
-	if m.isChinese {
+func (m *BertModelService) getTokenizerResultWithOffsets(inferData string) ([]string, []OffsetsType) {
+	if m.IsChinese {
 		var tokenizerResult []StringOffsetsPair
-		if m.isChineseCharMode {
+		if m.IsChineseCharMode {
 			tokenizerResult = m.BertTokenizer.TokenizeChineseCharMode(strings.ToLower(inferData))
 		} else {
 			tokenizerResult = m.BertTokenizer.TokenizeChinese(strings.ToLower(inferData))
@@ -164,7 +61,7 @@ func (m *ModelService) getTokenizerResultWithOffsets(inferData string) ([]string
 }
 
 // getBertInputFeature Get Bert Feature (before Make HTTP or GRPC Request).
-func (m *ModelService) getBertInputFeature(inferData string) (*InputFeature, *InputObjects) {
+func (m *BertModelService) getBertInputFeature(inferData string) (*InputFeature, *InputObjects) {
 	// Replace BertDataSplitString Here, so the parts is 1, no need to use strings.Split and decrease a for-loop.
 	if strings.Index(inferData, DataSplitString) > 0 {
 		inferData = strings.ReplaceAll(inferData, DataSplitString, "")
@@ -174,21 +71,21 @@ func (m *ModelService) getBertInputFeature(inferData string) (*InputFeature, *In
 	// feature.TokenIDs == input_ids
 	// feature.Mask     == input_mask
 	feature := &InputFeature{
-		Tokens:   make([]string, m.maxSeqLength),
-		TokenIDs: make([]int32, m.maxSeqLength),
-		Mask:     make([]int32, m.maxSeqLength),
-		TypeIDs:  make([]int32, m.maxSeqLength),
+		Tokens:   make([]string, m.MaxSeqLength),
+		TokenIDs: make([]int32, m.MaxSeqLength),
+		Mask:     make([]int32, m.MaxSeqLength),
+		TypeIDs:  make([]int32, m.MaxSeqLength),
 	}
 	inputObjects := &InputObjects{Input: inferData}
 	// inferData only a short text, so it`s length always 1.
 	// truncate w/ space for CLS/SEP, 1 for sequence length and 1 for the last index
 	sequence := make([][]string, 1)
-	if m.isReturnPosArray {
+	if m.IsReturnPosArray {
 		sequence[0], inputObjects.PosArray = m.getTokenizerResultWithOffsets(inferData)
 	} else {
 		sequence[0] = m.getTokenizerResult(inferData)
 	}
-	sequence = utils.StringSliceTruncate(sequence, m.maxSeqLength-2)
+	sequence = utils.StringSliceTruncate(sequence, m.MaxSeqLength-2)
 	for i := 0; i <= len(sequence[0])+1; i++ {
 		feature.Mask[i] = 1
 		switch {
@@ -208,19 +105,21 @@ func (m *ModelService) getBertInputFeature(inferData string) (*InputFeature, *In
 }
 
 // generateHTTPOutputs For HTTP Output.
-func (m *ModelService) generateHTTPOutputs(
+func (m *BertModelService) generateHTTPOutputs(
 	inferOutputs []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor,
 ) []HTTPOutput {
 	requestOutputs := make([]HTTPOutput, len(inferOutputs))
 	for i := range inferOutputs {
 		requestOutputs[i] = HTTPOutput{Name: inferOutputs[i].Name}
-		if _, ok := inferOutputs[i].Parameters[ModelRespBodyOutputBinaryDataKey]; ok {
-			requestOutputs[i].Parameters.BinaryData = inferOutputs[i].Parameters[ModelRespBodyOutputBinaryDataKey].
-				GetBoolParam()
-		}
-		if _, ok := inferOutputs[i].Parameters[ModelRespBodyOutputClassificationDataKey]; ok {
-			requestOutputs[i].Parameters.Classification = inferOutputs[i].Parameters[ModelRespBodyOutputClassificationDataKey].
-				GetInt64Param()
+		if len(inferOutputs[i].Parameters) > 0 {
+			if _, ok := inferOutputs[i].Parameters[ModelRespBodyOutputBinaryDataKey]; ok {
+				requestOutputs[i].Parameters.BinaryData = inferOutputs[i].Parameters[ModelRespBodyOutputBinaryDataKey].
+					GetBoolParam()
+			}
+			if _, ok := inferOutputs[i].Parameters[ModelRespBodyOutputClassificationDataKey]; ok {
+				requestOutputs[i].Parameters.Classification = inferOutputs[i].Parameters[ModelRespBodyOutputClassificationDataKey].
+					GetInt64Param()
+			}
 		}
 	}
 	return requestOutputs
@@ -229,7 +128,7 @@ func (m *ModelService) generateHTTPOutputs(
 // generateHTTPInputs get bert input feature for http request
 // inferDataArr: model infer data slice
 // inferInputs: triton inference server input tensor.
-func (m *ModelService) generateHTTPInputs(
+func (m *BertModelService) generateHTTPInputs(
 	inferDataArr []string, inferInputs []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor,
 ) ([]HTTPBatchInput, []*InputObjects) {
 	// Bert Feature
@@ -246,7 +145,7 @@ func (m *ModelService) generateHTTPInputs(
 	for i := range inferInputs {
 		batchRequestInputs[i] = HTTPBatchInput{
 			Name:     inferInputs[i].Name,
-			Shape:    inferInputs[i].Shape,
+			Shape:    []int64{int64(len(inferDataArr)), int64(m.MaxSeqLength)},
 			DataType: inferInputs[i].Datatype,
 			Data:     inferDataObjs[i],
 		}
@@ -255,14 +154,14 @@ func (m *ModelService) generateHTTPInputs(
 }
 
 // generateHTTPRequest HTTP Request Data Generate.
-func (m *ModelService) generateHTTPRequest(
+func (m *BertModelService) generateHTTPRequest(
 	inferDataArr []string,
 	inferInputs []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor,
 	inferOutputs []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor,
 ) ([]byte, []*InputObjects, error) {
 	// Generate batch request json body
 	requestInputBody, modelInputObj := m.generateHTTPInputs(inferDataArr, inferInputs)
-	jsonBody, jsonEncodeErr := m.tritonService.JsonMarshal(&HTTPRequestBody{
+	jsonBody, jsonEncodeErr := m.TritonService.JsonMarshal(&HTTPRequestBody{
 		Inputs:  requestInputBody,
 		Outputs: m.generateHTTPOutputs(inferOutputs),
 	})
@@ -273,7 +172,7 @@ func (m *ModelService) generateHTTPRequest(
 }
 
 // grpcInt32SliceToLittleEndianByteSlice int32 slice to byte slice with little endian.
-func (m *ModelService) grpcInt32SliceToLittleEndianByteSlice(maxLen int, input []int32, inputType string) []byte {
+func (m *BertModelService) grpcInt32SliceToLittleEndianByteSlice(maxLen int, input []int32, inputType string) []byte {
 	switch inputType {
 	case ModelInt32DataType:
 		var returnByte []byte
@@ -297,7 +196,7 @@ func (m *ModelService) grpcInt32SliceToLittleEndianByteSlice(maxLen int, input [
 }
 
 // generateGRPCRequest GRPC Request Data Generate
-func (m *ModelService) generateGRPCRequest(
+func (m *BertModelService) generateGRPCRequest(
 	inferDataArr []string,
 	inferInputTensor []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor,
 ) ([][]byte, []*InputObjects) {
@@ -316,19 +215,19 @@ func (m *ModelService) generateGRPCRequest(
 				segmentIdsBytes = append(
 					segmentIdsBytes,
 					m.grpcInt32SliceToLittleEndianByteSlice(
-						m.maxSeqLength, feature.TypeIDs, inferInputTensor[j].Datatype)...,
+						m.MaxSeqLength, feature.TypeIDs, inferInputTensor[j].Datatype)...,
 				)
 			case ModelBertModelInputIdsKey:
 				inputIdsBytes = append(
 					inputIdsBytes,
 					m.grpcInt32SliceToLittleEndianByteSlice(
-						m.maxSeqLength, feature.TokenIDs, inferInputTensor[j].Datatype)...,
+						m.MaxSeqLength, feature.TokenIDs, inferInputTensor[j].Datatype)...,
 				)
 			case ModelBertModelInputMaskKey:
 				inputMaskBytes = append(
 					inputMaskBytes,
 					m.grpcInt32SliceToLittleEndianByteSlice(
-						m.maxSeqLength, feature.Mask, inferInputTensor[j].Datatype)...,
+						m.MaxSeqLength, feature.Mask, inferInputTensor[j].Datatype)...,
 				)
 			}
 		}
@@ -341,77 +240,25 @@ func (m *ModelService) generateGRPCRequest(
 
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
 
-// CheckServerReady check server is ready.
-func (m *ModelService) CheckServerReady(requestTimeout time.Duration) (bool, error) {
-	return m.tritonService.CheckServerReady(requestTimeout)
-}
-
-// CheckServerAlive check server is alive.
-func (m *ModelService) CheckServerAlive(requestTimeout time.Duration) (bool, error) {
-	return m.tritonService.CheckServerAlive(requestTimeout)
-}
-
-// CheckModelReady check model is ready.
-func (m *ModelService) CheckModelReady(
-	modelName, modelVersion string, requestTimeout time.Duration,
-) (bool, error) {
-	return m.tritonService.CheckModelReady(modelName, modelVersion, requestTimeout)
-}
-
-// GetServerMeta get server meta.
-func (m *ModelService) GetServerMeta(
-	requestTimeout time.Duration,
-) (*nvidia_inferenceserver.ServerMetadataResponse, error) {
-	return m.tritonService.ServerMetadata(requestTimeout)
-}
-
-// GetModelMeta get model meta.
-func (m *ModelService) GetModelMeta(
-	modelName, modelVersion string, requestTimeout time.Duration,
-) (*nvidia_inferenceserver.ModelMetadataResponse, error) {
-	return m.tritonService.ModelMetadataRequest(modelName, modelVersion, requestTimeout)
-}
-
-// GetAllModelInfo get all model info.
-func (m *ModelService) GetAllModelInfo(
-	repoName string, isReady bool, requestTimeout time.Duration,
-) (*nvidia_inferenceserver.RepositoryIndexResponse, error) {
-	return m.tritonService.ModelIndex(repoName, isReady, requestTimeout)
-}
-
-// GetModelConfig get model config.
-func (m *ModelService) GetModelConfig(
-	modelName, modelVersion string, requestTimeout time.Duration,
-) (interface{}, error) {
-	return m.tritonService.ModelConfiguration(modelName, modelVersion, requestTimeout)
-}
-
-// GetModelInferStats get model infer stats.
-func (m *ModelService) GetModelInferStats(
-	modelName, modelVersion string, requestTimeout time.Duration,
-) (*nvidia_inferenceserver.ModelStatisticsResponse, error) {
-	return m.tritonService.ModelInferStats(modelName, modelVersion, requestTimeout)
-}
-
 // ModelInfer API to call Triton Inference Server.
-func (m *ModelService) ModelInfer(
+func (m *BertModelService) ModelInfer(
 	inferData []string,
 	modelName, modelVersion string,
 	requestTimeout time.Duration,
 	params ...interface{},
 ) ([]interface{}, error) {
 	// Create request input/output tensors
-	inferInputs := m.generateModelInferRequest(len(inferData), m.maxSeqLength)
-	inferOutputs := m.generateModelInferOutputRequest(params...)
-	if m.isGRPC {
+	inferInputs := m.GenerateModelInferRequest()
+	inferOutputs := m.GenerateModelInferOutputRequest(params...)
+	if m.IsGRPC {
 		// GRPC Infer
 		grpcRawInputs, grpcInputData := m.generateGRPCRequest(inferData, inferInputs)
 		if grpcRawInputs == nil {
 			return nil, utils.ErrEmptyGRPCRequestBody
 		}
-		return m.tritonService.ModelGRPCInfer(
+		return m.TritonService.ModelGRPCInfer(
 			inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion, requestTimeout,
-			m.inferCallback, m, grpcInputData, params,
+			m.InferCallback, m, grpcInputData, params,
 		)
 	}
 	httpRequestBody, httpInputData, err := m.generateHTTPRequest(inferData, inferInputs, inferOutputs)
@@ -422,21 +269,21 @@ func (m *ModelService) ModelInfer(
 		return nil, utils.ErrEmptyHTTPRequestBody
 	}
 	// HTTP Infer
-	return m.tritonService.ModelHTTPInfer(
+	return m.TritonService.ModelHTTPInfer(
 		httpRequestBody, modelName, modelVersion, requestTimeout,
-		m.inferCallback, m, httpInputData, params,
+		m.InferCallback, m, httpInputData, params,
 	)
 }
 
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
 
-func NewModelService(
+func NewBertModelService(
 	bertVocabPath, httpAddr string,
 	httpClient *fasthttp.Client, grpcConn *grpc.ClientConn,
-	modelInputCallback GenerateModelInferRequest,
-	modelOutputCallback GenerateModelInferOutputRequest,
+	modelInputCallback models.GenerateModelInferRequest,
+	modelOutputCallback models.GenerateModelInferOutputRequest,
 	modelInferCallback nvidia_inferenceserver.DecoderFunc,
-) (*ModelService, error) {
+) (*BertModelService, error) {
 	// 0、callback function validation
 	if modelInputCallback == nil || modelOutputCallback == nil || modelInferCallback == nil {
 		return nil, utils.ErrEmptyCallbackFunc
@@ -447,14 +294,18 @@ func NewModelService(
 		return nil, vocabReadErr
 	}
 	// 2、Init Service
-	srv := &ModelService{
-		maxSeqLength:                    DefaultMaxSeqLength,
-		tritonService:                   nvidia_inferenceserver.NewTritonClientForAll(httpAddr, httpClient, grpcConn),
-		inferCallback:                   modelInferCallback,
-		BertVocab:                       voc,
-		BertTokenizer:                   NewWordPieceTokenizer(voc),
-		generateModelInferRequest:       modelInputCallback,
-		generateModelInferOutputRequest: modelOutputCallback,
+	baseSrv := models.ModelService{
+		MaxSeqLength:                    DefaultMaxSeqLength,
+		TritonService:                   nvidia_inferenceserver.NewTritonClientForAll(httpAddr, httpClient, grpcConn),
+		InferCallback:                   modelInferCallback,
+		GenerateModelInferRequest:       modelInputCallback,
+		GenerateModelInferOutputRequest: modelOutputCallback,
+	}
+
+	srv := &BertModelService{
+		ModelService:  baseSrv,
+		BertVocab:     voc,
+		BertTokenizer: NewWordPieceTokenizer(voc),
 	}
 	return srv, nil
 }

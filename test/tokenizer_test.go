@@ -5,18 +5,18 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sunhailin-Leo/triton-service-go/models/bert"
+	"github.com/sunhailin-Leo/triton-service-go/models/transformers"
 )
 
 func TestFullTokenizerNotChinese(t *testing.T) {
-	voc, vocabReadErr := bert.VocabFromFile("bert-multilingual-vocab.txt")
+	voc, vocabReadErr := transformers.VocabFromFile("bert-multilingual-vocab.txt")
 	if vocabReadErr != nil {
 		panic(vocabReadErr)
 	}
-	tokenizer := bert.NewWordPieceTokenizer(voc)
+	tokenizer := transformers.NewWordPieceTokenizer(voc)
 	tokenResult := tokenizer.Tokenize("นครปฐม เมืองนครปฐม ถนนขาด เลขที่ 69 หมู่ 1 ซ. - - ถ. -")
 	tokenStrSlice := make([]string, len(tokenResult))
-	tokenOffsetSlice := make([]bert.OffsetsType, len(tokenResult))
+	tokenOffsetSlice := make([]transformers.OffsetsType, len(tokenResult))
 	for i, token := range tokenResult {
 		tokenStrSlice[i] = token.String
 		tokenOffsetSlice[i] = token.Offsets
@@ -37,7 +37,7 @@ func TestFullTokenizerNotChinese(t *testing.T) {
 		t.Errorf("Expected '%v', but got '%v'", expectedTokenSlice, tokenStrSlice)
 	}
 
-	expectedTokenOffsetSlice := []bert.OffsetsType{
+	expectedTokenOffsetSlice := []transformers.OffsetsType{
 		{Start: 0, End: 1},
 		{Start: 1, End: 3},
 		{Start: 3, End: 4},
@@ -80,11 +80,11 @@ func TestFullTokenizerNotChinese(t *testing.T) {
 
 // BenchmarkFullTokenizerNotChinese-12    	   56792	     19936 ns/op	   13912 B/op	     277 allocs/op
 func BenchmarkFullTokenizerNotChinese(b *testing.B) {
-	voc, vocabReadErr := bert.VocabFromFile("bert-multilingual-vocab.txt")
+	voc, vocabReadErr := transformers.VocabFromFile("bert-multilingual-vocab.txt")
 	if vocabReadErr != nil {
 		panic(vocabReadErr)
 	}
-	tokenizer := bert.NewWordPieceTokenizer(voc)
+	tokenizer := transformers.NewWordPieceTokenizer(voc)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -94,14 +94,14 @@ func BenchmarkFullTokenizerNotChinese(b *testing.B) {
 }
 
 func TestFullTokenizerChinese(t *testing.T) {
-	voc, vocabReadErr := bert.VocabFromFile("bert-chinese-vocab.txt")
+	voc, vocabReadErr := transformers.VocabFromFile("bert-chinese-vocab.txt")
 	if vocabReadErr != nil {
 		panic(vocabReadErr)
 	}
-	tokenizer := bert.NewWordPieceTokenizer(voc)
+	tokenizer := transformers.NewWordPieceTokenizer(voc)
 	tokenResult := tokenizer.TokenizeChinese(strings.ToLower("广东省深圳市南山区腾讯大厦"))
 	tokenStrSlice := make([]string, len(tokenResult))
-	tokenOffsetSlice := make([]bert.OffsetsType, len(tokenResult))
+	tokenOffsetSlice := make([]transformers.OffsetsType, len(tokenResult))
 	for i, token := range tokenResult {
 		tokenStrSlice[i] = token.String
 		tokenOffsetSlice[i] = token.Offsets
@@ -118,7 +118,7 @@ func TestFullTokenizerChinese(t *testing.T) {
 		t.Errorf("Expected '%v', but got '%v'", expectedTokenSlice, tokenStrSlice)
 	}
 
-	expectedTokenOffsetSlice := []bert.OffsetsType{
+	expectedTokenOffsetSlice := []transformers.OffsetsType{
 		{Start: 0, End: 1},
 		{Start: 1, End: 2},
 		{Start: 2, End: 3},
@@ -140,11 +140,11 @@ func TestFullTokenizerChinese(t *testing.T) {
 
 // BenchmarkFullTokenizerChinese-12    	  162031	      7488 ns/op	    3920 B/op	     102 allocs/op
 func BenchmarkFullTokenizerChinese(b *testing.B) {
-	voc, vocabReadErr := bert.VocabFromFile("bert-chinese-vocab.txt")
+	voc, vocabReadErr := transformers.VocabFromFile("bert-chinese-vocab.txt")
 	if vocabReadErr != nil {
 		panic(vocabReadErr)
 	}
-	tokenizer := bert.NewWordPieceTokenizer(voc)
+	tokenizer := transformers.NewWordPieceTokenizer(voc)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

@@ -1,4 +1,4 @@
-package bert
+package transformers
 
 import (
 	"bufio"

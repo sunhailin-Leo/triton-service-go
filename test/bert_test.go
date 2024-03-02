@@ -4,7 +4,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/sunhailin-Leo/triton-service-go/models/bert"
+	"github.com/sunhailin-Leo/triton-service-go/models/transformers"
 	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 	"github.com/valyala/fasthttp"
 	"google.golang.org/grpc"
@@ -24,24 +24,19 @@ const (
 )
 
 // testGenerateModelInferRequest Triton Input.
-func testGenerateModelInferRequest(
-	batchSize, maxSeqLength int,
-) []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor {
+func testGenerateModelInferRequest() []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor {
 	return []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor{
 		{
 			Name:     tBertModelSegmentIdsKey,
 			Datatype: tBertModelSegmentIdsDataType,
-			Shape:    []int64{int64(batchSize), int64(maxSeqLength)},
 		},
 		{
 			Name:     tBertModelInputIdsKey,
 			Datatype: tBertModelInputIdsDataType,
-			Shape:    []int64{int64(batchSize), int64(maxSeqLength)},
 		},
 		{
 			Name:     tBertModelInputMaskKey,
 			Datatype: tBertModelInputMaskDataType,
-			Shape:    []int64{int64(batchSize), int64(maxSeqLength)},
 		},
 	}
 }
@@ -85,16 +80,19 @@ func TestBertServiceForBertChinese(t *testing.T) {
 	if grpcErr != nil {
 		panic(grpcErr)
 	}
-	bertService, initErr := bert.NewModelService(
+	bertService, initErr := transformers.NewBertModelService(
 		vocabPath, httpAddr, defaultHTTPClient, defaultGRPCClient,
 		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback)
 	if initErr != nil {
 		panic(initErr)
 	}
-	bertService = bertService.SetChineseTokenize(false).SetMaxSeqLength(maxSeqLen)
+	bertService.SetChineseTokenize(false).SetMaxSeqLength(maxSeqLen)
 	vocabSize := bertService.BertVocab.Size()
 	if bertService.BertVocab.Size() != 21128 {
-		t.Errorf("Expected '%d', but got '%d'", vocabSize, 21128)
+		t.Errorf("Expected '%d', but got '%d'", 21128, vocabSize)
+	}
+	if bertService.ModelService.MaxSeqLength != maxSeqLen {
+		t.Errorf("Expected '%v', but got '%v'", maxSeqLen, bertService.ModelService.MaxSeqLength)
 	}
 }
 
@@ -108,15 +106,18 @@ func TestBertServiceForBertMultilingual(t *testing.T) {
 	if grpcErr != nil {
 		panic(grpcErr)
 	}
-	bertService, initErr := bert.NewModelService(
+	bertService, initErr := transformers.NewBertModelService(
 		vocabPath, httpAddr, defaultHTTPClient, defaultGRPCClient,
 		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback)
 	if initErr != nil {
 		panic(initErr)
 	}
-	bertService = bertService.SetMaxSeqLength(maxSeqLen)
+	bertService.SetMaxSeqLength(maxSeqLen)
 	vocabSize := bertService.BertVocab.Size()
 	if bertService.BertVocab.Size() != 119547 {
-		t.Errorf("Expected '%d', but got '%d'", vocabSize, 119547)
+		t.Errorf("Expected '%d', but got '%d'", 119547, vocabSize)
+	}
+	if bertService.ModelService.MaxSeqLength != maxSeqLen {
+		t.Errorf("Expected '%v', but got '%v'", maxSeqLen, bertService.ModelService.MaxSeqLength)
 	}
 }
