@@ -1,11 +1,16 @@
 package transformers
 
 import (
+	"bytes"
+	"encoding/binary"
 	"slices"
 	"time"
 
+	"github.com/sunhailin-Leo/triton-service-go/models"
 	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
 	"github.com/sunhailin-Leo/triton-service-go/utils"
+	"github.com/valyala/fasthttp"
+	"google.golang.org/grpc"
 )
 
 type W2NerModelService struct {
@@ -43,17 +48,6 @@ var dis2idx = []int32{
 	9,
 }
 
-// like python list(range(start, len))
-func generateRange(start, end int) []int {
-	result := make([]int, end-start)
-
-	for i := 0; i < end-start; i++ {
-		result[i] = start + i
-	}
-
-	return result
-}
-
 func generateInitDistInputs(size int) [][]int32 {
 	matrix := make([][]int32, size)
 	for i := range matrix {
@@ -68,6 +62,8 @@ func generateInitDistInputs(size int) [][]int32 {
 
 	return matrix
 }
+
+///////////////////////////////////////// Bert Service Pre-Process Function /////////////////////////////////////////
 
 // getBertInputFeature Get Bert-W2NER Feature (before Make HTTP or GRPC Request).
 func (w *W2NerModelService) getBertInputFeature(batchInferData [][]string) []*W2NERInputFeature {
@@ -117,7 +113,7 @@ func (w *W2NerModelService) getBertInputFeature(batchInferData [][]string) []*W2
 				continue
 			}
 
-			idx := generateRange(start, start+len(inferTokens[j]))
+			idx := utils.GenerateRange[int](start, start+len(inferTokens[j]))
 			pieces2word[j] = make([]bool, len(batchInputFeatures[i].TokenIDs))
 			for k := 0; k < len(pieces2word[j]); k++ {
 				if k >= idx[0]+1 && k < idx[len(idx)-1]+2 {
@@ -238,6 +234,92 @@ func (w *W2NerModelService) generateHTTPRequest(
 	return jsonBody, modelInputObj, nil
 }
 
+// grpcSliceToLittleEndianByteSlice bool slice, 2-D int32 slice to byte slice with little endian.
+func (w *W2NerModelService) grpcSliceToLittleEndianByteSlice(slice any) []byte {
+	var buffer bytes.Buffer
+
+	switch s := slice.(type) {
+	case [][]bool:
+		for _, row := range s {
+			var byteVal byte
+			for i, v := range row {
+				bitIndex := uint(i % 8)
+
+				if v {
+					byteVal |= 1 << bitIndex
+				}
+
+				if i == 7 {
+					buffer.WriteByte(byteVal)
+					byteVal = 0
+				}
+			}
+			if len(row)%8 != 0 {
+				buffer.WriteByte(byteVal)
+			}
+		}
+	case [][]int32:
+		for _, row := range s {
+			for _, value := range row {
+				err := binary.Write(&buffer, binary.LittleEndian, value)
+				if err != nil {
+					return nil
+				}
+			}
+		}
+	default:
+		return nil
+	}
+
+	return buffer.Bytes()
+}
+
+// generateGRPCRequest GRPC Request Data Generate
+func (w *W2NerModelService) generateGRPCRequest(
+	inferDataArr [][]string,
+	inferInputTensor []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor,
+) ([][]byte, []*W2NERInputFeature) {
+	var tokenIdsBytes, gridMask2DBytes, distInputsBytes, pieces2wordBytes []byte
+	inputFeatures := w.getBertInputFeature(inferDataArr)
+	for i := range inputFeatures {
+		for j := range inferInputTensor {
+			switch j {
+			case 0:
+				// TokenIDs []int32
+				tokenIdsBytes = append(
+					tokenIdsBytes,
+					w.grpcInt32SliceToLittleEndianByteSlice(
+						len(inputFeatures[i].TokenIDs), inputFeatures[i].TokenIDs, inferInputTensor[0].Datatype)...,
+				)
+			case 1:
+				// GridMask2D [][]bool
+				gridMask2DBytes = append(
+					gridMask2DBytes,
+					w.grpcSliceToLittleEndianByteSlice(inputFeatures[i].GridMask2D)...,
+				)
+			case 2:
+				// DistInputs [][]int32
+				distInputsBytes = append(
+					distInputsBytes,
+					w.grpcSliceToLittleEndianByteSlice(inputFeatures[i].DistInputs)...,
+				)
+			case 3:
+				// Pieces2Word [][]bool
+				pieces2wordBytes = append(
+					pieces2wordBytes,
+					w.grpcSliceToLittleEndianByteSlice(inputFeatures[i].Pieces2Word)...,
+				)
+			}
+		}
+	}
+
+	return [][]byte{tokenIdsBytes, gridMask2DBytes, distInputsBytes, pieces2wordBytes}, inputFeatures
+}
+
+///////////////////////////////////////// Bert Service Pre-Process Function /////////////////////////////////////////
+
+//////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
+
 // ModelInfer API to call Triton Inference Server.
 func (w *W2NerModelService) ModelInfer(
 	inferData [][]string,
@@ -249,7 +331,17 @@ func (w *W2NerModelService) ModelInfer(
 	inferInputs := w.GenerateModelInferRequest()
 	inferOutputs := w.GenerateModelInferOutputRequest(params...)
 
-	// TODO GRPC
+	if w.IsGRPC {
+		// GRPC Infer(Experimental! Maybe response is incorrect!)
+		grpcRawInputs, grpcInputData := w.generateGRPCRequest(inferData, inferInputs)
+		if grpcRawInputs == nil {
+			return nil, utils.ErrEmptyGRPCRequestBody
+		}
+		return w.TritonService.ModelGRPCInfer(
+			inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion, requestTimeout,
+			w.InferCallback, w, grpcInputData, params,
+		)
+	}
 
 	httpRequestBody, httpInputData, err := w.generateHTTPRequest(inferData, inferInputs, inferOutputs)
 	if err != nil {
@@ -263,4 +355,24 @@ func (w *W2NerModelService) ModelInfer(
 		httpRequestBody, modelName, modelVersion, requestTimeout,
 		w.InferCallback, w, httpInputData, params,
 	)
+}
+
+//////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
+
+func NewW2NERModelService(
+	bertVocabPath, httpAddr string,
+	httpClient *fasthttp.Client, grpcConn *grpc.ClientConn,
+	modelInputCallback models.GenerateModelInferRequest,
+	modelOutputCallback models.GenerateModelInferOutputRequest,
+	modelInferCallback nvidia_inferenceserver.DecoderFunc,
+) (*W2NerModelService, error) {
+	// 1、Init Bert Service(Because W2NER is based on Bert)
+	baseSrv, baseSrvErr := NewBertModelService(bertVocabPath, httpAddr, httpClient, grpcConn,
+		modelInputCallback, modelOutputCallback, modelInferCallback)
+	if baseSrvErr != nil {
+		return nil, baseSrvErr
+	}
+
+	srv := &W2NerModelService{BertModelService: baseSrv}
+	return srv, nil
 }

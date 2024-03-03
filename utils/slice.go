@@ -88,7 +88,7 @@ func Flatten2DSlice[T any](arr [][]T) []T {
 	return result
 }
 
-// GetMaxSubSliceLength [][]int{{1,2,3}, {3, 4}} return 2
+// GetMaxSubSliceLength [][]int{{1,2,3}, {3, 4}} return 3
 func GetMaxSubSliceLength[T any](arr [][]T) (maxLength int) {
 	if len(arr) == 0 {
 		return 0
@@ -109,5 +109,16 @@ func SliceToInterfaceSlice[T any](arr []T) []interface{} {
 	for i := range arr {
 		result[i] = arr[i]
 	}
+	return result
+}
+
+// GenerateRange like python list(range(start, len))
+func GenerateRange[T IntNumeric](start, end int) []T {
+	result := make([]T, end-start)
+
+	for i := 0; i < end-start; i++ {
+		result[i] = T(start + i)
+	}
+
 	return result
 }

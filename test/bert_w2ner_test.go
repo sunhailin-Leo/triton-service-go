@@ -3,6 +3,7 @@ package test
 import (
 	"log"
 	"testing"
+	"time"
 
 	"github.com/sunhailin-Leo/triton-service-go/models/transformers"
 	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
@@ -72,7 +73,7 @@ func TestW2NERService(t *testing.T) {
 		panic(grpcErr)
 	}
 
-	bertService, initErr := transformers.NewBertModelService(
+	w2nerService, initErr := transformers.NewW2NERModelService(
 		vocabPath, httpAddr, defaultHTTPClient, defaultGRPCClient,
 		testGenerateW2NERModelInferRequest,
 		testGenerateW2NERModelInferOutputRequest,
@@ -81,9 +82,26 @@ func TestW2NERService(t *testing.T) {
 		panic(initErr)
 	}
 
-	w2nerService := &transformers.W2NerModelService{BertModelService: bertService}
 	vocabSize := w2nerService.BertVocab.Size()
 	if w2nerService.BertVocab.Size() != 119547 {
 		t.Errorf("Expected '%d', but got '%d'", 119547, vocabSize)
+	}
+
+	testArr := [][]string{
+		{"METRO", "-", "MANILA", "QUEZON", "-", "CITY", "SOUTH", "TRIANGLE", "SOUTH", "TRIANGLE", "1388", ",", "QUEZON", "AVENUE", ",", "UNIT", "A", "6TH", "FLOOR", "DN", "CORPORATE", "CENTER"},
+		{"METRO", "-", "MANILA", "QUEZON", "-", "CITY", "SOUTH", "TRIANGLE", "SOUTH", "TRIANGLE", "1388", ",", "QUEZON", "AVENUE", ",", "UNIT", "A", "6TH", "FLOOR", "DN", "CORPORATE", "CENTER", "SIX", "SEVEN", "EIGHT"},
+	}
+
+	// HTTP Test
+	_, httpInferErr := w2nerService.ModelInfer(testArr, "w2ner", "1", time.Second)
+	if httpInferErr != nil {
+		panic(httpInferErr)
+	}
+
+	// GRPC Test
+	w2nerService.SetModelInferWithGRPC()
+	_, grpcInferErr := w2nerService.ModelInfer(testArr, "w2ner", "1", time.Second)
+	if grpcInferErr != nil {
+		panic(grpcInferErr)
 	}
 }

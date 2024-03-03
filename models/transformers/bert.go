@@ -294,16 +294,14 @@ func NewBertModelService(
 		return nil, vocabReadErr
 	}
 	// 2、Init Service
-	baseSrv := models.ModelService{
-		MaxSeqLength:                    DefaultMaxSeqLength,
-		TritonService:                   nvidia_inferenceserver.NewTritonClientForAll(httpAddr, httpClient, grpcConn),
-		InferCallback:                   modelInferCallback,
-		GenerateModelInferRequest:       modelInputCallback,
-		GenerateModelInferOutputRequest: modelOutputCallback,
-	}
-
 	srv := &BertModelService{
-		ModelService:  baseSrv,
+		ModelService: models.ModelService{
+			MaxSeqLength:                    DefaultMaxSeqLength,
+			TritonService:                   nvidia_inferenceserver.NewTritonClientForAll(httpAddr, httpClient, grpcConn),
+			InferCallback:                   modelInferCallback,
+			GenerateModelInferRequest:       modelInputCallback,
+			GenerateModelInferOutputRequest: modelOutputCallback,
+		},
 		BertVocab:     voc,
 		BertTokenizer: NewWordPieceTokenizer(voc),
 	}

@@ -91,7 +91,6 @@ func (m *ModelService) UnsetTokenizerReturnPosInfo() *ModelService {
 
 // SetModelName Set model name must equal to Triton config.pbtxt model name.
 func (m *ModelService) SetModelName(modelPrefix, modelName string) *ModelService {
-	// TODO maybe not use dash to separate modelPrefix and modelName
 	m.ModelName = modelPrefix + "-" + modelName
 
 	return m
