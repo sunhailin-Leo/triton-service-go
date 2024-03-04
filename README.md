@@ -22,7 +22,7 @@ Triton Inference Server - Golang API
 
 ### Feature
 
-* Based On `Golang 1.20`
+* Based On `Golang 1.21`
 * Support HTTP/GRPC
 * Easy to use it
 * Maybe High Performance
@@ -141,7 +141,7 @@ func main() {
 ### Version
 
 * version 2.0.0 - Coming soon
-  * **No longer compatible with Go version 1.18, 1.19** 
+  * **No longer compatible with Go version 1.18, 1.19, 1.20** 
   * refactor `models` package and rename package from `bert` to `transformers`.
     * **Incompatible with previous versions, calls require simple modifications**
   * Add `W2NER` model(Based on Bert, but used for NER tasks)
