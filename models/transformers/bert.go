@@ -21,6 +21,7 @@ const (
 	ModelBertModelInputMaskKey               string = "input_mask"
 	ModelInt32DataType                       string = "INT32"
 	ModelInt64DataType                       string = "INT64"
+	ModelBoolDataType                        string = "BOOL"
 )
 
 type BertModelService struct {
@@ -172,22 +173,37 @@ func (m *BertModelService) generateHTTPRequest(
 }
 
 // grpcInt32SliceToLittleEndianByteSlice int32 slice to byte slice with little endian.
-func (m *BertModelService) grpcInt32SliceToLittleEndianByteSlice(maxLen int, input []int32, inputType string) []byte {
-	switch inputType {
-	case ModelInt32DataType:
-		var returnByte []byte
-		bs := make([]byte, 4)
-		for i := 0; i < maxLen; i++ {
-			binary.LittleEndian.PutUint32(bs, uint32(input[i]))
-			returnByte = append(returnByte, bs...)
+func (m *BertModelService) grpcSliceToLittleEndianByteSlice(maxLen int, input any, inputType string) []byte {
+	switch s := input.(type) {
+	case []int32:
+		switch inputType {
+		case ModelInt32DataType:
+			var returnByte []byte
+			bs := make([]byte, 4)
+			for i := 0; i < maxLen; i++ {
+				binary.LittleEndian.PutUint32(bs, uint32(s[i]))
+				returnByte = append(returnByte, bs...)
+			}
+			return returnByte
+		case ModelInt64DataType:
+			var returnByte []byte
+			bs := make([]byte, 8)
+			for i := 0; i < maxLen; i++ {
+				binary.LittleEndian.PutUint64(bs, uint64(s[i]))
+				returnByte = append(returnByte, bs...)
+			}
+			return returnByte
+		default:
+			return nil
 		}
-		return returnByte
-	case ModelInt64DataType:
+	case []bool:
 		var returnByte []byte
-		bs := make([]byte, 8)
 		for i := 0; i < maxLen; i++ {
-			binary.LittleEndian.PutUint64(bs, uint64(input[i]))
-			returnByte = append(returnByte, bs...)
+			if s[i] {
+				returnByte = append(returnByte, 1)
+			} else {
+				returnByte = append(returnByte, 0)
+			}
 		}
 		return returnByte
 	default:
@@ -214,19 +230,19 @@ func (m *BertModelService) generateGRPCRequest(
 			case ModelBertModelSegmentIdsKey:
 				segmentIdsBytes = append(
 					segmentIdsBytes,
-					m.grpcInt32SliceToLittleEndianByteSlice(
+					m.grpcSliceToLittleEndianByteSlice(
 						m.MaxSeqLength, feature.TypeIDs, inferInputTensor[j].Datatype)...,
 				)
 			case ModelBertModelInputIdsKey:
 				inputIdsBytes = append(
 					inputIdsBytes,
-					m.grpcInt32SliceToLittleEndianByteSlice(
+					m.grpcSliceToLittleEndianByteSlice(
 						m.MaxSeqLength, feature.TokenIDs, inferInputTensor[j].Datatype)...,
 				)
 			case ModelBertModelInputMaskKey:
 				inputMaskBytes = append(
 					inputMaskBytes,
-					m.grpcInt32SliceToLittleEndianByteSlice(
+					m.grpcSliceToLittleEndianByteSlice(
 						m.MaxSeqLength, feature.Mask, inferInputTensor[j].Datatype)...,
 				)
 			}

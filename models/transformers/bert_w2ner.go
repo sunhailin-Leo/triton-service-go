@@ -1,8 +1,6 @@
 package transformers
 
 import (
-	"bytes"
-	"encoding/binary"
 	"slices"
 	"time"
 
@@ -235,43 +233,23 @@ func (w *W2NerModelService) generateHTTPRequest(
 }
 
 // grpcSliceToLittleEndianByteSlice bool slice, 2-D int32 slice to byte slice with little endian.
-func (w *W2NerModelService) grpcSliceToLittleEndianByteSlice(slice any) []byte {
-	var buffer bytes.Buffer
-
+func (w *W2NerModelService) grpc2DSliceToLittleEndianByteSlice(slice any, row, col int) []byte {
 	switch s := slice.(type) {
 	case [][]bool:
-		for _, row := range s {
-			var byteVal byte
-			for i, v := range row {
-				bitIndex := uint(i % 8)
-
-				if v {
-					byteVal |= 1 << bitIndex
-				}
-
-				if i == 7 {
-					buffer.WriteByte(byteVal)
-					byteVal = 0
-				}
-			}
-			if len(row)%8 != 0 {
-				buffer.WriteByte(byteVal)
-			}
+		var returnByte []byte
+		for i := 0; i < row; i++ {
+			returnByte = append(returnByte, w.grpcSliceToLittleEndianByteSlice(col, s[i], ModelBoolDataType)...)
 		}
+		return returnByte
 	case [][]int32:
-		for _, row := range s {
-			for _, value := range row {
-				err := binary.Write(&buffer, binary.LittleEndian, value)
-				if err != nil {
-					return nil
-				}
-			}
+		var returnByte []byte
+		for i := 0; i < row; i++ {
+			returnByte = append(returnByte, w.grpcSliceToLittleEndianByteSlice(col, s[i], ModelInt32DataType)...)
 		}
+		return returnByte
 	default:
 		return nil
 	}
-
-	return buffer.Bytes()
 }
 
 // generateGRPCRequest GRPC Request Data Generate
@@ -288,27 +266,31 @@ func (w *W2NerModelService) generateGRPCRequest(
 				// TokenIDs []int32
 				tokenIdsBytes = append(
 					tokenIdsBytes,
-					w.grpcInt32SliceToLittleEndianByteSlice(
+					w.grpcSliceToLittleEndianByteSlice(
 						len(inputFeatures[i].TokenIDs), inputFeatures[i].TokenIDs, inferInputTensor[0].Datatype)...,
 				)
+				inferInputTensor[j].Shape = []int64{int64(len(inferDataArr)), int64(len(inputFeatures[i].TokenIDs))}
 			case 1:
 				// GridMask2D [][]bool
 				gridMask2DBytes = append(
 					gridMask2DBytes,
-					w.grpcSliceToLittleEndianByteSlice(inputFeatures[i].GridMask2D)...,
+					w.grpc2DSliceToLittleEndianByteSlice(inputFeatures[i].GridMask2D, len(inputFeatures[i].GridMask2D), len(inputFeatures[i].GridMask2D[0]))...,
 				)
+				inferInputTensor[j].Shape = []int64{int64(len(inferDataArr)), int64(len(inputFeatures[i].GridMask2D)), int64(len(inputFeatures[i].GridMask2D[0]))}
 			case 2:
 				// DistInputs [][]int32
 				distInputsBytes = append(
 					distInputsBytes,
-					w.grpcSliceToLittleEndianByteSlice(inputFeatures[i].DistInputs)...,
+					w.grpc2DSliceToLittleEndianByteSlice(inputFeatures[i].DistInputs, len(inputFeatures[i].DistInputs), len(inputFeatures[i].DistInputs[0]))...,
 				)
+				inferInputTensor[j].Shape = []int64{int64(len(inferDataArr)), int64(len(inputFeatures[i].DistInputs)), int64(len(inputFeatures[i].DistInputs[0]))}
 			case 3:
 				// Pieces2Word [][]bool
 				pieces2wordBytes = append(
 					pieces2wordBytes,
-					w.grpcSliceToLittleEndianByteSlice(inputFeatures[i].Pieces2Word)...,
+					w.grpc2DSliceToLittleEndianByteSlice(inputFeatures[i].Pieces2Word, len(inputFeatures[i].Pieces2Word), len(inputFeatures[i].Pieces2Word[0]))...,
 				)
+				inferInputTensor[j].Shape = []int64{int64(len(inferDataArr)), int64(len(inputFeatures[i].Pieces2Word)), int64(len(inputFeatures[i].Pieces2Word[0]))}
 			}
 		}
 	}
@@ -332,7 +314,7 @@ func (w *W2NerModelService) ModelInfer(
 	inferOutputs := w.GenerateModelInferOutputRequest(params...)
 
 	if w.IsGRPC {
-		// GRPC Infer(Experimental! Maybe response is incorrect!)
+		// GRPC Infer
 		grpcRawInputs, grpcInputData := w.generateGRPCRequest(inferData, inferInputs)
 		if grpcRawInputs == nil {
 			return nil, utils.ErrEmptyGRPCRequestBody
@@ -373,6 +355,5 @@ func NewW2NERModelService(
 		return nil, baseSrvErr
 	}
 
-	srv := &W2NerModelService{BertModelService: baseSrv}
-	return srv, nil
+	return &W2NerModelService{BertModelService: baseSrv}, nil
 }
