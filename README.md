@@ -22,7 +22,7 @@ Triton Inference Server - Golang API
 
 ### Feature
 
-* Based On `Golang 1.18`
+* Based On `Golang 1.21`
 * Support HTTP/GRPC
 * Easy to use it
 * Maybe High Performance
@@ -46,12 +46,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/valyala/fasthttp"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/sunhailin-Leo/triton-service-go/models/bert"
-	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
+    "github.com/sunhailin-Leo/triton-service-go/models/transformers"
+    "github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
+    "github.com/valyala/fasthttp"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -67,22 +66,19 @@ const (
 )
 
 // testGenerateModelInferRequest Triton Input
-func testGenerateModelInferRequest(batchSize, maxSeqLength int) []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor {
+func testGenerateModelInferRequest() []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor {
 	return []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor{
 		{
 			Name:     tBertModelSegmentIdsKey,
 			Datatype: tBertModelSegmentIdsDataType,
-			Shape:    []int64{int64(batchSize), int64(maxSeqLength)},
 		},
 		{
 			Name:     tBertModelInputIdsKey,
 			Datatype: tBertModelInputIdsDataType,
-			Shape:    []int64{int64(batchSize), int64(maxSeqLength)},
 		},
 		{
 			Name:     tBertModelInputMaskKey,
 			Datatype: tBertModelInputMaskDataType,
-			Shape:    []int64{int64(batchSize), int64(maxSeqLength)},
 		},
 	}
 }
@@ -124,13 +120,13 @@ func main() {
 	}
 
 	// Service
-	bertService, initErr := bert.NewModelService(
+	bertService, initErr := bert.NewBertModelService(
 		vocabPath, httpAddr, defaultHttpClient, defaultGRPCClient,
 		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback)
 	if initErr != nil {
 		panic(initErr)
 	}
-	bertService = bertService.SetChineseTokenize(false).SetMaxSeqLength(maxSeqLen)
+	bertService.SetChineseTokenize(false).SetMaxSeqLength(maxSeqLen)
 	// infer
 	inferResultV1, inferErr := bertService.ModelInfer([]string{"<Data>"}, "<Model Name>", "<Model Version>", 1*time.Second)
 	if inferErr != nil {
@@ -143,6 +139,12 @@ func main() {
 ---
 
 ### Version
+
+* version 2.0.0 - Coming soon
+  * **No longer compatible with Go version 1.18, 1.19, 1.20** 
+  * refactor `models` package and rename package from `bert` to `transformers`.
+    * **Incompatible with previous versions, calls require simple modifications**
+  * Add `W2NER` model(Based on Bert, but used for NER tasks)
 
 * version 1.4.6 - 2023/07/27
   * remove `github.com/goccy/go-json` and set `encoding/json` to default json marshal/unmarshal.

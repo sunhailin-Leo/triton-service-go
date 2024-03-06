@@ -6,11 +6,20 @@ import (
 )
 
 const (
-	TritonBytesType  string = "BYTES"
+	TritonBoolType   string = "BOOL"
+	TritonUINT8Type  string = "UINT8"
+	TritonUINT16Type string = "UINT16"
+	TritonUINT32Type string = "UINT32"
+	TritonUINT64Type string = "UINT64"
+	TritonINT8Type   string = "INT8"
+	TritonINT16Type  string = "INT16"
 	TritonINT32Type  string = "INT32"
 	TritonINT64Type  string = "INT64"
 	TritonFP16Type   string = "FP16"
 	TritonFP32Type   string = "FP32"
+	TritonFP64Type   string = "FP64"
+	TritonBytesType  string = "BYTES"
+	TritonBF16Type   string = "BF16"
 	SliceByteType    string = "[]byte"
 	SliceFloat32Type string = "[]float32"
 	SliceFloat64Type string = "[]float64"
