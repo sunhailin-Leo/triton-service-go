@@ -10,6 +10,7 @@ Triton Inference Server - Golang API
 [![Security Check](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/sercurity.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/sercurity.yml)
 [![Test](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/test.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/test.yml)
 [![Vulnerability Check](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/vulncheck.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/vulncheck.yml)
+[![Goproxy.cn](https://goproxy.cn/stats/github.com/sunhailin-Leo/triton-service-go/badges/download-count.svg)](https://goproxy.cn)
 
 ---
 
