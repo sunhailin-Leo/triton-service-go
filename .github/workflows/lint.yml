@@ -4,6 +4,12 @@ on:
     branches:
       - main
   pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -17,5 +23,5 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v4
         with:
-          version: v1.54.2
+          version: v1.56.2
           args: --enable=nolintlint,gochecknoinits,bodyclose,gocritic --verbose
