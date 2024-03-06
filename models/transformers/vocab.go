@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"os"
 
-	"github.com/sunhailin-Leo/triton-service-go/utils"
+	"github.com/sunhailin-Leo/triton-service-go/v2/utils"
 )
 
 // Provider is an interface for exposing a vocab.

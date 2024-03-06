@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sunhailin-Leo/triton-service-go/utils"
+	"github.com/sunhailin-Leo/triton-service-go/v2/utils"
 	"github.com/valyala/fasthttp"
 	"google.golang.org/grpc"
 )

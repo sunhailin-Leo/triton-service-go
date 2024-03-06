@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
-	"github.com/sunhailin-Leo/triton-service-go/utils"
+	"github.com/sunhailin-Leo/triton-service-go/v2/nvidia_inferenceserver"
+	"github.com/sunhailin-Leo/triton-service-go/v2/utils"
 )
 
 // GenerateModelInferRequest model input callback.

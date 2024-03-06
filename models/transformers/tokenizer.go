@@ -3,7 +3,7 @@ package transformers
 import (
 	"strings"
 
-	"github.com/sunhailin-Leo/triton-service-go/utils"
+	"github.com/sunhailin-Leo/triton-service-go/v2/utils"
 )
 
 const (

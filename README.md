@@ -36,7 +36,12 @@ Triton Inference Server - Golang API
 
 * Download
 ```shell
+# Before V2
 go get -u github.com/sunhailin-Leo/triton-service-go
+
+# V2
+go get -u github.com/sunhailin-Leo/triton-service-go/v2
+
 ```
 
 * Example for `Bert` Model
@@ -47,8 +52,8 @@ import (
 	"fmt"
 	"time"
 
-    "github.com/sunhailin-Leo/triton-service-go/models/transformers"
-    "github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
+    "github.com/sunhailin-Leo/triton-service-go/v2/models/transformers"
+    "github.com/sunhailin-Leo/triton-service-go/v2/nvidia_inferenceserver"
     "github.com/valyala/fasthttp"
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials/insecure"
@@ -121,7 +126,7 @@ func main() {
 	}
 
 	// Service
-	bertService, initErr := bert.NewBertModelService(
+	bertService, initErr := transformers.NewBertModelService(
 		vocabPath, httpAddr, defaultHttpClient, defaultGRPCClient,
 		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback)
 	if initErr != nil {
@@ -141,7 +146,7 @@ func main() {
 
 ### Version
 
-* version 2.0.0 - Coming soon
+* version 2.0.0 - 2024/03/06
   * **No longer compatible with Go version 1.18, 1.19, 1.20** 
   * refactor `models` package and rename package from `bert` to `transformers`.
     * **Incompatible with previous versions, calls require simple modifications**

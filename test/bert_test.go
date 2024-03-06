@@ -4,8 +4,8 @@ import (
 	"log"
 	"testing"
 
-	"github.com/sunhailin-Leo/triton-service-go/models/transformers"
-	"github.com/sunhailin-Leo/triton-service-go/nvidia_inferenceserver"
+	"github.com/sunhailin-Leo/triton-service-go/v2/models/transformers"
+	"github.com/sunhailin-Leo/triton-service-go/v2/nvidia_inferenceserver"
 	"github.com/valyala/fasthttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

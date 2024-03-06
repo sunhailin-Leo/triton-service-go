@@ -1,4 +1,4 @@
-module github.com/sunhailin-Leo/triton-service-go
+module github.com/sunhailin-Leo/triton-service-go/v2
 
 go 1.21
 
@@ -6,7 +6,7 @@ require (
 	github.com/valyala/fasthttp v1.52.0
 	golang.org/x/text v0.14.0
 	google.golang.org/grpc v1.62.0
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.33.0
 )
 
 require (

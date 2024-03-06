@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/sunhailin-Leo/triton-service-go/models/transformers"
-	"github.com/sunhailin-Leo/triton-service-go/utils"
+	"github.com/sunhailin-Leo/triton-service-go/v2/models/transformers"
+	"github.com/sunhailin-Leo/triton-service-go/v2/utils"
 )
 
 func TestNewVocabFromFile(t *testing.T) {
