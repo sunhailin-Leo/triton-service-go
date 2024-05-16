@@ -19,7 +19,7 @@ func TestTritonHTTPClientInit(_ *testing.T) {
 }
 
 func TestTritonGRPCClientInit(_ *testing.T) {
-	_, err := grpc.Dial("127.0.0.1:9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	_, err := grpc.NewClient("127.0.0.1:9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}

@@ -120,7 +120,7 @@ func main() {
 	httpAddr := "<HTTP URL>"
 	grpcAddr := "<GRPC URL>"
 	defaultHttpClient := &fasthttp.Client{}
-	defaultGRPCClient, grpcErr := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defaultGRPCClient, grpcErr := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if grpcErr != nil {
 		panic(grpcErr)
 	}

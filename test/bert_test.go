@@ -76,7 +76,7 @@ func TestBertServiceForBertChinese(t *testing.T) {
 	httpAddr := "127.0.0.1:9001"
 	grpcAddr := "127.0.0.1:9000"
 	defaultHTTPClient := &fasthttp.Client{}
-	defaultGRPCClient, grpcErr := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defaultGRPCClient, grpcErr := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if grpcErr != nil {
 		panic(grpcErr)
 	}
@@ -102,7 +102,7 @@ func TestBertServiceForBertMultilingual(t *testing.T) {
 	httpAddr := "127.0.0.1:9001"
 	grpcAddr := "127.0.0.1:9000"
 	defaultHTTPClient := &fasthttp.Client{}
-	defaultGRPCClient, grpcErr := grpc.Dial(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defaultGRPCClient, grpcErr := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if grpcErr != nil {
 		panic(grpcErr)
 	}
