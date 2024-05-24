@@ -233,18 +233,21 @@ func (m *BertModelService) generateGRPCRequest(
 					m.grpcSliceToLittleEndianByteSlice(
 						m.MaxSeqLength, feature.TypeIDs, inferInputTensor[j].Datatype)...,
 				)
+				inferInputTensor[j].Shape = []int64{int64(len(inferDataArr)), int64(m.MaxSeqLength)}
 			case ModelBertModelInputIdsKey:
 				inputIdsBytes = append(
 					inputIdsBytes,
 					m.grpcSliceToLittleEndianByteSlice(
 						m.MaxSeqLength, feature.TokenIDs, inferInputTensor[j].Datatype)...,
 				)
+				inferInputTensor[j].Shape = []int64{int64(len(inferDataArr)), int64(m.MaxSeqLength)}
 			case ModelBertModelInputMaskKey:
 				inputMaskBytes = append(
 					inputMaskBytes,
 					m.grpcSliceToLittleEndianByteSlice(
 						m.MaxSeqLength, feature.Mask, inferInputTensor[j].Datatype)...,
 				)
+				inferInputTensor[j].Shape = []int64{int64(len(inferDataArr)), int64(m.MaxSeqLength)}
 			}
 		}
 		batchModelInputObjs[i] = inputObject
