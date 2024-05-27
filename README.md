@@ -146,6 +146,13 @@ func main() {
 
 ### Version
 
+* version 2.0.2 - 2024/05/27
+  * Fix `generateGRPCRequest` missing tensor shape.
+  * Update go.mod
+
+* version 2.0.1 - 2024/03/06
+  * Fix `2.0.0` cannot read `go.mod` successfully.
+
 * version 2.0.0 - 2024/03/06
   * **No longer compatible with Go version 1.18, 1.19, 1.20** 
   * refactor `models` package and rename package from `bert` to `transformers`.
