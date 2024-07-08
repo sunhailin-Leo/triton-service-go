@@ -111,12 +111,8 @@ func (w *W2NerModelService) getBertInputFeature(batchInferData [][]string) []*W2
 		for j := 0; j < padTokenLen; j++ {
 			gridMask2d[j] = generateAllTrueSlice(padTokenLen)
 
-			if j >= len(inferTokens) {
+			if j >= len(inferTokens) || len(inferTokens[j]) == 0 {
 				pieces2word[j] = make([]bool, len(batchInputFeatures[i].TokenIDs))
-				continue
-			}
-
-			if len(inferTokens[j]) == 0 {
 				continue
 			}
 
