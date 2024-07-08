@@ -146,6 +146,9 @@ func main() {
 
 ### Version
 
+* version 2.0.3 - 2024/07/08
+  * Fix `w2ner.pieces2word` nil slice caused infer error.
+
 * version 2.0.2 - 2024/05/27
   * Fix `generateGRPCRequest` missing tensor shape.
   * Update go.mod
