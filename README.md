@@ -146,6 +146,11 @@ func main() {
 
 ### Version
 
+* version 2.0.4 - 2024/07/09
+  * Update `W2NER` input feature problem.(Missing `MaxSeqLength` config)
+  * Code style fix. Reducing nil cases
+  * Add `slice.StringSliceTruncatePrecisely` function for logic to handle [][] string data truncation.
+
 * version 2.0.3 - 2024/07/08
   * Fix `w2ner.pieces2word` nil slice caused infer error.
 

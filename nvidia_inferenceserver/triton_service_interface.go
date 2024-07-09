@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -291,7 +292,14 @@ func (t *TritonClientService) ModelHTTPInfer(
 		timeout)
 	defer fasthttp.ReleaseResponse(modelInferResponse)
 
+	if modelInferResponse == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, errors.New("modelInferResponse is nil"))
+	}
+
 	if inferErr != nil || modelInferResponse.StatusCode() != fasthttp.StatusOK {
+		if inferErr == nil && modelInferResponse.Body() != nil {
+			inferErr = errors.New("Triton error resp: " + string(modelInferResponse.Body()))
+		}
 		return nil, t.httpErrorHandler(modelInferResponse.StatusCode(), inferErr)
 	}
 	// decode Result.
@@ -341,6 +349,9 @@ func (t *TritonClientService) CheckServerAlive(timeout time.Duration) (bool, err
 	}
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(t.getServerURL()+TritonAPIForServerIsLive, nil, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return false, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return false, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -362,6 +373,9 @@ func (t *TritonClientService) CheckServerReady(timeout time.Duration) (bool, err
 	}
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(t.getServerURL()+TritonAPIForServerIsReady, nil, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return false, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return false, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -386,6 +400,9 @@ func (t *TritonClientService) CheckModelReady(modelName, modelVersion string, ti
 		t.getServerURL()+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/ready",
 		nil, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return false, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return false, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -404,6 +421,9 @@ func (t *TritonClientService) ServerMetadata(timeout time.Duration) (*ServerMeta
 	}
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(t.getServerURL()+TritonAPIPrefix, nil, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -431,6 +451,9 @@ func (t *TritonClientService) ModelMetadataRequest(
 		t.getServerURL()+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion,
 		nil, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -460,6 +483,9 @@ func (t *TritonClientService) ModelIndex(
 	}
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(t.getServerURL()+TritonAPIForRepoIndex, reqBody, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -486,6 +512,9 @@ func (t *TritonClientService) ModelConfiguration(
 		t.getServerURL()+TritonAPIForModelPrefix+modelName+
 			TritonAPIForModelVersionPrefix+modelVersion+"/config", timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -512,6 +541,9 @@ func (t *TritonClientService) ModelInferStats(
 		t.getServerURL()+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/stats",
 		timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -532,6 +564,9 @@ func (t *TritonClientService) ModelLoadWithHTTP(
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(
 		t.getServerURL()+TritonAPIForRepoModelPrefix+modelName+"/load", modelConfigBody, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -564,6 +599,10 @@ func (t *TritonClientService) ModelUnloadWithHTTP(
 ) (*RepositoryModelUnloadResponse, error) {
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(
 		t.getServerURL()+TritonAPIForRepoModelPrefix+modelName+"/unload", modelConfigBody, timeout)
+	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -624,6 +663,9 @@ func (t *TritonClientService) ShareMemoryStatus(
 	}
 	apiResp, httpErr := t.makeHTTPGetRequestWithDoTimeout(uri, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return false, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -669,6 +711,9 @@ func (t *TritonClientService) ShareCUDAMemoryRegister(
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(
 		t.getServerURL()+TritonAPIForCudaMemoryRegionPrefix+regionName+"/register", reqBody, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -695,6 +740,9 @@ func (t *TritonClientService) ShareCUDAMemoryUnRegister(
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(
 		t.getServerURL()+TritonAPIForCudaMemoryRegionPrefix+regionName+"/unregister", nil, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -732,6 +780,9 @@ func (t *TritonClientService) ShareSystemMemoryRegister(
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(
 		t.getServerURL()+TritonAPIForSystemMemoryRegionPrefix+regionName+"/register", reqBody, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -758,6 +809,9 @@ func (t *TritonClientService) ShareSystemMemoryUnRegister(
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(
 		t.getServerURL()+TritonAPIForSystemMemoryRegionPrefix+regionName+"/unregister", nil, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -784,6 +838,9 @@ func (t *TritonClientService) GetModelTracingSetting(
 	apiResp, httpErr := t.makeHTTPGetRequestWithDoTimeout(
 		t.getServerURL()+TritonAPIForModelPrefix+modelName+"/trace/setting", timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
@@ -816,6 +873,9 @@ func (t *TritonClientService) SetModelTracingSetting(
 	apiResp, httpErr := t.makeHTTPPostRequestWithDoTimeout(
 		t.getServerURL()+TritonAPIForModelPrefix+modelName+"/trace/setting", reqBody, timeout)
 	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}

@@ -28,6 +28,7 @@ const (
 )
 
 var (
+	ErrApiRespNil           = errors.New("apiResp is nil")           // empty http response body.
 	ErrEmptyVocab           = errors.New("empty vocab")              // empty vocab error.
 	ErrEmptyCallbackFunc    = errors.New("callback function is nil") // empty callback function.
 	ErrEmptyHTTPRequestBody = errors.New("http request body is nil") // empty http request body.

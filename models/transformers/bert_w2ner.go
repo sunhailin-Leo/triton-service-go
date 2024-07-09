@@ -83,6 +83,8 @@ func (w *W2NerModelService) getBertInputFeature(batchInferData [][]string) []*W2
 		for j, token := range inferData {
 			tokens[j] = w.getTokenizerResult(token)
 		}
+		// The minus 2 is due to the retention of the CLS and SEP positions.
+		tokens = utils.StringSliceTruncatePrecisely(tokens, w.MaxSeqLength-2)
 		batchInferTokens[i] = tokens
 		batchInferPieces[i] = utils.Flatten2DSlice(tokens)
 		batchInputFeatures[i] = &W2NERInputFeature{}

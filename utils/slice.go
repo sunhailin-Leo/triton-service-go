@@ -122,3 +122,43 @@ func GenerateRange[T IntNumeric](start, end int) []T {
 
 	return result
 }
+
+// StringSliceTruncatePrecisely Truncation control granularity at sub-element level
+// More precise than StringSliceTruncate
+func StringSliceTruncatePrecisely(slices [][]string, maxLen int) [][]string {
+	// count total length
+	totalLen := 0
+	for _, slice := range slices {
+		totalLen += len(slice)
+	}
+
+	// early return
+	if totalLen < maxLen {
+		return slices
+	}
+
+	// If the total length exceeds maxLen
+	// remove the children one by one, starting from the end.
+	if totalLen > maxLen {
+		removeCount := totalLen - maxLen
+
+		// Delete elements from the end
+		for removeCount > 0 {
+			lastSliceIndex := len(slices) - 1
+			lastSlice := slices[lastSliceIndex]
+
+			if len(lastSlice) <= removeCount {
+				// If the length of the last sub-slice is less than or
+				// equal to the number to be deleted, delete the entire sub-slice
+				removeCount -= len(lastSlice)
+				slices = slices[:lastSliceIndex]
+			} else {
+				// Otherwise only the required number of elements are deleted
+				slices[lastSliceIndex] = lastSlice[:len(lastSlice)-removeCount]
+				removeCount = 0
+			}
+		}
+	}
+
+	return slices
+}
