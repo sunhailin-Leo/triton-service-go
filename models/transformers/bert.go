@@ -3,7 +3,6 @@ package transformers
 import (
 	"encoding/binary"
 	"strings"
-	"time"
 
 	"github.com/sunhailin-Leo/triton-service-go/v2/models"
 	"github.com/sunhailin-Leo/triton-service-go/v2/nvidia_inferenceserver"
@@ -263,7 +262,6 @@ func (m *BertModelService) generateGRPCRequest(
 func (m *BertModelService) ModelInfer(
 	inferData []string,
 	modelName, modelVersion string,
-	requestTimeout time.Duration,
 	params ...interface{},
 ) ([]interface{}, error) {
 	// Create request input/output tensors
@@ -276,7 +274,7 @@ func (m *BertModelService) ModelInfer(
 			return nil, utils.ErrEmptyGRPCRequestBody
 		}
 		return m.TritonService.ModelGRPCInfer(
-			inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion, requestTimeout,
+			inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion,
 			m.InferCallback, m, grpcInputData, params,
 		)
 	}
@@ -289,7 +287,7 @@ func (m *BertModelService) ModelInfer(
 	}
 	// HTTP Infer
 	return m.TritonService.ModelHTTPInfer(
-		httpRequestBody, modelName, modelVersion, requestTimeout,
+		httpRequestBody, modelName, modelVersion,
 		m.InferCallback, m, httpInputData, params,
 	)
 }

@@ -113,6 +113,14 @@ func (m *ModelService) SetSecondaryServerURL(url string) *ModelService {
 	return m
 }
 
+// SetAPIRequestTimeout set api request timeout
+func (m *ModelService) SetAPIRequestTimeout(timeout time.Duration) *ModelService {
+	if m.TritonService != nil {
+		m.TritonService.SetAPIRequestTimeout(timeout)
+	}
+	return m
+}
+
 // SetJsonEncoder set json encoder
 func (m *ModelService) SetJsonEncoder(encoder utils.JSONMarshal) *ModelService {
 	m.TritonService.SetJSONEncoder(encoder)
@@ -130,55 +138,43 @@ func (m *ModelService) SetJsonDecoder(decoder utils.JSONUnmarshal) *ModelService
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
 
 // CheckServerReady check server is ready.
-func (m *ModelService) CheckServerReady(requestTimeout time.Duration) (bool, error) {
-	return m.TritonService.CheckServerReady(requestTimeout)
+func (m *ModelService) CheckServerReady() (bool, error) {
+	return m.TritonService.CheckServerReady()
 }
 
 // CheckServerAlive check server is alive.
-func (m *ModelService) CheckServerAlive(requestTimeout time.Duration) (bool, error) {
-	return m.TritonService.CheckServerAlive(requestTimeout)
+func (m *ModelService) CheckServerAlive() (bool, error) {
+	return m.TritonService.CheckServerAlive()
 }
 
 // CheckModelReady check model is ready.
-func (m *ModelService) CheckModelReady(
-	modelName, modelVersion string, requestTimeout time.Duration,
-) (bool, error) {
-	return m.TritonService.CheckModelReady(modelName, modelVersion, requestTimeout)
+func (m *ModelService) CheckModelReady(modelName, modelVersion string) (bool, error) {
+	return m.TritonService.CheckModelReady(modelName, modelVersion)
 }
 
 // GetServerMeta get server meta.
-func (m *ModelService) GetServerMeta(
-	requestTimeout time.Duration,
-) (*nvidia_inferenceserver.ServerMetadataResponse, error) {
-	return m.TritonService.ServerMetadata(requestTimeout)
+func (m *ModelService) GetServerMeta() (*nvidia_inferenceserver.ServerMetadataResponse, error) {
+	return m.TritonService.ServerMetadata()
 }
 
 // GetModelMeta get model meta.
-func (m *ModelService) GetModelMeta(
-	modelName, modelVersion string, requestTimeout time.Duration,
-) (*nvidia_inferenceserver.ModelMetadataResponse, error) {
-	return m.TritonService.ModelMetadataRequest(modelName, modelVersion, requestTimeout)
+func (m *ModelService) GetModelMeta(modelName, modelVersion string) (*nvidia_inferenceserver.ModelMetadataResponse, error) {
+	return m.TritonService.ModelMetadataRequest(modelName, modelVersion)
 }
 
 // GetAllModelInfo get all model info.
-func (m *ModelService) GetAllModelInfo(
-	repoName string, isReady bool, requestTimeout time.Duration,
-) (*nvidia_inferenceserver.RepositoryIndexResponse, error) {
-	return m.TritonService.ModelIndex(repoName, isReady, requestTimeout)
+func (m *ModelService) GetAllModelInfo(repoName string, isReady bool) (*nvidia_inferenceserver.RepositoryIndexResponse, error) {
+	return m.TritonService.ModelIndex(repoName, isReady)
 }
 
 // GetModelConfig get model config.
-func (m *ModelService) GetModelConfig(
-	modelName, modelVersion string, requestTimeout time.Duration,
-) (interface{}, error) {
-	return m.TritonService.ModelConfiguration(modelName, modelVersion, requestTimeout)
+func (m *ModelService) GetModelConfig(modelName, modelVersion string) (interface{}, error) {
+	return m.TritonService.ModelConfiguration(modelName, modelVersion)
 }
 
 // GetModelInferStats get model infer stats.
-func (m *ModelService) GetModelInferStats(
-	modelName, modelVersion string, requestTimeout time.Duration,
-) (*nvidia_inferenceserver.ModelStatisticsResponse, error) {
-	return m.TritonService.ModelInferStats(modelName, modelVersion, requestTimeout)
+func (m *ModelService) GetModelInferStats(modelName, modelVersion string) (*nvidia_inferenceserver.ModelStatisticsResponse, error) {
+	return m.TritonService.ModelInferStats(modelName, modelVersion)
 }
 
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////

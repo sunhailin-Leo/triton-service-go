@@ -146,6 +146,10 @@ func main() {
 
 ### Version
 
+* version 2.0.5 - 2024/07/26
+  * Remove timeout for `TritonService` interface, use `SetAPIRequestTimeout` instead.
+  * Add new api for `SetAPIRequestTimeout`
+
 * version 2.0.4 - 2024/07/09
   * Update `W2NER` input feature problem.(Missing `MaxSeqLength` config)
   * Code style fix. Reducing nil cases

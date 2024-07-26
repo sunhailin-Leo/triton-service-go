@@ -2,7 +2,6 @@ package transformers
 
 import (
 	"slices"
-	"time"
 
 	"github.com/sunhailin-Leo/triton-service-go/v2/models"
 	"github.com/sunhailin-Leo/triton-service-go/v2/nvidia_inferenceserver"
@@ -312,7 +311,6 @@ func (w *W2NerModelService) generateGRPCRequest(
 func (w *W2NerModelService) ModelInfer(
 	inferData [][]string,
 	modelName, modelVersion string,
-	requestTimeout time.Duration,
 	params ...interface{},
 ) ([]interface{}, error) {
 	// Create request input/output tensors
@@ -325,10 +323,8 @@ func (w *W2NerModelService) ModelInfer(
 		if grpcRawInputs == nil {
 			return nil, utils.ErrEmptyGRPCRequestBody
 		}
-		return w.TritonService.ModelGRPCInfer(
-			inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion, requestTimeout,
-			w.InferCallback, w, grpcInputData, params,
-		)
+		return w.TritonService.ModelGRPCInfer(inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion,
+			w.InferCallback, w, grpcInputData, params)
 	}
 
 	httpRequestBody, httpInputData, err := w.generateHTTPRequest(inferData, inferInputs, inferOutputs)
@@ -339,10 +335,8 @@ func (w *W2NerModelService) ModelInfer(
 		return nil, utils.ErrEmptyHTTPRequestBody
 	}
 	// HTTP Infer
-	return w.TritonService.ModelHTTPInfer(
-		httpRequestBody, modelName, modelVersion, requestTimeout,
-		w.InferCallback, w, httpInputData, params,
-	)
+	return w.TritonService.ModelHTTPInfer(httpRequestBody, modelName, modelVersion, w.InferCallback,
+		w, httpInputData, params)
 }
 
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
