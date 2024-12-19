@@ -1,6 +1,8 @@
 module github.com/sunhailin-Leo/triton-service-go/v2
 
-go 1.21
+go 1.22
+
+toolchain go1.22.5
 
 require (
 	github.com/valyala/fasthttp v1.58.0
