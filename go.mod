@@ -2,12 +2,12 @@ module github.com/sunhailin-Leo/triton-service-go/v2
 
 go 1.22.0
 
-toolchain go1.22.10
+toolchain go1.24.1
 
 require (
 	github.com/valyala/fasthttp v1.59.0
 	golang.org/x/text v0.22.0
-	google.golang.org/grpc v1.71.0
+	google.golang.org/grpc v1.71.1
 	google.golang.org/protobuf v1.36.6
 )
 
