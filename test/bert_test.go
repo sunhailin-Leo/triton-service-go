@@ -91,8 +91,8 @@ func TestBertServiceForBertChinese(t *testing.T) {
 	if bertService.BertVocab.Size() != 21128 {
 		t.Errorf("Expected '%d', but got '%d'", 21128, vocabSize)
 	}
-	if bertService.ModelService.MaxSeqLength != maxSeqLen {
-		t.Errorf("Expected '%v', but got '%v'", maxSeqLen, bertService.ModelService.MaxSeqLength)
+	if bertService.MaxSeqLength != maxSeqLen {
+		t.Errorf("Expected '%v', but got '%v'", maxSeqLen, bertService.MaxSeqLength)
 	}
 }
 
@@ -117,7 +117,7 @@ func TestBertServiceForBertMultilingual(t *testing.T) {
 	if bertService.BertVocab.Size() != 119547 {
 		t.Errorf("Expected '%d', but got '%d'", 119547, vocabSize)
 	}
-	if bertService.ModelService.MaxSeqLength != maxSeqLen {
-		t.Errorf("Expected '%v', but got '%v'", maxSeqLen, bertService.ModelService.MaxSeqLength)
+	if bertService.MaxSeqLength != maxSeqLen {
+		t.Errorf("Expected '%v', but got '%v'", maxSeqLen, bertService.MaxSeqLength)
 	}
 }
