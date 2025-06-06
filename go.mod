@@ -6,7 +6,7 @@ toolchain go1.23.9
 
 require (
 	github.com/valyala/fasthttp v1.62.0
-	golang.org/x/text v0.25.0
+	golang.org/x/text v0.26.0
 	google.golang.org/grpc v1.72.2
 	google.golang.org/protobuf v1.36.6
 )
