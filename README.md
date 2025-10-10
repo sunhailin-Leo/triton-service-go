@@ -23,7 +23,8 @@ Triton Inference Server - Golang API
 
 ### Feature
 
-* Based On `Golang 1.21`
+> 🌟Go version support above 1.24.x; Triton Inference Server version support above 23.02
+
 * Support HTTP/GRPC
 * Easy to use it
 * Maybe High Performance
