@@ -2,7 +2,6 @@ package test
 
 import (
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/sunhailin-Leo/triton-service-go/v2/models/transformers"
@@ -99,7 +98,7 @@ func TestFullTokenizerChinese(t *testing.T) {
 		panic(vocabReadErr)
 	}
 	tokenizer := transformers.NewWordPieceTokenizer(voc)
-	tokenResult := tokenizer.TokenizeChinese(strings.ToLower("广东省深圳市南山区腾讯大厦"))
+	tokenResult := tokenizer.TokenizeChinese("广东省深圳市南山区腾讯大厦")
 	tokenStrSlice := make([]string, len(tokenResult))
 	tokenOffsetSlice := make([]transformers.OffsetsType, len(tokenResult))
 	for i, token := range tokenResult {
@@ -148,7 +147,7 @@ func BenchmarkFullTokenizerChinese(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		tokenizer.TokenizeChinese(strings.ToLower("广东省深圳市南山区腾讯大厦"))
+		tokenizer.TokenizeChinese("广东省深圳市南山区腾讯大厦")
 	}
 	b.ReportAllocs()
 }
