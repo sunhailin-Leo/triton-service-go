@@ -151,3 +151,95 @@ func BenchmarkFullTokenizerChinese(b *testing.B) {
 	}
 	b.ReportAllocs()
 }
+
+// TestTokenizeWithDoLowerCaseTrue tests that doLowerCase=true converts text to lowercase
+func TestTokenizeWithDoLowerCaseTrue(t *testing.T) {
+	voc, vocabReadErr := transformers.VocabFromFile("bert-multilingual-vocab.txt")
+	if vocabReadErr != nil {
+		panic(vocabReadErr)
+	}
+	tokenizer := transformers.NewWordPieceTokenizer(voc)
+	tokenizer.SetDoLowerCase(true)
+
+	// Test with mixed case English text
+	tokenResult := tokenizer.Tokenize("Hello World")
+	tokenStrSlice := make([]string, len(tokenResult))
+	for i, token := range tokenResult {
+		tokenStrSlice[i] = token.String
+	}
+
+	// Should be lowercase (tokenized according to vocab)
+	expectedTokenSlice := []string{"hell", "##o", "world"}
+	if !reflect.DeepEqual(tokenStrSlice, expectedTokenSlice) {
+		t.Errorf("Expected '%v', but got '%v'", expectedTokenSlice, tokenStrSlice)
+	}
+}
+
+// TestTokenizeWithDoLowerCaseFalse tests that doLowerCase=false preserves original case
+func TestTokenizeWithDoLowerCaseFalse(t *testing.T) {
+	voc, vocabReadErr := transformers.VocabFromFile("bert-multilingual-vocab.txt")
+	if vocabReadErr != nil {
+		panic(vocabReadErr)
+	}
+	tokenizer := transformers.NewWordPieceTokenizer(voc)
+	tokenizer.SetDoLowerCase(false)
+
+	// Test with mixed case English text
+	tokenResult := tokenizer.Tokenize("Hello World")
+	tokenStrSlice := make([]string, len(tokenResult))
+	for i, token := range tokenResult {
+		tokenStrSlice[i] = token.String
+	}
+
+	// Should preserve case
+	expectedTokenSlice := []string{"Hello", "World"}
+	if !reflect.DeepEqual(tokenStrSlice, expectedTokenSlice) {
+		t.Errorf("Expected '%v', but got '%v'", expectedTokenSlice, tokenStrSlice)
+	}
+}
+
+// TestTokenizeChineseWithDoLowerCaseTrue tests Chinese tokenization with lowercase enabled
+func TestTokenizeChineseWithDoLowerCaseTrue(t *testing.T) {
+	voc, vocabReadErr := transformers.VocabFromFile("bert-chinese-vocab.txt")
+	if vocabReadErr != nil {
+		panic(vocabReadErr)
+	}
+	tokenizer := transformers.NewWordPieceTokenizer(voc)
+	tokenizer.SetDoLowerCase(true)
+
+	// Test with mixed case text (Chinese + English)
+	tokenResult := tokenizer.TokenizeChinese("深圳ABC")
+	tokenStrSlice := make([]string, len(tokenResult))
+	for i, token := range tokenResult {
+		tokenStrSlice[i] = token.String
+	}
+
+	// English part should be lowercase (abc is in vocab as a whole word)
+	expectedTokenSlice := []string{"深", "圳", "abc"}
+	if !reflect.DeepEqual(tokenStrSlice, expectedTokenSlice) {
+		t.Errorf("Expected '%v', but got '%v'", expectedTokenSlice, tokenStrSlice)
+	}
+}
+
+// TestTokenizeChineseWithDoLowerCaseFalse tests Chinese tokenization with lowercase disabled
+func TestTokenizeChineseWithDoLowerCaseFalse(t *testing.T) {
+	voc, vocabReadErr := transformers.VocabFromFile("bert-chinese-vocab.txt")
+	if vocabReadErr != nil {
+		panic(vocabReadErr)
+	}
+	tokenizer := transformers.NewWordPieceTokenizer(voc)
+	tokenizer.SetDoLowerCase(false)
+
+	// Test with mixed case text (Chinese + English)
+	tokenResult := tokenizer.TokenizeChinese("深圳ABC")
+	tokenStrSlice := make([]string, len(tokenResult))
+	for i, token := range tokenResult {
+		tokenStrSlice[i] = token.String
+	}
+
+	// English part preserves case - ABC not in vocab, becomes [UNK]
+	expectedTokenSlice := []string{"深", "圳", "[UNK]"}
+	if !reflect.DeepEqual(tokenStrSlice, expectedTokenSlice) {
+		t.Errorf("Expected '%v', but got '%v'", expectedTokenSlice, tokenStrSlice)
+	}
+}
