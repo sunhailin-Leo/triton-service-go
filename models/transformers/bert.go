@@ -36,9 +36,9 @@ type BertModelService struct {
 func (m *BertModelService) getTokenizerResult(inferData string) []string {
 	if m.IsChinese {
 		if m.IsChineseCharMode {
-			return GetStrings(m.BertTokenizer.TokenizeChineseCharMode(strings.ToLower(inferData)))
+			return GetStrings(m.BertTokenizer.TokenizeChineseCharMode(inferData))
 		}
-		return GetStrings(m.BertTokenizer.TokenizeChinese(strings.ToLower(inferData)))
+		return GetStrings(m.BertTokenizer.TokenizeChinese(inferData))
 	}
 	return GetStrings(m.BertTokenizer.Tokenize(inferData))
 }
@@ -48,9 +48,9 @@ func (m *BertModelService) getTokenizerResultWithOffsets(inferData string) ([]st
 	if m.IsChinese {
 		var tokenizerResult []StringOffsetsPair
 		if m.IsChineseCharMode {
-			tokenizerResult = m.BertTokenizer.TokenizeChineseCharMode(strings.ToLower(inferData))
+			tokenizerResult = m.BertTokenizer.TokenizeChineseCharMode(inferData)
 		} else {
-			tokenizerResult = m.BertTokenizer.TokenizeChinese(strings.ToLower(inferData))
+			tokenizerResult = m.BertTokenizer.TokenizeChinese(inferData)
 		}
 
 		return GetStrings(tokenizerResult), GetOffsets(tokenizerResult)
@@ -311,6 +311,9 @@ func NewBertModelService(
 		return nil, vocabReadErr
 	}
 	// 2、Init Service
+	tokenizer := NewWordPieceTokenizer(voc)
+	tokenizer.SetDoLowerCase(true) // Default to true for backward compatibility with BERT
+
 	srv := &BertModelService{
 		ModelService: models.ModelService{
 			MaxSeqLength:                    DefaultMaxSeqLength,
@@ -320,7 +323,7 @@ func NewBertModelService(
 			GenerateModelInferOutputRequest: modelOutputCallback,
 		},
 		BertVocab:     voc,
-		BertTokenizer: NewWordPieceTokenizer(voc),
+		BertTokenizer: tokenizer,
 	}
 	return srv, nil
 }

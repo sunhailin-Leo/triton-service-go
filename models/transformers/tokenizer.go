@@ -63,6 +63,7 @@ func GetOffsets(tokens []StringOffsetsPair) []OffsetsType {
 // splits by whitespace and punctuation characters.
 type BaseTokenizer struct {
 	specialWords map[string]struct{}
+	doLowerCase  bool
 }
 
 // OptionV1 allows to configure a new BaseTokenizer with your specific needs.
@@ -74,6 +75,13 @@ func RegisterSpecialWords(specialWords ...string) OptionV1 {
 		for i := range specialWords {
 			f.specialWords[specialWords[i]] = struct{}{}
 		}
+	}
+}
+
+// WithLowerCase is an option to set doLowerCase flag.
+func WithLowerCase(doLowerCase bool) OptionV1 {
+	return func(f *BaseTokenizer) {
+		f.doLowerCase = doLowerCase
 	}
 }
 
@@ -127,8 +135,12 @@ func (t *BaseTokenizer) TokenizeChinese(text string) []StringOffsetsPair {
 			continue // TODO: this is temporary solution to don't split special tokens further; improve it.
 		}
 
-		puncTokens := t.splitOnChinese(
-			utils.StripAccentsAndLower(spaceTokens[i].String), utils.IsPunctuation, true, utils.IsChinese)
+		tokenStr := spaceTokens[i].String
+		if t.doLowerCase {
+			tokenStr = utils.StripAccentsAndLower(tokenStr)
+		}
+
+		puncTokens := t.splitOnChinese(tokenStr, utils.IsPunctuation, true, utils.IsChinese)
 		for j := range puncTokens {
 			splitTokens = append(splitTokens, StringOffsetsPair{
 				String: puncTokens[j].String,
@@ -153,8 +165,12 @@ func (t *BaseTokenizer) TokenizeChineseCharMode(text string) []StringOffsetsPair
 			continue // TODO: this is temporary solution to don't split special tokens further; improve it.
 		}
 
-		puncTokens := t.splitOnChinese(
-			utils.StripAccentsAndLower(spaceTokens[i].String), utils.IsPunctuation, true, utils.IsChineseOrNumber)
+		tokenStr := spaceTokens[i].String
+		if t.doLowerCase {
+			tokenStr = utils.StripAccentsAndLower(tokenStr)
+		}
+
+		puncTokens := t.splitOnChinese(tokenStr, utils.IsPunctuation, true, utils.IsChineseOrNumber)
 		for j := range puncTokens {
 			splitTokens = append(splitTokens, StringOffsetsPair{
 				String: puncTokens[j].String,
@@ -256,24 +272,42 @@ type WordPieceTokenizer struct {
 	splitPrefix   string
 	maxWordChars  int
 	neverSplit    []string
+	doLowerCase   bool
 }
 
 // NewWordPieceTokenizer returns a new WordPieceTokenizer.
 func NewWordPieceTokenizer(vocabulary Dict) *WordPieceTokenizer {
 	return &WordPieceTokenizer{
-		baseTokenizer: NewBaseTokenizer(RegisterSpecialWords(DefaultUNK, DefaultCLS, DefaultSEP, DefaultMask)),
-		vocabulary:    vocabulary,
-		unkToken:      DefaultUNK,
-		splitPrefix:   NumPadToken,
-		maxWordChars:  DefaultMaxWordChars,
-		neverSplit:    []string{DefaultCLS, DefaultSEP, DefaultUNK, DefaultMask},
+		baseTokenizer: NewBaseTokenizer(
+			RegisterSpecialWords(DefaultUNK, DefaultCLS, DefaultSEP, DefaultMask),
+			WithLowerCase(false),
+		),
+		vocabulary:   vocabulary,
+		unkToken:     DefaultUNK,
+		splitPrefix:  NumPadToken,
+		maxWordChars: DefaultMaxWordChars,
+		neverSplit:   []string{DefaultCLS, DefaultSEP, DefaultUNK, DefaultMask},
+		doLowerCase:  false,
 	}
+}
+
+// SetDoLowerCase sets whether to convert text to lowercase during tokenization.
+func (t *WordPieceTokenizer) SetDoLowerCase(doLowerCase bool) *WordPieceTokenizer {
+	t.doLowerCase = doLowerCase
+	t.baseTokenizer.doLowerCase = doLowerCase
+	return t
 }
 
 // Tokenize converts the input text to a slice of words or sub-words token units based on the supplied vocabulary.
 // The resulting tokens preserve the alignment with the portion of the original text they belong to.
 func (t *WordPieceTokenizer) Tokenize(text string) []StringOffsetsPair {
-	return t.WordPieceTokenize(t.baseTokenizer.Tokenize(text))
+	tokens := t.baseTokenizer.Tokenize(text)
+	if t.doLowerCase {
+		for i := range tokens {
+			tokens[i].String = utils.StripAccentsAndLower(tokens[i].String)
+		}
+	}
+	return t.WordPieceTokenize(tokens)
 }
 
 // TokenizeChinese Like Tokenize but focus on Chinese
