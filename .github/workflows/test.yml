@@ -39,7 +39,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-${{ matrix.go-version }}-
       - name: Fetch Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Run Test
         uses: nick-fields/retry@v3
         with:
