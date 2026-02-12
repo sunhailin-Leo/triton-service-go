@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1768962973444,
+  "lastUpdate": 1770865034822,
   "repoUrl": "https://github.com/sunhailin-Leo/triton-service-go",
   "entries": {
     "Benchmark": [
@@ -8220,6 +8220,78 @@ window.BENCHMARK_DATA = {
             "value": 93,
             "unit": "allocs/op",
             "extra": "234220 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "shjkfld379978424@gmail.com",
+            "name": "LeoSun",
+            "username": "sunhailin-Leo"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e7346b6bca8ac2cd377f6f3739a7a4d1086a4bac",
+          "message": "Merge pull request #170 from sunhailin-Leo/dependabot/go_modules/golang.org/x/text-0.34.0\n\nBump golang.org/x/text from 0.33.0 to 0.34.0",
+          "timestamp": "2026-02-12T10:56:34+08:00",
+          "tree_id": "f8ec74e017eef02b26b0a27ab872b558f4e36fab",
+          "url": "https://github.com/sunhailin-Leo/triton-service-go/commit/e7346b6bca8ac2cd377f6f3739a7a4d1086a4bac"
+        },
+        "date": 1770865034235,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkFullTokenizerNotChinese",
+            "value": 19248,
+            "unit": "ns/op\t   12136 B/op\t     288 allocs/op",
+            "extra": "59523 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese - ns/op",
+            "value": 19248,
+            "unit": "ns/op",
+            "extra": "59523 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese - B/op",
+            "value": 12136,
+            "unit": "B/op",
+            "extra": "59523 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese - allocs/op",
+            "value": 288,
+            "unit": "allocs/op",
+            "extra": "59523 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese",
+            "value": 5218,
+            "unit": "ns/op\t    4176 B/op\t      93 allocs/op",
+            "extra": "227019 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese - ns/op",
+            "value": 5218,
+            "unit": "ns/op",
+            "extra": "227019 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese - B/op",
+            "value": 4176,
+            "unit": "B/op",
+            "extra": "227019 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese - allocs/op",
+            "value": 93,
+            "unit": "allocs/op",
+            "extra": "227019 times\n4 procs"
           }
         ]
       }
