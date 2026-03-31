@@ -10,6 +10,7 @@ on:
     paths:
       - '**'
       - '!**.md'
+
 jobs:
   Compare:
     runs-on: ubuntu-latest
@@ -17,11 +18,11 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.24.x
+          go-version: 1.26.x
       - name: Fetch Repository
         uses: actions/checkout@v6
       - name: Run Benchmark
-        run: set -o pipefail; go test ./... -benchmem -run=^$ -bench . | tee output.txt
+        run: set -o pipefail; go test ./... -benchmem -run=^$ -bench . -count=3 | tee output.txt
       - name: Get Previous Benchmark Results
         uses: actions/cache@v5
         with:
@@ -36,7 +37,5 @@ jobs:
           benchmark-data-dir-path: 'benchmarks'
           fail-on-alert: true
           comment-on-alert: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-          # Enable Job Summary for PRs - deactivated because of issues
-          #summary-always: ${{ github.event_name != 'push' && github.event_name != 'workflow_dispatch' }}
           auto-push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
           save-data-file: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}

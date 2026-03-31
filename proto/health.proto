@@ -25,8 +25,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 syntax = "proto3";
-
-option go_package = "./";
+option go_package = "./nvidia_inferenceserver";
 
 package grpc.health.v1;
 

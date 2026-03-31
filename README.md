@@ -1,49 +1,41 @@
 # triton-service-go
-Unofficial golang package for the Triton Inference Server(https://github.com/triton-inference-server/server)
-Triton Inference Server - Golang API
+
+Unofficial Golang SDK for [Triton Inference Server](https://github.com/triton-inference-server/server) — providing a complete HTTP/gRPC client for model inference, management, health checking, and shared memory operations.
 
 [![Docs](https://pkg.go.dev/badge/github.com/sunhailin-Leo/triton-service-go)](https://pkg.go.dev/github.com/sunhailin-Leo/triton-service-go)
 [![Report Card](https://goreportcard.com/badge/github.com/sunhailin-Leo/triton-service-go)](https://goreportcard.com/report/github.com/sunhailin-Leo/triton-service-go)
 
 [![Benchmark](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/benchmark.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/benchmark.yml)
 [![Lint Check](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/lint.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/lint.yml)
-[![Security Check](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/sercurity.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/sercurity.yml)
+[![Security Check](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/security.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/security.yml)
 [![Test](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/test.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/test.yml)
 [![Vulnerability Check](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/vulncheck.yml/badge.svg)](https://github.com/sunhailin-Leo/triton-service-go/actions/workflows/vulncheck.yml)
 [![Goproxy.cn](https://goproxy.cn/stats/github.com/sunhailin-Leo/triton-service-go/badges/download-count.svg)](https://goproxy.cn)
 
 ---
 
-### Attention
+### Feature
 
-* ~~Currently only supported up to version 21.05 (Triton Inference Server), but compatible with 9x% of 22.07 versions~~
-* Currently supported base on version 23.02
+> 🌟 **Go** ≥ 1.24 · **Triton Inference Server** ≥ 24.x (protobuf synced with [triton-inference-server/common](https://github.com/triton-inference-server/common/tree/main/protobuf))
+
+- **HTTP + gRPC** dual-protocol support via a unified `TritonService` interface
+- **High performance** — uses [fasthttp](https://github.com/valyala/fasthttp) for HTTP, pre-allocated byte buffers for gRPC tensor encoding
+- **98% API coverage** of Triton Inference Server HTTP/gRPC protocol
+- **Built-in BERT / W2NER model services** with WordPiece tokenizer
+- **Pluggable JSON encoder/decoder** — swap in `sonic`, `go-json`, etc.
+- TLS/SSL not yet supported (planned)
 
 ---
 
-### Feature
+### Installation
 
-> 🌟Go version support above 1.24.x; Triton Inference Server version support above 23.02
-
-* Support HTTP/GRPC
-* Easy to use it
-* Maybe High Performance
-* Implement 98% API of Triton Inference Server HTTP/GRPC Protocol
-* Cannot Support TLS/SSL now (https/grpc secure mode)...(will test it soon...)
-
---- 
-
-### Usage
-
-* Download
 ```shell
-# Before V2
-go get -u github.com/sunhailin-Leo/triton-service-go
-
-# V2
 go get -u github.com/sunhailin-Leo/triton-service-go/v2
-
 ```
+
+---
+
+### Quick Start
 
 * Example for `Bert` Model
 ```go
@@ -145,7 +137,45 @@ func main() {
 
 ---
 
+### Development
+
+This project provides a `Makefile` for common development tasks:
+
+```shell
+make help       # Show all available targets
+make test       # Run all unit tests with race detector
+make bench      # Run all benchmarks
+make lint       # Run golangci-lint
+make proto      # Regenerate protobuf Go stubs
+make coverage   # Generate HTML coverage report
+make vulncheck  # Run govulncheck
+make check      # Run all CI checks (fmt + vet + lint + test + bench)
+```
+
+### Project Structure
+
+```
+├── nvidia_inferenceserver/   # Triton gRPC/HTTP client & generated protobuf stubs
+├── models/
+│   ├── base.go               # Base model interface
+│   └── transformers/         # BERT / W2NER model services & WordPiece tokenizer
+├── utils/                    # Utility functions (slice, time, text processing)
+├── proto/                    # Protobuf source files (.proto)
+├── test/                     # Unit tests & benchmarks
+└── Makefile                  # Development workflow automation
+```
+
+---
+
 ### Version
+
+* version 2.1.0 - 2025
+  * **Proto files updated** to latest upstream ([triton-inference-server/common](https://github.com/triton-inference-server/common/tree/main/protobuf))
+  * **Bug fixes**: `setHTTPConnection` logic bug, `ModelIndex` interface signature, `ShareMemoryStatus` return type
+  * **Performance**: pre-allocated byte buffers in `grpcSliceToLittleEndianByteSlice`
+  * **API changes**: `ShareMemoryStatus` split into `ShareCUDAMemoryStatus` / `ShareSystemMemoryStatus`; interface return types changed from `interface{}` to concrete types
+  * **Tests**: added 20+ new unit tests and benchmarks
+  * **Tooling**: added `Makefile`, fixed GitHub Actions workflow naming
 
 * version 2.0.5 - 2024/07/26
   * Remove timeout for `TritonService` interface, use `SetAPIRequestTimeout` instead.

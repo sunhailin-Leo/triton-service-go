@@ -171,43 +171,42 @@ func (m *BertModelService) generateHTTPRequest(
 	return jsonBody, modelInputObj, nil
 }
 
-// grpcInt32SliceToLittleEndianByteSlice int32 slice to byte slice with little endian.
+// grpcSliceToLittleEndianByteSlice converts a typed slice to a little-endian byte slice.
 func (m *BertModelService) grpcSliceToLittleEndianByteSlice(maxLen int, input any, inputType string) []byte {
 	switch s := input.(type) {
 	case []int32:
 		switch inputType {
 		case ModelInt32DataType:
-			var returnByte []byte
-			bs := make([]byte, 4)
+			returnByte := make([]byte, maxLen*4)
 			for i := 0; i < maxLen; i++ {
-				binary.LittleEndian.PutUint32(bs, uint32(s[i]))
-				returnByte = append(returnByte, bs...)
+				binary.LittleEndian.PutUint32(returnByte[i*4:], uint32(s[i]))
 			}
 			return returnByte
 		case ModelInt64DataType:
-			var returnByte []byte
-			bs := make([]byte, 8)
+			returnByte := make([]byte, maxLen*8)
 			for i := 0; i < maxLen; i++ {
-				binary.LittleEndian.PutUint64(bs, uint64(s[i]))
-				returnByte = append(returnByte, bs...)
+				binary.LittleEndian.PutUint64(returnByte[i*8:], uint64(s[i]))
 			}
 			return returnByte
 		default:
 			return nil
 		}
 	case []bool:
-		var returnByte []byte
+		returnByte := make([]byte, maxLen)
 		for i := 0; i < maxLen; i++ {
 			if s[i] {
-				returnByte = append(returnByte, 1)
-			} else {
-				returnByte = append(returnByte, 0)
+				returnByte[i] = 1
 			}
 		}
 		return returnByte
 	default:
 		return nil
 	}
+}
+
+// GrpcSliceToLittleEndianByteSlice exports the private method for testing.
+func (m *BertModelService) GrpcSliceToLittleEndianByteSlice(maxLen int, input any, inputType string) []byte {
+	return m.grpcSliceToLittleEndianByteSlice(maxLen, input, inputType)
 }
 
 // generateGRPCRequest GRPC Request Data Generate

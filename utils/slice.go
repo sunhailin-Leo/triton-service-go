@@ -79,12 +79,14 @@ func SliceTransposeFor2D[T any](slice [][]T) [][]T {
 
 // Flatten2DSlice [][]T to []T
 func Flatten2DSlice[T any](arr [][]T) []T {
-	var result []T
-
+	totalLen := 0
+	for _, row := range arr {
+		totalLen += len(row)
+	}
+	result := make([]T, 0, totalLen)
 	for i := range arr {
 		result = append(result, arr[i]...)
 	}
-
 	return result
 }
 

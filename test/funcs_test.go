@@ -1,6 +1,7 @@
 package test
 
 import (
+	"encoding/binary"
 	"reflect"
 	"testing"
 
@@ -244,5 +245,32 @@ func TestBinaryFilter(t *testing.T) {
 		if !reflect.DeepEqual(result, test.expected) {
 			t.Errorf("BinaryFilter(%v) = %v, expected %v", test.input, result, test.expected)
 		}
+	}
+}
+
+func TestBinaryToSlice_INT32(t *testing.T) {
+	// Create binary data for INT32: [1, 2, 3]
+	body := make([]byte, 12)
+	binary.LittleEndian.PutUint32(body[0:], 1)
+	binary.LittleEndian.PutUint32(body[4:], 2)
+	binary.LittleEndian.PutUint32(body[8:], 3)
+
+	result := utils.BinaryToSlice(body, 4, utils.TritonINT32Type)
+	if len(result) != 3 {
+		t.Fatalf("expected 3 elements, got %d", len(result))
+	}
+	expected := []int32{1, 2, 3}
+	for i, exp := range expected {
+		if result[i] != exp {
+			t.Errorf("at index %d: expected %v, got %v", i, exp, result[i])
+		}
+	}
+}
+
+func TestBinaryToSlice_BYTES(t *testing.T) {
+	body := []byte("hello world")
+	result := utils.BinaryToSlice(body, 1, utils.TritonBytesType)
+	if len(result) != 2 { // "hello" and "world"
+		t.Fatalf("expected 2 elements, got %d", len(result))
 	}
 }

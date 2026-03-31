@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/sunhailin-Leo/triton-service-go/v2/utils"
@@ -67,9 +67,9 @@ type TritonService interface {
 	// ModelMetadataRequest Get triton inference server`s model metadata.
 	ModelMetadataRequest(modelName, modelVersion string) (*ModelMetadataResponse, error)
 	// ModelIndex Get triton inference server model index.
-	ModelIndex(isReady bool) (*RepositoryIndexResponse, error)
+	ModelIndex(repoName string, isReady bool) (*RepositoryIndexResponse, error)
 	// ModelConfiguration Get triton inference server model configuration.
-	ModelConfiguration(modelName, modelVersion string) (interface{}, error)
+	ModelConfiguration(modelName, modelVersion string) (*ModelConfigResponse, error)
 	// ModelInferStats Get triton inference server model infer stats.
 	ModelInferStats(modelName, modelVersion string) (*ModelStatisticsResponse, error)
 	// ModelLoadWithHTTP Load model with http.
@@ -80,16 +80,18 @@ type TritonService interface {
 	ModelUnloadWithHTTP(modelName string, modelConfigBody []byte) (*RepositoryModelUnloadResponse, error)
 	// ModelUnloadWithGRPC Unload model with grpc.
 	ModelUnloadWithGRPC(repoName, modelName string, modelConfigBody map[string]*ModelRepositoryParameter) (*RepositoryModelUnloadResponse, error)
-	// ShareMemoryStatus Show share memory / share cuda memory status.
-	ShareMemoryStatus(isCUDA bool, regionName string) (interface{}, error)
+	// ShareCUDAMemoryStatus Get CUDA shared memory status.
+	ShareCUDAMemoryStatus(regionName string) (*CudaSharedMemoryStatusResponse, error)
+	// ShareSystemMemoryStatus Get system shared memory status.
+	ShareSystemMemoryStatus(regionName string) (*SystemSharedMemoryStatusResponse, error)
 	// ShareCUDAMemoryRegister Register share cuda memory.
-	ShareCUDAMemoryRegister(regionName string, cudaRawHandle []byte, cudaDeviceID int64, byteSize uint64) (interface{}, error)
+	ShareCUDAMemoryRegister(regionName string, cudaRawHandle []byte, cudaDeviceID int64, byteSize uint64) (*CudaSharedMemoryRegisterResponse, error)
 	// ShareCUDAMemoryUnRegister Unregister share cuda memory
-	ShareCUDAMemoryUnRegister(regionName string) (interface{}, error)
+	ShareCUDAMemoryUnRegister(regionName string) (*CudaSharedMemoryUnregisterResponse, error)
 	// ShareSystemMemoryRegister Register system share memory.
-	ShareSystemMemoryRegister(regionName, cpuMemRegionKey string, byteSize, cpuMemOffset uint64) (interface{}, error)
+	ShareSystemMemoryRegister(regionName, cpuMemRegionKey string, byteSize, cpuMemOffset uint64) (*SystemSharedMemoryRegisterResponse, error)
 	// ShareSystemMemoryUnRegister Unregister system share memory.
-	ShareSystemMemoryUnRegister(regionName string) (interface{}, error)
+	ShareSystemMemoryUnRegister(regionName string) (*SystemSharedMemoryUnregisterResponse, error)
 	// GetModelTracingSetting get the current trace setting.
 	GetModelTracingSetting(modelName string) (*TraceSettingResponse, error)
 	// SetModelTracingSetting set the current trace setting.
@@ -134,13 +136,12 @@ func (t *TritonClientService) disconnectToTritonWithGRPC() error {
 // setHTTPConnection Create HTTP Connection.
 func (t *TritonClientService) setHTTPConnection(client *fasthttp.Client) {
 	if client == nil {
-		// HTTPClient global http client object
-		// Hard Code for client configuration
 		t.httpClient = &fasthttp.Client{
 			MaxConnsPerHost: DefaultHTTPClientMaxConnPerHost,
 			ReadTimeout:     DefaultHTTPClientReadTimeout,
 			WriteTimeout:    DefaultHTTPClientWriteTimeout,
 		}
+		return
 	}
 	t.httpClient = client
 }
@@ -203,6 +204,9 @@ func (t *TritonClientService) modelGRPCInfer(
 	rawInputs [][]byte,
 	modelName, modelVersion string,
 ) (*ModelInferResponse, error) {
+	if t.grpcClient == nil {
+		return nil, errors.New("[GRPC]grpc client is nil")
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), t.apiTimeout)
 	defer cancel()
 	// Create infer request for specific model/version.
@@ -216,7 +220,7 @@ func (t *TritonClientService) modelGRPCInfer(
 	// Get infer response.
 	modelInferResponse, inferErr := t.grpcClient.ModelInfer(ctx, &modelInferRequest)
 	if inferErr != nil {
-		return nil, errors.New("[GRPC]inferErr: " + inferErr.Error())
+		return nil, fmt.Errorf("[GRPC]inferErr: %w", inferErr)
 	}
 	return modelInferResponse, nil
 }
@@ -224,7 +228,7 @@ func (t *TritonClientService) modelGRPCInfer(
 // httpErrorHandler HTTP Error Handler.
 func (t *TritonClientService) httpErrorHandler(statusCode int, httpErr error) error {
 	if httpErr != nil {
-		return errors.New("[HTTP]code: " + strconv.Itoa(statusCode) + "; error: " + httpErr.Error())
+		return fmt.Errorf("[HTTP]code: %d; error: %w", statusCode, httpErr)
 	}
 	return nil
 }
@@ -232,7 +236,7 @@ func (t *TritonClientService) httpErrorHandler(statusCode int, httpErr error) er
 // grpcErrorHandler GRPC Error Handler.
 func (t *TritonClientService) grpcErrorHandler(grpcErr error) error {
 	if grpcErr != nil {
-		return errors.New("[GRPC]error: " + grpcErr.Error())
+		return fmt.Errorf("[GRPC]error: %w", grpcErr)
 	}
 	return nil
 }
@@ -240,20 +244,20 @@ func (t *TritonClientService) grpcErrorHandler(grpcErr error) error {
 // decodeFuncErrorHandler DecodeFunc Error Handler.
 func (t *TritonClientService) decodeFuncErrorHandler(err error, isGRPC bool) error {
 	if isGRPC {
-		return errors.New("[GRPC]decodeFunc error: " + err.Error())
+		return fmt.Errorf("[GRPC]decodeFunc error: %w", err)
 	}
-	return errors.New("[HTTP]decodeFunc error: " + err.Error())
+	return fmt.Errorf("[HTTP]decodeFunc error: %w", err)
 }
 
 ///////////////////////////////////////////// expose API below /////////////////////////////////////////////
 
 // JsonMarshal Json Encoder
-func (t *TritonClientService) JsonMarshal(v interface{}) ([]byte, error) {
+func (t *TritonClientService) JsonMarshal(v any) ([]byte, error) {
 	return t.JSONEncoder(v)
 }
 
 // JsonUnmarshal Json Decoder
-func (t *TritonClientService) JsonUnmarshal(data []byte, v interface{}) error {
+func (t *TritonClientService) JsonUnmarshal(data []byte, v any) error {
 	return t.JSONDecoder(data, v)
 }
 
@@ -274,8 +278,8 @@ func (t *TritonClientService) ModelHTTPInfer(
 	requestBody []byte,
 	modelName, modelVersion string,
 	decoderFunc DecoderFunc,
-	params ...interface{},
-) ([]interface{}, error) {
+	params ...any,
+) ([]any, error) {
 	// get infer response.
 	modelInferResponse, inferErr := t.makeHTTPPostRequestWithDoTimeout(
 		t.getServerURL()+TritonAPIForModelPrefix+modelName+TritonAPIForModelVersionPrefix+modelVersion+"/infer",
@@ -307,8 +311,8 @@ func (t *TritonClientService) ModelGRPCInfer(
 	rawInputs [][]byte,
 	modelName, modelVersion string,
 	decoderFunc DecoderFunc,
-	params ...interface{},
-) ([]interface{}, error) {
+	params ...any,
+) ([]any, error) {
 	// Get infer response.
 	modelInferResponse, inferErr := t.modelGRPCInfer(
 		inferInputs, inferOutputs, rawInputs, modelName, modelVersion)
@@ -601,50 +605,50 @@ func (t *TritonClientService) ModelUnloadWithGRPC(repoName, modelName string, mo
 	return unloadResponse, t.grpcErrorHandler(unloadErr)
 }
 
-// ShareMemoryStatus Get share memory / cuda memory status.
-// Response: CudaSharedMemoryStatusResponse / SystemSharedMemoryStatusResponse.
-func (t *TritonClientService) ShareMemoryStatus(isCUDA bool, regionName string) (interface{}, error) {
+// ShareCUDAMemoryStatus Get CUDA shared memory status.
+func (t *TritonClientService) ShareCUDAMemoryStatus(regionName string) (*CudaSharedMemoryStatusResponse, error) {
 	if t.grpcClient != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), t.apiTimeout)
 		defer cancel()
 
-		if isCUDA {
-			// CUDA Memory
-			cudaSharedMemoryStatusResponse, cudaStatusErr := t.grpcClient.CudaSharedMemoryStatus(
-				ctx, &CudaSharedMemoryStatusRequest{Name: regionName})
-
-			return cudaSharedMemoryStatusResponse, t.grpcErrorHandler(cudaStatusErr)
-		}
-		// System Memory
-		systemSharedMemoryStatusResponse, systemStatusErr := t.grpcClient.SystemSharedMemoryStatus(
-			ctx, &SystemSharedMemoryStatusRequest{Name: regionName})
-		if systemStatusErr != nil {
-			return nil, t.grpcErrorHandler(systemStatusErr)
-		}
-		return systemSharedMemoryStatusResponse, nil
+		cudaSharedMemoryStatusResponse, cudaStatusErr := t.grpcClient.CudaSharedMemoryStatus(
+			ctx, &CudaSharedMemoryStatusRequest{Name: regionName})
+		return cudaSharedMemoryStatusResponse, t.grpcErrorHandler(cudaStatusErr)
 	}
-	// SetRequestURI
-	var uri string
-	if isCUDA {
-		uri = t.getServerURL() + TritonAPIForCudaMemoryRegionPrefix + regionName + "/status"
-	} else {
-		uri = t.getServerURL() + TritonAPIForSystemMemoryRegionPrefix + regionName + "/status"
-	}
-	apiResp, httpErr := t.makeHTTPGetRequestWithDoTimeout(uri)
+	apiResp, httpErr := t.makeHTTPGetRequestWithDoTimeout(
+		t.getServerURL() + TritonAPIForCudaMemoryRegionPrefix + regionName + "/status")
 	defer fasthttp.ReleaseResponse(apiResp)
 	if apiResp == nil {
-		return false, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
 	}
 	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
 		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
-	// Parse Response
-	if isCUDA {
-		cudaSharedMemoryStatusResponse := new(CudaSharedMemoryStatusResponse)
-		if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &cudaSharedMemoryStatusResponse); jsonDecodeErr != nil {
-			return nil, jsonDecodeErr
-		}
-		return cudaSharedMemoryStatusResponse, nil
+	cudaSharedMemoryStatusResponse := new(CudaSharedMemoryStatusResponse)
+	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &cudaSharedMemoryStatusResponse); jsonDecodeErr != nil {
+		return nil, jsonDecodeErr
+	}
+	return cudaSharedMemoryStatusResponse, nil
+}
+
+// ShareSystemMemoryStatus Get system shared memory status.
+func (t *TritonClientService) ShareSystemMemoryStatus(regionName string) (*SystemSharedMemoryStatusResponse, error) {
+	if t.grpcClient != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), t.apiTimeout)
+		defer cancel()
+
+		systemSharedMemoryStatusResponse, systemStatusErr := t.grpcClient.SystemSharedMemoryStatus(
+			ctx, &SystemSharedMemoryStatusRequest{Name: regionName})
+		return systemSharedMemoryStatusResponse, t.grpcErrorHandler(systemStatusErr)
+	}
+	apiResp, httpErr := t.makeHTTPGetRequestWithDoTimeout(
+		t.getServerURL() + TritonAPIForSystemMemoryRegionPrefix + regionName + "/status")
+	defer fasthttp.ReleaseResponse(apiResp)
+	if apiResp == nil {
+		return nil, t.httpErrorHandler(http.StatusInternalServerError, utils.ErrApiRespNil)
+	}
+	if httpErr != nil || apiResp.StatusCode() != fasthttp.StatusOK {
+		return nil, t.httpErrorHandler(apiResp.StatusCode(), httpErr)
 	}
 	systemSharedMemoryStatusResponse := new(SystemSharedMemoryStatusResponse)
 	if jsonDecodeErr := t.JSONDecoder(apiResp.Body(), &systemSharedMemoryStatusResponse); jsonDecodeErr != nil {
@@ -894,11 +898,13 @@ func NewTritonClientWithOnlyGRPC(grpcConn *grpc.ClientConn) *TritonClientService
 func NewTritonClientForAll(httpServerURL string, httpClient *fasthttp.Client, grpcConn *grpc.ClientConn) *TritonClientService {
 	client := &TritonClientService{
 		serverURL:   httpServerURL,
-		grpcConn:    grpcConn,
-		grpcClient:  NewGRPCInferenceServiceClient(grpcConn),
 		apiTimeout:  DefaultHTTPClientReadTimeout,
 		JSONEncoder: json.Marshal,
 		JSONDecoder: json.Unmarshal,
+	}
+	if grpcConn != nil {
+		client.grpcConn = grpcConn
+		client.grpcClient = NewGRPCInferenceServiceClient(grpcConn)
 	}
 	client.setHTTPConnection(httpClient)
 
