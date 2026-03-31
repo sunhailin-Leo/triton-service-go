@@ -1,4 +1,4 @@
-// Copyright 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2020-2024, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -25,8 +25,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 syntax = "proto3";
-
-option go_package = "./";
+option go_package = "./nvidia_inferenceserver";
 
 package inference;
 
@@ -442,8 +441,12 @@ message InferParameter
 {
   //@@  .. cpp:var:: oneof parameter_choice
   //@@
-  //@@     The parameter value can be a string, an int64 or
-  //@@     a boolean
+  //@@     The parameter value can be a string, an int64,
+  //@@     an uint64, a double, or a boolean
+  //@@
+  //@@     Note: double and uint64 are currently
+  //@@           placeholders for future use and
+  //@@           are not supported for custom parameters
   //@@
   oneof parameter_choice
   {
@@ -464,6 +467,20 @@ message InferParameter
     //@@       A string parameter value.
     //@@
     string string_param = 3;
+
+    //@@    .. cpp:var:: double double_param
+    //@@
+    //@@       A double parameter value.
+    //@@
+    double double_param = 4;
+
+    //@@    .. cpp:var:: uint64 uint64_param
+    //@@
+    //@@       A uint64 parameter value.
+    //@@
+    //@@       Not supported for custom parameters
+    //@@
+    uint64 uint64_param = 5;
   }
 }
 
@@ -975,23 +992,72 @@ message InferStatistics
   //@@     model version, model inputs) hashes to an existing entry in the
   //@@     cache. On a cache miss, the request hash and response output tensor
   //@@     data is added to the cache. See response cache docs for more info:
-  //@@     https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
+  //@@
+  // https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
   //@@
   StatisticDuration cache_hit = 7;
 
   //@@  .. cpp:var:: StatisticDuration cache_miss
   //@@
   //@@     The count of response cache misses and cumulative duration to lookup
-  //@@     and insert output tensor data from the computed response to the cache.
+  //@@     and insert output tensor data from the computed response to the
+  // cache.
   //@@     For example, this duration should include the time to copy
   //@@     output tensor data from the response object to the Response Cache.
   //@@     Assuming the response cache is enabled for a given model, a cache
   //@@     miss occurs for a request to that model when the request metadata
   //@@     does NOT hash to an existing entry in the cache. See the response
   //@@     cache docs for more info:
-  //@@     https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
+  //@@
+  // https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
   //@@
   StatisticDuration cache_miss = 8;
+}
+
+//@@
+//@@.. cpp:var:: message InferResponseStatistics
+//@@
+//@@   Statistics per response.
+//@@
+message InferResponseStatistics
+{
+  //@@  .. cpp:var:: StatisticDuration compute_infer
+  //@@
+  //@@     The count and cumulative duration to compute a response.
+  //@@
+  StatisticDuration compute_infer = 1;
+
+  //@@  .. cpp:var:: StatisticDuration compute_output
+  //@@
+  //@@     The count and cumulative duration to extract the output tensors of a
+  //@@     response.
+  //@@
+  StatisticDuration compute_output = 2;
+
+  //@@  .. cpp:var:: StatisticDuration success
+  //@@
+  //@@     The count and cumulative duration for successful responses.
+  //@@
+  StatisticDuration success = 3;
+
+  //@@  .. cpp:var:: StatisticDuration fail
+  //@@
+  //@@     The count and cumulative duration for failed responses.
+  //@@
+  StatisticDuration fail = 4;
+
+  //@@  .. cpp:var:: StatisticDuration empty_response
+  //@@
+  //@@     The count and cumulative duration for empty responses.
+  //@@
+  StatisticDuration empty_response = 5;
+
+  //@@  .. cpp:var:: StatisticDuration cancel
+  //@@
+  //@@     The count and cumulative duration, for cleaning up resources held by
+  //@@     a cancelled request, for cancelled responses.
+  //@@
+  StatisticDuration cancel = 6;
 }
 
 //@@
@@ -1031,6 +1097,33 @@ message InferBatchStatistics
   //@@     tensor data from the GPU.
   //@@
   StatisticDuration compute_output = 4;
+}
+
+//@@
+//@@.. cpp:var:: message MemoryUsage
+//@@
+//@@   Memory usage.
+//@@
+message MemoryUsage
+{
+  //@@  .. cpp:var:: string type
+  //@@
+  //@@     The type of memory, the value can be "CPU", "CPU_PINNED", "GPU".
+  //@@
+  string type = 1;
+
+  //@@  .. cpp:var:: int64 id
+  //@@
+  //@@     The id of the memory, typically used with "type" to identify
+  //@@     a device that hosts the memory.
+  //@@
+  int64 id = 2;
+
+  //@@  .. cpp:var:: uint64 byte_size
+  //@@
+  //@@     The byte size of the memory.
+  //@@
+  uint64 byte_size = 3;
 }
 
 //@@
@@ -1102,6 +1195,28 @@ message ModelStatistics
   //@@     compute).
   //@@
   repeated InferBatchStatistics batch_stats = 7;
+
+  //@@  .. cpp:var:: MemoryUsage memory_usage (repeated)
+  //@@
+  //@@     The memory usage detected during model loading, which may be used to
+  //@@     estimate the memory to be released once the model is unloaded. Note
+  //@@     that the estimation is inferenced by the profiling tools and
+  //@@     framework's memory schema, therefore it is advised to perform
+  //@@     experiments to understand the scenario that the reported memory usage
+  //@@     can be relied on. As a starting point, the GPU memory usage for
+  //@@     models in ONNX Runtime backend and TensorRT backend is usually
+  //@@     aligned.
+  //@@
+  repeated MemoryUsage memory_usage = 8;
+
+  //@@  .. cpp:var:: map<string, InferResponseStatistics> response_stats
+  //@@
+  //@@     The key and value pairs for all responses statistics. The key is a
+  //@@     string identifying a set of response statistics aggregated together
+  //@@     (i.e. index of the response sent). The value is the aggregated
+  //@@     response statistics.
+  //@@
+  map<string, InferResponseStatistics> response_stats = 9;
 }
 
 //@@

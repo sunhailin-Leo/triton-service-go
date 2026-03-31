@@ -6,9 +6,9 @@ type ModelIndexRequestHTTPObj struct {
 }
 
 type CudaMemoryRegisterBodyHTTPObj struct {
-	RawHandle interface{} `json:"raw_handle"`
-	DeviceID  int64       `json:"device_id"`
-	ByteSize  uint64      `json:"byte_size"`
+	RawHandle any    `json:"raw_handle"`
+	DeviceID  int64  `json:"device_id"`
+	ByteSize  uint64 `json:"byte_size"`
 }
 
 type SystemMemoryRegisterBodyHTTPObj struct {
@@ -18,5 +18,5 @@ type SystemMemoryRegisterBodyHTTPObj struct {
 }
 
 type TraceSettingRequestHTTPObj struct {
-	TraceSetting interface{} `json:"trace_setting"`
+	TraceSetting any `json:"trace_setting"`
 }

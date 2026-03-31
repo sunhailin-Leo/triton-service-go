@@ -39,6 +39,9 @@ func VocabFromFile(path string) (Dict, error) {
 	for scanner.Scan() {
 		voc.Add(scanner.Text())
 	}
+	if scanErr := scanner.Err(); scanErr != nil {
+		return Dict{}, scanErr
+	}
 	return voc, nil
 }
 

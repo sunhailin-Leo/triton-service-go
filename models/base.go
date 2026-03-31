@@ -11,7 +11,7 @@ import (
 type GenerateModelInferRequest func() []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor
 
 // GenerateModelInferOutputRequest model output callback.
-type GenerateModelInferOutputRequest func(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
+type GenerateModelInferOutputRequest func(params ...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
 
 type ModelService struct {
 	IsGRPC                          bool
@@ -168,7 +168,7 @@ func (m *ModelService) GetAllModelInfo(repoName string, isReady bool) (*nvidia_i
 }
 
 // GetModelConfig get model config.
-func (m *ModelService) GetModelConfig(modelName, modelVersion string) (interface{}, error) {
+func (m *ModelService) GetModelConfig(modelName, modelVersion string) (*nvidia_inferenceserver.ModelConfigResponse, error) {
 	return m.TritonService.ModelConfiguration(modelName, modelVersion)
 }
 

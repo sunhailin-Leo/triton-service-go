@@ -10,11 +10,12 @@ on:
     paths:
       - '**'
       - '!**.md'
+
 jobs:
   Build:
     strategy:
       matrix:
-        go-version: [1.24.x, 1.25.x]
+        go-version: [1.24.x, 1.25.x, 1.26.x]
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -25,11 +26,6 @@ jobs:
       - name: Setup Golang caches
         uses: actions/cache@v5
         with:
-          # In order:
-          # * Module download cache
-          # * Build cache (Linux)
-          # * Build cache (Mac)
-          # * Build cache (Windows)
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
@@ -45,4 +41,22 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 15
-          command: go test ./... -v -race
+          command: go test ./... -v -race -count=1
+
+  Coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.x
+      - name: Fetch Repository
+        uses: actions/checkout@v6
+      - name: Run Tests with Coverage
+        run: go test ./... -coverprofile=coverage.out -covermode=atomic
+      - name: Upload Coverage to Codecov
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.out
+          fail_ci_if_error: false
