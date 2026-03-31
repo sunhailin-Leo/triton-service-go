@@ -332,7 +332,9 @@ func TestModelService_SetJsonDecoder(t *testing.T) {
 	}
 
 	decoded := make(map[string]string)
-	tritonSrv.JsonUnmarshal([]byte(`{}`), &decoded)
+	if err := tritonSrv.JsonUnmarshal([]byte(`{}`), &decoded); err != nil {
+		t.Fatalf("JsonUnmarshal failed: %v", err)
+	}
 	if decoded["custom"] != "decoded" {
 		t.Errorf("Expected custom decoder to be set, got %s", decoded["custom"])
 	}

@@ -46,7 +46,7 @@ func TestNewTritonClientWithOnlyGRPC_ValidConn(t *testing.T) {
 	if err != nil {
 		t.Skipf("Failed to connect to gRPC server: %v", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	srv := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(conn)
 
@@ -425,7 +425,7 @@ func TestHealthCheckResponse_ServingStatus(t *testing.T) {
 			// Test Enum() method
 			enumPtr := tt.status.Enum()
 			if enumPtr == nil {
-				t.Error("Expected non-nil enum pointer")
+				t.Fatal("Expected non-nil enum pointer")
 			}
 			if *enumPtr != tt.status {
 				t.Errorf("Expected enum pointer value %v, got %v", tt.status, *enumPtr)

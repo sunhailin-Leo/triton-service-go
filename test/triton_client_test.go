@@ -41,7 +41,7 @@ func TestNewTritonClientWithOnlyGRPC_ValidConn(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create grpc client: %v", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	client := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(conn)
 	if client == nil {
@@ -64,7 +64,7 @@ func TestNewTritonClientForAll_NilHTTP(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create grpc client: %v", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	client := nvidia_inferenceserver.NewTritonClientForAll("127.0.0.1:9001", nil, conn)
 	if client == nil {
