@@ -20,6 +20,7 @@ func newTestBertService(t *testing.T) *transformers.BertModelService {
 	if grpcErr != nil {
 		t.Fatalf("failed to create grpc client: %v", grpcErr)
 	}
+	t.Cleanup(func() { _ = defaultGRPCClient.Close() })
 
 	bertService, initErr := transformers.NewBertModelService(
 		vocabPath, httpAddr, defaultHTTPClient, defaultGRPCClient,
