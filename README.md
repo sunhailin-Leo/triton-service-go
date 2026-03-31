@@ -169,13 +169,14 @@ make check      # Run all CI checks (fmt + vet + lint + test + bench)
 
 ### Version
 
-* version 2.1.0 - 2025
-  * **Proto files updated** to latest upstream ([triton-inference-server/common](https://github.com/triton-inference-server/common/tree/main/protobuf))
-  * **Bug fixes**: `setHTTPConnection` logic bug, `ModelIndex` interface signature, `ShareMemoryStatus` return type
-  * **Performance**: pre-allocated byte buffers in `grpcSliceToLittleEndianByteSlice`
-  * **API changes**: `ShareMemoryStatus` split into `ShareCUDAMemoryStatus` / `ShareSystemMemoryStatus`; interface return types changed from `interface{}` to concrete types
-  * **Tests**: added 20+ new unit tests and benchmarks
-  * **Tooling**: added `Makefile`, fixed GitHub Actions workflow naming
+* version 2.1.0 - 2026/03/31
+  * **Proto files updated** to latest upstream ([triton-inference-server/common](https://github.com/triton-inference-server/common/tree/main/protobuf)), regenerated Go stubs with split `*_grpc.pb.go` files
+  * **Bug fixes**: `setHTTPConnection` logic bug, `ModelIndex` interface signature, `ShareMemoryStatus` return type, `scanner.Err()` handling in vocab loading
+  * **Performance**: pre-allocated byte buffers in `grpcSliceToLittleEndianByteSlice`, `Flatten2DSlice` capacity preallocation
+  * **API changes**: `ShareMemoryStatus` split into `ShareCUDAMemoryStatus` / `ShareSystemMemoryStatus`; interface return types changed from `interface{}` to concrete types; callback types updated to `...any`
+  * **Tests**: comprehensive unit tests across all packages (utils 98.8%, models 80.5%, transformers 48.0%, nvidia_inferenceserver 2.1%), 34 benchmark tests for core hot paths
+  * **Tooling**: added `Makefile` with standardized dev targets, GitHub Actions workflows optimized (Go 1.26.x support, coverage upload via Codecov, workflow rename fix)
+  * **Dependencies**: updated `google.golang.org/grpc`, `google.golang.org/protobuf`, `github.com/valyala/fasthttp`, `golang.org/x/text` to latest versions
 
 * version 2.0.5 - 2024/07/26
   * Remove timeout for `TritonService` interface, use `SetAPIRequestTimeout` instead.
