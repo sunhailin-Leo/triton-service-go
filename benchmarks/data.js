@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775100860107,
+  "lastUpdate": 1775100885340,
   "repoUrl": "https://github.com/sunhailin-Leo/triton-service-go",
   "entries": {
     "Benchmark": [
@@ -17220,6 +17220,2766 @@ window.BENCHMARK_DATA = {
             "value": 0,
             "unit": "allocs/op",
             "extra": "21075013 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "shjkfld379978424@gmail.com",
+            "name": "LeoSun",
+            "username": "sunhailin-Leo"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4de256252a814b957b7e287b717fcee90935680",
+          "message": "Merge pull request #183 from sunhailin-Leo/dependabot/go_modules/google.golang.org/grpc-1.80.0\n\nchore(deps): bump google.golang.org/grpc from 1.79.3 to 1.80.0",
+          "timestamp": "2026-04-02T12:31:12+09:00",
+          "tree_id": "974b360a80878b85711522cd585e28348b4d50a6",
+          "url": "https://github.com/sunhailin-Leo/triton-service-go/commit/b4de256252a814b957b7e287b717fcee90935680"
+        },
+        "date": 1775100884726,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 279.3,
+            "unit": "ns/op\t     512 B/op\t       1 allocs/op",
+            "extra": "4409658 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 279.3,
+            "unit": "ns/op",
+            "extra": "4409658 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 512,
+            "unit": "B/op",
+            "extra": "4409658 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "4409658 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 276.1,
+            "unit": "ns/op\t     512 B/op\t       1 allocs/op",
+            "extra": "4319361 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 276.1,
+            "unit": "ns/op",
+            "extra": "4319361 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 512,
+            "unit": "B/op",
+            "extra": "4319361 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "4319361 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 276.6,
+            "unit": "ns/op\t     512 B/op\t       1 allocs/op",
+            "extra": "4325416 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 276.6,
+            "unit": "ns/op",
+            "extra": "4325416 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 512,
+            "unit": "B/op",
+            "extra": "4325416 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "4325416 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 139.1,
+            "unit": "ns/op\t     128 B/op\t       1 allocs/op",
+            "extra": "8607733 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 139.1,
+            "unit": "ns/op",
+            "extra": "8607733 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 128,
+            "unit": "B/op",
+            "extra": "8607733 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "8607733 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 143.8,
+            "unit": "ns/op\t     128 B/op\t       1 allocs/op",
+            "extra": "8577226 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 143.8,
+            "unit": "ns/op",
+            "extra": "8577226 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 128,
+            "unit": "B/op",
+            "extra": "8577226 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "8577226 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 140.2,
+            "unit": "ns/op\t     128 B/op\t       1 allocs/op",
+            "extra": "8611828 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 140.2,
+            "unit": "ns/op",
+            "extra": "8611828 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 128,
+            "unit": "B/op",
+            "extra": "8611828 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "8611828 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 7689,
+            "unit": "ns/op\t    5024 B/op\t      87 allocs/op",
+            "extra": "153818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 7689,
+            "unit": "ns/op",
+            "extra": "153818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 5024,
+            "unit": "B/op",
+            "extra": "153818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 87,
+            "unit": "allocs/op",
+            "extra": "153818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 7701,
+            "unit": "ns/op\t    5024 B/op\t      87 allocs/op",
+            "extra": "152331 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 7701,
+            "unit": "ns/op",
+            "extra": "152331 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 5024,
+            "unit": "B/op",
+            "extra": "152331 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 87,
+            "unit": "allocs/op",
+            "extra": "152331 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 7652,
+            "unit": "ns/op\t    5024 B/op\t      87 allocs/op",
+            "extra": "150772 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 7652,
+            "unit": "ns/op",
+            "extra": "150772 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 5024,
+            "unit": "B/op",
+            "extra": "150772 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenize (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 87,
+            "unit": "allocs/op",
+            "extra": "150772 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 4338,
+            "unit": "ns/op\t    5296 B/op\t      81 allocs/op",
+            "extra": "271414 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 4338,
+            "unit": "ns/op",
+            "extra": "271414 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 5296,
+            "unit": "B/op",
+            "extra": "271414 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 81,
+            "unit": "allocs/op",
+            "extra": "271414 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 4269,
+            "unit": "ns/op\t    5296 B/op\t      81 allocs/op",
+            "extra": "272550 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 4269,
+            "unit": "ns/op",
+            "extra": "272550 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 5296,
+            "unit": "B/op",
+            "extra": "272550 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 81,
+            "unit": "allocs/op",
+            "extra": "272550 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 4254,
+            "unit": "ns/op\t    5296 B/op\t      81 allocs/op",
+            "extra": "271759 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 4254,
+            "unit": "ns/op",
+            "extra": "271759 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 5296,
+            "unit": "B/op",
+            "extra": "271759 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBaseTokenizeChinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 81,
+            "unit": "allocs/op",
+            "extra": "271759 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 8851,
+            "unit": "ns/op\t    8320 B/op\t     132 allocs/op",
+            "extra": "138189 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 8851,
+            "unit": "ns/op",
+            "extra": "138189 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 8320,
+            "unit": "B/op",
+            "extra": "138189 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 132,
+            "unit": "allocs/op",
+            "extra": "138189 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 8930,
+            "unit": "ns/op\t    8320 B/op\t     132 allocs/op",
+            "extra": "134068 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 8930,
+            "unit": "ns/op",
+            "extra": "134068 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 8320,
+            "unit": "B/op",
+            "extra": "134068 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 132,
+            "unit": "allocs/op",
+            "extra": "134068 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 8906,
+            "unit": "ns/op\t    8320 B/op\t     132 allocs/op",
+            "extra": "128344 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 8906,
+            "unit": "ns/op",
+            "extra": "128344 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 8320,
+            "unit": "B/op",
+            "extra": "128344 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Chinese (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 132,
+            "unit": "allocs/op",
+            "extra": "128344 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 6568,
+            "unit": "ns/op\t    3568 B/op\t      83 allocs/op",
+            "extra": "177907 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 6568,
+            "unit": "ns/op",
+            "extra": "177907 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 3568,
+            "unit": "B/op",
+            "extra": "177907 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 83,
+            "unit": "allocs/op",
+            "extra": "177907 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 6565,
+            "unit": "ns/op\t    3568 B/op\t      83 allocs/op",
+            "extra": "176706 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 6565,
+            "unit": "ns/op",
+            "extra": "176706 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 3568,
+            "unit": "B/op",
+            "extra": "176706 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 83,
+            "unit": "allocs/op",
+            "extra": "176706 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 6590,
+            "unit": "ns/op\t    3568 B/op\t      83 allocs/op",
+            "extra": "182138 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 6590,
+            "unit": "ns/op",
+            "extra": "182138 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 3568,
+            "unit": "B/op",
+            "extra": "182138 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_Multilingual (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 83,
+            "unit": "allocs/op",
+            "extra": "182138 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 8862,
+            "unit": "ns/op\t    8320 B/op\t     132 allocs/op",
+            "extra": "132475 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 8862,
+            "unit": "ns/op",
+            "extra": "132475 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 8320,
+            "unit": "B/op",
+            "extra": "132475 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 132,
+            "unit": "allocs/op",
+            "extra": "132475 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 8968,
+            "unit": "ns/op\t    8320 B/op\t     132 allocs/op",
+            "extra": "131452 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 8968,
+            "unit": "ns/op",
+            "extra": "131452 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 8320,
+            "unit": "B/op",
+            "extra": "131452 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 132,
+            "unit": "allocs/op",
+            "extra": "131452 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 8902,
+            "unit": "ns/op\t    8320 B/op\t     132 allocs/op",
+            "extra": "131476 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 8902,
+            "unit": "ns/op",
+            "extra": "131476 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 8320,
+            "unit": "B/op",
+            "extra": "131476 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkWordPieceTokenize_ChineseCharMode (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 132,
+            "unit": "allocs/op",
+            "extra": "131476 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 376.4,
+            "unit": "ns/op\t    1792 B/op\t       1 allocs/op",
+            "extra": "3147398 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 376.4,
+            "unit": "ns/op",
+            "extra": "3147398 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 1792,
+            "unit": "B/op",
+            "extra": "3147398 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "3147398 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 397.6,
+            "unit": "ns/op\t    1792 B/op\t       1 allocs/op",
+            "extra": "3052060 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 397.6,
+            "unit": "ns/op",
+            "extra": "3052060 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 1792,
+            "unit": "B/op",
+            "extra": "3052060 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "3052060 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 381.8,
+            "unit": "ns/op\t    1792 B/op\t       1 allocs/op",
+            "extra": "2929190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 381.8,
+            "unit": "ns/op",
+            "extra": "2929190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 1792,
+            "unit": "B/op",
+            "extra": "2929190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetStrings (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "2929190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 636.7,
+            "unit": "ns/op\t    2032 B/op\t       7 allocs/op",
+            "extra": "1889052 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 636.7,
+            "unit": "ns/op",
+            "extra": "1889052 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 2032,
+            "unit": "B/op",
+            "extra": "1889052 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "1889052 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 628.4,
+            "unit": "ns/op\t    2032 B/op\t       7 allocs/op",
+            "extra": "1835800 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 628.4,
+            "unit": "ns/op",
+            "extra": "1835800 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 2032,
+            "unit": "B/op",
+            "extra": "1835800 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "1835800 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 636.2,
+            "unit": "ns/op\t    2032 B/op\t       7 allocs/op",
+            "extra": "1888635 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 636.2,
+            "unit": "ns/op",
+            "extra": "1888635 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 2032,
+            "unit": "B/op",
+            "extra": "1888635 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGroupPieces (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "1888635 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 2771730,
+            "unit": "ns/op\t 1849471 B/op\t   21211 allocs/op",
+            "extra": "424 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 2771730,
+            "unit": "ns/op",
+            "extra": "424 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 1849471,
+            "unit": "B/op",
+            "extra": "424 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 21211,
+            "unit": "allocs/op",
+            "extra": "424 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 2786445,
+            "unit": "ns/op\t 1849469 B/op\t   21211 allocs/op",
+            "extra": "432 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 2786445,
+            "unit": "ns/op",
+            "extra": "432 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 1849469,
+            "unit": "B/op",
+            "extra": "432 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 21211,
+            "unit": "allocs/op",
+            "extra": "432 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 2789313,
+            "unit": "ns/op\t 1849475 B/op\t   21211 allocs/op",
+            "extra": "427 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 2789313,
+            "unit": "ns/op",
+            "extra": "427 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 1849475,
+            "unit": "B/op",
+            "extra": "427 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabFromFile (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 21211,
+            "unit": "allocs/op",
+            "extra": "427 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 13.06,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "91764229 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 13.06,
+            "unit": "ns/op",
+            "extra": "91764229 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "91764229 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "91764229 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 13.11,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "91764516 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 13.11,
+            "unit": "ns/op",
+            "extra": "91764516 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "91764516 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "91764516 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 13.1,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "91688434 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 13.1,
+            "unit": "ns/op",
+            "extra": "91688434 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "91688434 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabGetID (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "91688434 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 268.7,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "4562527 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 268.7,
+            "unit": "ns/op",
+            "extra": "4562527 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "4562527 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "4562527 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 263.4,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "4500057 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 263.4,
+            "unit": "ns/op",
+            "extra": "4500057 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "4500057 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "4500057 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 251.8,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "4672063 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 251.8,
+            "unit": "ns/op",
+            "extra": "4672063 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "4672063 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabLongestSubstring (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "4672063 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 1479,
+            "unit": "ns/op\t     416 B/op\t       1 allocs/op",
+            "extra": "769702 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 1479,
+            "unit": "ns/op",
+            "extra": "769702 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 416,
+            "unit": "B/op",
+            "extra": "769702 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "769702 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 1470,
+            "unit": "ns/op\t     416 B/op\t       1 allocs/op",
+            "extra": "777940 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 1470,
+            "unit": "ns/op",
+            "extra": "777940 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 416,
+            "unit": "B/op",
+            "extra": "777940 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "777940 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers)",
+            "value": 1472,
+            "unit": "ns/op\t     416 B/op\t       1 allocs/op",
+            "extra": "789907 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - ns/op",
+            "value": 1472,
+            "unit": "ns/op",
+            "extra": "789907 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - B/op",
+            "value": 416,
+            "unit": "B/op",
+            "extra": "789907 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkVocabConvertItems (github.com/sunhailin-Leo/triton-service-go/v2/models/transformers) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "789907 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 278.2,
+            "unit": "ns/op\t     512 B/op\t       1 allocs/op",
+            "extra": "4290486 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 278.2,
+            "unit": "ns/op",
+            "extra": "4290486 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 512,
+            "unit": "B/op",
+            "extra": "4290486 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "4290486 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 302.9,
+            "unit": "ns/op\t     512 B/op\t       1 allocs/op",
+            "extra": "4216446 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 302.9,
+            "unit": "ns/op",
+            "extra": "4216446 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 512,
+            "unit": "B/op",
+            "extra": "4216446 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "4216446 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 283.6,
+            "unit": "ns/op\t     512 B/op\t       1 allocs/op",
+            "extra": "4194717 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 283.6,
+            "unit": "ns/op",
+            "extra": "4194717 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 512,
+            "unit": "B/op",
+            "extra": "4194717 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Int32 (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "4194717 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 143.9,
+            "unit": "ns/op\t     128 B/op\t       1 allocs/op",
+            "extra": "8434797 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 143.9,
+            "unit": "ns/op",
+            "extra": "8434797 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 128,
+            "unit": "B/op",
+            "extra": "8434797 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "8434797 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 144.3,
+            "unit": "ns/op\t     128 B/op\t       1 allocs/op",
+            "extra": "8308504 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 144.3,
+            "unit": "ns/op",
+            "extra": "8308504 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 128,
+            "unit": "B/op",
+            "extra": "8308504 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "8308504 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 145.3,
+            "unit": "ns/op\t     128 B/op\t       1 allocs/op",
+            "extra": "8321318 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 145.3,
+            "unit": "ns/op",
+            "extra": "8321318 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 128,
+            "unit": "B/op",
+            "extra": "8321318 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGrpcSliceToLittleEndianByteSlice_Bool (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "8321318 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 19247,
+            "unit": "ns/op\t   11816 B/op\t     266 allocs/op",
+            "extra": "62022 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 19247,
+            "unit": "ns/op",
+            "extra": "62022 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 11816,
+            "unit": "B/op",
+            "extra": "62022 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 266,
+            "unit": "allocs/op",
+            "extra": "62022 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 18970,
+            "unit": "ns/op\t   11816 B/op\t     266 allocs/op",
+            "extra": "63093 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 18970,
+            "unit": "ns/op",
+            "extra": "63093 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 11816,
+            "unit": "B/op",
+            "extra": "63093 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 266,
+            "unit": "allocs/op",
+            "extra": "63093 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 19105,
+            "unit": "ns/op\t   11816 B/op\t     266 allocs/op",
+            "extra": "62566 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 19105,
+            "unit": "ns/op",
+            "extra": "62566 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 11816,
+            "unit": "B/op",
+            "extra": "62566 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerNotChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 266,
+            "unit": "allocs/op",
+            "extra": "62566 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 5164,
+            "unit": "ns/op\t    4032 B/op\t      79 allocs/op",
+            "extra": "231117 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 5164,
+            "unit": "ns/op",
+            "extra": "231117 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 4032,
+            "unit": "B/op",
+            "extra": "231117 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 79,
+            "unit": "allocs/op",
+            "extra": "231117 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 5131,
+            "unit": "ns/op\t    4032 B/op\t      79 allocs/op",
+            "extra": "227036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 5131,
+            "unit": "ns/op",
+            "extra": "227036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 4032,
+            "unit": "B/op",
+            "extra": "227036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 79,
+            "unit": "allocs/op",
+            "extra": "227036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test)",
+            "value": 5112,
+            "unit": "ns/op\t    4032 B/op\t      79 allocs/op",
+            "extra": "226372 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - ns/op",
+            "value": 5112,
+            "unit": "ns/op",
+            "extra": "226372 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - B/op",
+            "value": 4032,
+            "unit": "B/op",
+            "extra": "226372 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFullTokenizerChinese (github.com/sunhailin-Leo/triton-service-go/v2/test) - allocs/op",
+            "value": 79,
+            "unit": "allocs/op",
+            "extra": "226372 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 440.5,
+            "unit": "ns/op\t      56 B/op\t       3 allocs/op",
+            "extra": "2722471 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 440.5,
+            "unit": "ns/op",
+            "extra": "2722471 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 56,
+            "unit": "B/op",
+            "extra": "2722471 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 3,
+            "unit": "allocs/op",
+            "extra": "2722471 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 439.5,
+            "unit": "ns/op\t      56 B/op\t       3 allocs/op",
+            "extra": "2733242 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 439.5,
+            "unit": "ns/op",
+            "extra": "2733242 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 56,
+            "unit": "B/op",
+            "extra": "2733242 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 3,
+            "unit": "allocs/op",
+            "extra": "2733242 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 440.4,
+            "unit": "ns/op\t      56 B/op\t       3 allocs/op",
+            "extra": "2713059 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 440.4,
+            "unit": "ns/op",
+            "extra": "2713059 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 56,
+            "unit": "B/op",
+            "extra": "2713059 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkClean (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 3,
+            "unit": "allocs/op",
+            "extra": "2713059 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1625,
+            "unit": "ns/op\t     760 B/op\t       7 allocs/op",
+            "extra": "694321 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1625,
+            "unit": "ns/op",
+            "extra": "694321 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 760,
+            "unit": "B/op",
+            "extra": "694321 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "694321 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1613,
+            "unit": "ns/op\t     760 B/op\t       7 allocs/op",
+            "extra": "735818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1613,
+            "unit": "ns/op",
+            "extra": "735818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 760,
+            "unit": "B/op",
+            "extra": "735818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "735818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1614,
+            "unit": "ns/op\t     760 B/op\t       7 allocs/op",
+            "extra": "667147 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1614,
+            "unit": "ns/op",
+            "extra": "667147 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 760,
+            "unit": "B/op",
+            "extra": "667147 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStripAccentsAndLower (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "667147 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 984.1,
+            "unit": "ns/op\t    2304 B/op\t       1 allocs/op",
+            "extra": "1207882 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 984.1,
+            "unit": "ns/op",
+            "extra": "1207882 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2304,
+            "unit": "B/op",
+            "extra": "1207882 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1207882 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 987.9,
+            "unit": "ns/op\t    2304 B/op\t       1 allocs/op",
+            "extra": "1241287 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 987.9,
+            "unit": "ns/op",
+            "extra": "1241287 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2304,
+            "unit": "B/op",
+            "extra": "1241287 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1241287 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 985.8,
+            "unit": "ns/op\t    2304 B/op\t       1 allocs/op",
+            "extra": "1212663 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 985.8,
+            "unit": "ns/op",
+            "extra": "1212663 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2304,
+            "unit": "B/op",
+            "extra": "1212663 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1212663 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 2085,
+            "unit": "ns/op\t    2812 B/op\t     128 allocs/op",
+            "extra": "548059 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 2085,
+            "unit": "ns/op",
+            "extra": "548059 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2812,
+            "unit": "B/op",
+            "extra": "548059 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 128,
+            "unit": "allocs/op",
+            "extra": "548059 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 2047,
+            "unit": "ns/op\t    2812 B/op\t     128 allocs/op",
+            "extra": "542726 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 2047,
+            "unit": "ns/op",
+            "extra": "542726 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2812,
+            "unit": "B/op",
+            "extra": "542726 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 128,
+            "unit": "allocs/op",
+            "extra": "542726 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 2052,
+            "unit": "ns/op\t    2812 B/op\t     128 allocs/op",
+            "extra": "539038 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 2052,
+            "unit": "ns/op",
+            "extra": "539038 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2812,
+            "unit": "B/op",
+            "extra": "539038 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_FP32 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 128,
+            "unit": "allocs/op",
+            "extra": "539038 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 5.62,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "213665450 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 5.62,
+            "unit": "ns/op",
+            "extra": "213665450 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "213665450 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "213665450 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 5.618,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "213517814 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 5.618,
+            "unit": "ns/op",
+            "extra": "213517814 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "213517814 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "213517814 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 5.625,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "213572973 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 5.625,
+            "unit": "ns/op",
+            "extra": "213572973 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "213572973 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "213572973 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 5.631,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "213725582 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 5.631,
+            "unit": "ns/op",
+            "extra": "213725582 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "213725582 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "213725582 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 5.614,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "213571842 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 5.614,
+            "unit": "ns/op",
+            "extra": "213571842 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "213571842 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "213571842 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 5.622,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "213463191 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 5.622,
+            "unit": "ns/op",
+            "extra": "213463191 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "213463191 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkIsPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "213463191 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 682.6,
+            "unit": "ns/op\t     248 B/op\t       5 allocs/op",
+            "extra": "1739823 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 682.6,
+            "unit": "ns/op",
+            "extra": "1739823 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 248,
+            "unit": "B/op",
+            "extra": "1739823 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 5,
+            "unit": "allocs/op",
+            "extra": "1739823 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 694.9,
+            "unit": "ns/op\t     248 B/op\t       5 allocs/op",
+            "extra": "1756798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 694.9,
+            "unit": "ns/op",
+            "extra": "1756798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 248,
+            "unit": "B/op",
+            "extra": "1756798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 5,
+            "unit": "allocs/op",
+            "extra": "1756798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 684.9,
+            "unit": "ns/op\t     248 B/op\t       5 allocs/op",
+            "extra": "1738533 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 684.9,
+            "unit": "ns/op",
+            "extra": "1738533 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 248,
+            "unit": "B/op",
+            "extra": "1738533 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 5,
+            "unit": "allocs/op",
+            "extra": "1738533 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1420,
+            "unit": "ns/op\t     504 B/op\t       6 allocs/op",
+            "extra": "763615 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1420,
+            "unit": "ns/op",
+            "extra": "763615 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 504,
+            "unit": "B/op",
+            "extra": "763615 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 6,
+            "unit": "allocs/op",
+            "extra": "763615 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1419,
+            "unit": "ns/op\t     504 B/op\t       6 allocs/op",
+            "extra": "794523 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1419,
+            "unit": "ns/op",
+            "extra": "794523 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 504,
+            "unit": "B/op",
+            "extra": "794523 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 6,
+            "unit": "allocs/op",
+            "extra": "794523 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1422,
+            "unit": "ns/op\t     504 B/op\t       6 allocs/op",
+            "extra": "785410 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1422,
+            "unit": "ns/op",
+            "extra": "785410 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 504,
+            "unit": "B/op",
+            "extra": "785410 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadChinese_Long (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 6,
+            "unit": "allocs/op",
+            "extra": "785410 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 598.3,
+            "unit": "ns/op\t     504 B/op\t       6 allocs/op",
+            "extra": "1988930 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 598.3,
+            "unit": "ns/op",
+            "extra": "1988930 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 504,
+            "unit": "B/op",
+            "extra": "1988930 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 6,
+            "unit": "allocs/op",
+            "extra": "1988930 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 599.6,
+            "unit": "ns/op\t     504 B/op\t       6 allocs/op",
+            "extra": "2012486 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 599.6,
+            "unit": "ns/op",
+            "extra": "2012486 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 504,
+            "unit": "B/op",
+            "extra": "2012486 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 6,
+            "unit": "allocs/op",
+            "extra": "2012486 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 600,
+            "unit": "ns/op\t     504 B/op\t       6 allocs/op",
+            "extra": "2003677 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 600,
+            "unit": "ns/op",
+            "extra": "2003677 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 504,
+            "unit": "B/op",
+            "extra": "2003677 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 6,
+            "unit": "allocs/op",
+            "extra": "2003677 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1237,
+            "unit": "ns/op\t    1016 B/op\t       7 allocs/op",
+            "extra": "859969 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1237,
+            "unit": "ns/op",
+            "extra": "859969 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 1016,
+            "unit": "B/op",
+            "extra": "859969 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "859969 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1243,
+            "unit": "ns/op\t    1016 B/op\t       7 allocs/op",
+            "extra": "871342 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1243,
+            "unit": "ns/op",
+            "extra": "871342 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 1016,
+            "unit": "B/op",
+            "extra": "871342 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "871342 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1239,
+            "unit": "ns/op\t    1016 B/op\t       7 allocs/op",
+            "extra": "881769 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1239,
+            "unit": "ns/op",
+            "extra": "881769 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 1016,
+            "unit": "B/op",
+            "extra": "881769 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryFilter_Sparse (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "881769 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1030,
+            "unit": "ns/op\t    2304 B/op\t       1 allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1030,
+            "unit": "ns/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2304,
+            "unit": "B/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 982.3,
+            "unit": "ns/op\t    2304 B/op\t       1 allocs/op",
+            "extra": "1231642 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 982.3,
+            "unit": "ns/op",
+            "extra": "1231642 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2304,
+            "unit": "B/op",
+            "extra": "1231642 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1231642 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 984.8,
+            "unit": "ns/op\t    2304 B/op\t       1 allocs/op",
+            "extra": "1211466 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 984.8,
+            "unit": "ns/op",
+            "extra": "1211466 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2304,
+            "unit": "B/op",
+            "extra": "1211466 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_INT64 (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1211466 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 517.6,
+            "unit": "ns/op\t     456 B/op\t      13 allocs/op",
+            "extra": "2331264 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 517.6,
+            "unit": "ns/op",
+            "extra": "2331264 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 456,
+            "unit": "B/op",
+            "extra": "2331264 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 13,
+            "unit": "allocs/op",
+            "extra": "2331264 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 515.9,
+            "unit": "ns/op\t     456 B/op\t      13 allocs/op",
+            "extra": "2321971 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 515.9,
+            "unit": "ns/op",
+            "extra": "2321971 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 456,
+            "unit": "B/op",
+            "extra": "2321971 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 13,
+            "unit": "allocs/op",
+            "extra": "2321971 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 517,
+            "unit": "ns/op\t     456 B/op\t      13 allocs/op",
+            "extra": "2331748 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 517,
+            "unit": "ns/op",
+            "extra": "2331748 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 456,
+            "unit": "B/op",
+            "extra": "2331748 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkBinaryToSlice_Bytes (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 13,
+            "unit": "allocs/op",
+            "extra": "2331748 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 802.9,
+            "unit": "ns/op\t     104 B/op\t       4 allocs/op",
+            "extra": "1494108 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 802.9,
+            "unit": "ns/op",
+            "extra": "1494108 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 104,
+            "unit": "B/op",
+            "extra": "1494108 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "1494108 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 806,
+            "unit": "ns/op\t     104 B/op\t       4 allocs/op",
+            "extra": "1494139 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 806,
+            "unit": "ns/op",
+            "extra": "1494139 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 104,
+            "unit": "B/op",
+            "extra": "1494139 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "1494139 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 802.4,
+            "unit": "ns/op\t     104 B/op\t       4 allocs/op",
+            "extra": "1503790 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 802.4,
+            "unit": "ns/op",
+            "extra": "1503790 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 104,
+            "unit": "B/op",
+            "extra": "1503790 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCleanAndPadChineseWithWhiteSpace (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "1503790 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 956.1,
+            "unit": "ns/op\t     584 B/op\t      16 allocs/op",
+            "extra": "1255048 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 956.1,
+            "unit": "ns/op",
+            "extra": "1255048 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 584,
+            "unit": "B/op",
+            "extra": "1255048 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 16,
+            "unit": "allocs/op",
+            "extra": "1255048 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 947,
+            "unit": "ns/op\t     584 B/op\t      16 allocs/op",
+            "extra": "1267332 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 947,
+            "unit": "ns/op",
+            "extra": "1267332 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 584,
+            "unit": "B/op",
+            "extra": "1267332 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 16,
+            "unit": "allocs/op",
+            "extra": "1267332 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 955.2,
+            "unit": "ns/op\t     584 B/op\t      16 allocs/op",
+            "extra": "1260550 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 955.2,
+            "unit": "ns/op",
+            "extra": "1260550 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 584,
+            "unit": "B/op",
+            "extra": "1260550 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSplitPunctuation (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 16,
+            "unit": "allocs/op",
+            "extra": "1260550 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 396.8,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "3146283 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 396.8,
+            "unit": "ns/op",
+            "extra": "3146283 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "3146283 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "3146283 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 382,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "3134364 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 382,
+            "unit": "ns/op",
+            "extra": "3134364 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "3134364 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "3134364 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 381.9,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "3138394 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 381.9,
+            "unit": "ns/op",
+            "extra": "3138394 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "3138394 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPadSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "3138394 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 15489,
+            "unit": "ns/op\t   81921 B/op\t       1 allocs/op",
+            "extra": "92427 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 15489,
+            "unit": "ns/op",
+            "extra": "92427 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 81921,
+            "unit": "B/op",
+            "extra": "92427 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "92427 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 15505,
+            "unit": "ns/op\t   81921 B/op\t       1 allocs/op",
+            "extra": "78076 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 15505,
+            "unit": "ns/op",
+            "extra": "78076 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 81921,
+            "unit": "B/op",
+            "extra": "78076 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "78076 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 15696,
+            "unit": "ns/op\t   81921 B/op\t       1 allocs/op",
+            "extra": "76424 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 15696,
+            "unit": "ns/op",
+            "extra": "76424 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 81921,
+            "unit": "B/op",
+            "extra": "76424 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkFlatten2DSlice (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "76424 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 7093,
+            "unit": "ns/op\t   22080 B/op\t      51 allocs/op",
+            "extra": "174381 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 7093,
+            "unit": "ns/op",
+            "extra": "174381 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 22080,
+            "unit": "B/op",
+            "extra": "174381 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 51,
+            "unit": "allocs/op",
+            "extra": "174381 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 6944,
+            "unit": "ns/op\t   22080 B/op\t      51 allocs/op",
+            "extra": "173404 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 6944,
+            "unit": "ns/op",
+            "extra": "173404 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 22080,
+            "unit": "B/op",
+            "extra": "173404 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 51,
+            "unit": "allocs/op",
+            "extra": "173404 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 6878,
+            "unit": "ns/op\t   22080 B/op\t      51 allocs/op",
+            "extra": "174190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 6878,
+            "unit": "ns/op",
+            "extra": "174190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 22080,
+            "unit": "B/op",
+            "extra": "174190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor2D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 51,
+            "unit": "allocs/op",
+            "extra": "174190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 924.6,
+            "unit": "ns/op\t    2640 B/op\t      11 allocs/op",
+            "extra": "1278212 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 924.6,
+            "unit": "ns/op",
+            "extra": "1278212 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2640,
+            "unit": "B/op",
+            "extra": "1278212 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "1278212 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 936.2,
+            "unit": "ns/op\t    2640 B/op\t      11 allocs/op",
+            "extra": "1287884 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 936.2,
+            "unit": "ns/op",
+            "extra": "1287884 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2640,
+            "unit": "B/op",
+            "extra": "1287884 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "1287884 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 942.8,
+            "unit": "ns/op\t    2640 B/op\t      11 allocs/op",
+            "extra": "1278529 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 942.8,
+            "unit": "ns/op",
+            "extra": "1278529 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 2640,
+            "unit": "B/op",
+            "extra": "1278529 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkSliceTransposeFor3D (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "1278529 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1786,
+            "unit": "ns/op\t    8192 B/op\t       1 allocs/op",
+            "extra": "606760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1786,
+            "unit": "ns/op",
+            "extra": "606760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 8192,
+            "unit": "B/op",
+            "extra": "606760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "606760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1824,
+            "unit": "ns/op\t    8192 B/op\t       1 allocs/op",
+            "extra": "662160 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1824,
+            "unit": "ns/op",
+            "extra": "662160 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 8192,
+            "unit": "B/op",
+            "extra": "662160 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "662160 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 1839,
+            "unit": "ns/op\t    8192 B/op\t       1 allocs/op",
+            "extra": "679668 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 1839,
+            "unit": "ns/op",
+            "extra": "679668 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 8192,
+            "unit": "B/op",
+            "extra": "679668 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGenerateRange (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "679668 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 57.01,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "20877657 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 57.01,
+            "unit": "ns/op",
+            "extra": "20877657 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "20877657 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "20877657 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 57.03,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "21044503 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 57.03,
+            "unit": "ns/op",
+            "extra": "21044503 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "21044503 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "21044503 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 57.04,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "20950653 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 57.04,
+            "unit": "ns/op",
+            "extra": "20950653 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "20950653 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetNanoTimeFromSys (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "20950653 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 56.99,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "20997459 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 56.99,
+            "unit": "ns/op",
+            "extra": "20997459 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "20997459 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "20997459 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 57.04,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "21014640 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 57.04,
+            "unit": "ns/op",
+            "extra": "21014640 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "21014640 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "21014640 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils)",
+            "value": 57.03,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "21052378 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils) - ns/op",
+            "value": 57.03,
+            "unit": "ns/op",
+            "extra": "21052378 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "21052378 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkCalTimeGapWithNS (github.com/sunhailin-Leo/triton-service-go/v2/utils) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "21052378 times\n4 procs"
           }
         ]
       }
