@@ -350,8 +350,9 @@ func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []Str
 
 			// Use Trie for O(n) longest prefix matching instead of O(n²) shrinking loop
 			if t.vocabulary.prefixTree != nil {
-				matchedToken, _, matchedByteLen := t.vocabulary.prefixTree.longestPrefix(lookupStr)
+				_, matchedByteLen := t.vocabulary.prefixTree.longestPrefix(lookupStr)
 				if matchedByteLen > 0 {
+					matchedToken := lookupStr[:matchedByteLen]
 					// Calculate how many runes were consumed from characters[start:]
 					var consumedRunes int
 					if start > 0 {

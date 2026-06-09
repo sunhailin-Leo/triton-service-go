@@ -21,30 +21,104 @@ func (id ID) Int64() int64 {
 	return int64(id)
 }
 
+// trieChild is a key-value pair for trie node children, stored in sorted order.
+type trieChild struct {
+	key  rune
+	node *trieNode
+}
+
 // trieNode represents a node in the trie (prefix tree).
+// Uses a sorted slice instead of map for children to reduce memory allocations.
 type trieNode struct {
-	children map[rune]*trieNode
-	token    string
+	children []trieChild
 	id       ID
 	isEnd    bool
 }
 
-// newTrieNode creates a new trie node.
-func newTrieNode() *trieNode {
-	return &trieNode{
-		children: make(map[rune]*trieNode),
+// findChild looks up a child by rune using binary search.
+func (n *trieNode) findChild(ch rune) *trieNode {
+	lo, hi := 0, len(n.children)
+	for lo < hi {
+		mid := (lo + hi) >> 1
+		if n.children[mid].key < ch {
+			lo = mid + 1
+		} else {
+			hi = mid
+		}
 	}
+	if lo < len(n.children) && n.children[lo].key == ch {
+		return n.children[lo].node
+	}
+	return nil
+}
+
+// addChild inserts a child node in sorted order and returns it.
+// Uses the provided arena for allocation if non-nil.
+func (n *trieNode) addChild(ch rune, arena *nodeArena) *trieNode {
+	// Binary search for insertion point
+	lo, hi := 0, len(n.children)
+	for lo < hi {
+		mid := (lo + hi) >> 1
+		if n.children[mid].key < ch {
+			lo = mid + 1
+		} else {
+			hi = mid
+		}
+	}
+	if lo < len(n.children) && n.children[lo].key == ch {
+		return n.children[lo].node
+	}
+	var child *trieNode
+	if arena != nil {
+		child = arena.alloc()
+	} else {
+		child = &trieNode{}
+	}
+	// Insert at position lo
+	n.children = append(n.children, trieChild{})
+	copy(n.children[lo+1:], n.children[lo:])
+	n.children[lo] = trieChild{key: ch, node: child}
+	return child
+}
+
+// nodeArena pre-allocates trie nodes in bulk to reduce heap allocations.
+type nodeArena struct {
+	pool []trieNode
+	idx  int
+}
+
+// newNodeArena creates an arena with the given capacity.
+func newNodeArena(capacity int) *nodeArena {
+	return &nodeArena{
+		pool: make([]trieNode, capacity),
+	}
+}
+
+// alloc returns a pointer to the next available node from the arena.
+// Falls back to heap allocation if the arena is exhausted.
+func (a *nodeArena) alloc() *trieNode {
+	if a.idx < len(a.pool) {
+		node := &a.pool[a.idx]
+		a.idx++
+		return node
+	}
+	return &trieNode{}
 }
 
 // trie is a prefix tree for efficient token lookup.
 type trie struct {
-	root *trieNode
+	root  *trieNode
+	arena *nodeArena
 }
 
-// newTrie creates a new empty trie.
-func newTrie() *trie {
+// newTrie creates a new trie with a pre-allocated node arena.
+// estimatedNodes is a hint for the expected total number of trie nodes.
+func newTrie(estimatedNodes int) *trie {
+	arena := newNodeArena(estimatedNodes)
+	root := arena.alloc()
 	return &trie{
-		root: newTrieNode(),
+		root:  root,
+		arena: arena,
 	}
 }
 
@@ -52,40 +126,35 @@ func newTrie() *trie {
 func (t *trie) insert(token string, id ID) {
 	node := t.root
 	for _, ch := range token {
-		if _, exists := node.children[ch]; !exists {
-			node.children[ch] = newTrieNode()
-		}
-		node = node.children[ch]
+		node = node.addChild(ch, t.arena)
 	}
-	node.token = token
 	node.id = id
 	node.isEnd = true
 }
 
 // longestPrefix finds the longest matching prefix in the text.
-// Returns the matched token, its ID, and the number of bytes consumed from text.
-func (t *trie) longestPrefix(text string) (token string, id ID, byteLen int) {
+// Returns the matched token's ID and the number of bytes consumed from text.
+// The caller can recover the matched string via text[:byteLen].
+func (t *trie) longestPrefix(text string) (id ID, byteLen int) {
 	node := t.root
-	var bestToken string
 	var bestID ID
 	var bestByteLen int
 
 	for i, ch := range text {
-		child, exists := node.children[ch]
-		if !exists {
+		child := node.findChild(ch)
+		if child == nil {
 			break
 		}
 		node = child
 		// i is the byte offset of ch; add utf8.RuneLen(ch) to get the end byte position
 		endPos := i + utf8.RuneLen(ch)
 		if node.isEnd {
-			bestToken = node.token
 			bestID = node.id
 			bestByteLen = endPos
 		}
 	}
 
-	return bestToken, bestID, bestByteLen
+	return bestID, bestByteLen
 }
 
 // Dict is a container for tokens
@@ -115,7 +184,8 @@ func VocabFromFile(path string) (Dict, error) {
 
 	scanner := bufio.NewScanner(f)
 	tokens := make(map[string]ID, estimatedSize)
-	tree := newTrie()
+	// Pre-allocate arena: ~2 nodes per token accounts for prefix sharing in typical vocabularies.
+	tree := newTrie(estimatedSize * 2)
 	var idx ID
 	for scanner.Scan() {
 		token := scanner.Text()
@@ -135,7 +205,7 @@ func VocabFromSlice(vocabArr []string) (Dict, error) {
 		return Dict{}, utils.ErrEmptyVocab
 	}
 	tokens := make(map[string]ID, len(vocabArr))
-	tree := newTrie()
+	tree := newTrie(len(vocabArr) * 2)
 	for i := range vocabArr {
 		id := ID(i)
 		tokens[vocabArr[i]] = id
@@ -147,7 +217,7 @@ func VocabFromSlice(vocabArr []string) (Dict, error) {
 // New will return a vocab dict from the given tokens, IDs will match index.
 func New(tokens []string) Dict {
 	v := make(map[string]ID, len(tokens))
-	tree := newTrie()
+	tree := newTrie(len(tokens) * 2)
 	for i := range tokens {
 		id := ID(i)
 		v[tokens[i]] = id
@@ -189,9 +259,12 @@ func (v Dict) LongestSubstring(token string) string {
 				break
 			}
 
-			matchedToken, _, matchedByteLen := v.prefixTree.longestPrefix(token[i:])
-			if matchedByteLen > 0 && len(matchedToken) > len(bestToken) {
-				bestToken = matchedToken
+			_, matchedByteLen := v.prefixTree.longestPrefix(token[i:])
+			if matchedByteLen > 0 {
+				matched := token[i : i+matchedByteLen]
+				if len(matched) > len(bestToken) {
+					bestToken = matched
+				}
 			}
 
 			i += size
