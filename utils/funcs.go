@@ -244,9 +244,6 @@ var convertFuncMap = map[string]func([]uint8) any{
 	},
 }
 
-// ErrUnsupportedType is returned when BinaryToSlice receives an unknown data type.
-var ErrUnsupportedType = "unsupported return type for BinaryToSlice"
-
 // BinaryToSlice converts a byte slice to a typed slice based on the returnType.
 // Returns nil if the returnType is not supported.
 func BinaryToSlice(body []uint8, bytesLen int, returnType string) []any {

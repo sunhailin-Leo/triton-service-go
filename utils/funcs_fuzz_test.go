@@ -204,7 +204,7 @@ func FuzzBinaryToSlice(f *testing.F) {
 	f.Add(makeInt32Bytes([]int32{1}), 4, utils.SliceIntType)
 	f.Add([]byte("hello"), 4, utils.TritonBytesType)
 	f.Add([]byte("test"), 4, utils.SliceByteType)
-	f.Add(makeFloat32Bytes([]float32{1.0}), 4, utils.TritonFP16Type)
+	f.Add(makeFloat16Bytes([]uint16{0x3C00}), 2, utils.TritonFP16Type) // 1.0 in FP16
 
 	f.Fuzz(func(t *testing.T, body []byte, bytesLen int, returnType string) {
 		// BinaryToSlice should never panic, even with invalid input

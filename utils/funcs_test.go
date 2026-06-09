@@ -453,12 +453,18 @@ func TestBinaryToSlice(t *testing.T) {
 		},
 		{
 			name:       "TritonFP16 type",
-			body:       makeFloat32Bytes([]float32{1.0, 2.0, 3.0}),
-			bytesLen:   4,
+			body:       makeFloat16Bytes([]uint16{0x3C00, 0x4000, 0x4200}), // 1.0, 2.0, 3.0 in FP16
+			bytesLen:   2,
 			returnType: utils.TritonFP16Type,
 			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
+				}
+				expected := []float32{1.0, 2.0, 3.0}
+				for i, exp := range expected {
+					if got, ok := result[i].(float32); !ok || got != exp {
+						t.Errorf("at index %d: expected %v, got %v", i, exp, result[i])
+					}
 				}
 			},
 		},
@@ -580,6 +586,14 @@ func makeFloat32Bytes(values []float32) []byte {
 	result := make([]byte, len(values)*4)
 	for i, v := range values {
 		binary.LittleEndian.PutUint32(result[i*4:], math.Float32bits(v))
+	}
+	return result
+}
+
+func makeFloat16Bytes(values []uint16) []byte {
+	result := make([]byte, len(values)*2)
+	for i, v := range values {
+		binary.LittleEndian.PutUint16(result[i*2:], v)
 	}
 	return result
 }
