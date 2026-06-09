@@ -16,13 +16,13 @@ func testGenerateModelInferRequest() []*nvidia_inferenceserver.ModelInferRequest
 	}
 }
 
-func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
+func testGenerateModelInferOutputRequest(params ...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
 	return []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor{
 		{Name: "probability"},
 	}
 }
 
-func testModelInferCallback(inferResponse interface{}, params ...interface{}) ([]interface{}, error) {
+func testModelInferCallback(inferResponse any, params ...any) ([]any, error) {
 	return nil, nil
 }
 
@@ -73,7 +73,7 @@ func TestNewBertModelService_NilCallbacks(t *testing.T) {
 	tests := []struct {
 		name           string
 		inputCallback  func() []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor
-		outputCallback func(...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
+		outputCallback func(...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
 		inferCallback  nvidia_inferenceserver.DecoderFunc
 		expectError    bool
 	}{

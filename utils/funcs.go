@@ -49,15 +49,14 @@ func IsPunctuation(c rune) bool {
 //
 //go:inline
 func IsChinese(c rune) bool {
-	// unicode.Is(unicode.Han, c)
-	return unicode.In(c, BertChineseChar, unicode.P)
+	return unicode.In(c, BertChineseChar)
 }
 
 // IsChineseOrNumber validates that rune c is in the CJK range according to BERT spec or Number.
 //
 //go:inline
 func IsChineseOrNumber(c rune) bool {
-	return unicode.In(c, BertChineseChar, unicode.P) || unicode.IsNumber(c)
+	return unicode.In(c, BertChineseChar) || unicode.IsNumber(c)
 }
 
 // IsWhiteSpaceOrChinese validates that rune c is whitespace or is Chinese.
@@ -182,42 +181,45 @@ func BinaryFilter(arr []byte) []byte {
 }
 
 // convert functions.
-var convertFuncMap = map[string]func([]uint8) interface{}{
-	TritonINT32Type: func(b []uint8) interface{} {
+var convertFuncMap = map[string]func([]uint8) any{
+	TritonINT32Type: func(b []uint8) any {
 		return int32(binary.LittleEndian.Uint32(b))
 	},
-	TritonINT64Type: func(b []uint8) interface{} {
+	TritonINT64Type: func(b []uint8) any {
 		return int64(binary.LittleEndian.Uint64(b))
 	},
-	SliceFloat32Type: func(b []uint8) interface{} {
+	TritonFP16Type: func(b []uint8) any {
 		return math.Float32frombits(binary.LittleEndian.Uint32(b))
 	},
-	TritonFP16Type: func(b []uint8) interface{} {
+	TritonFP32Type: func(b []uint8) any {
 		return math.Float32frombits(binary.LittleEndian.Uint32(b))
 	},
-	SliceFloat64Type: func(b []uint8) interface{} {
-		return float64(math.Float32frombits(binary.LittleEndian.Uint32(b)))
+	TritonFP64Type: func(b []uint8) any {
+		return math.Float64frombits(binary.LittleEndian.Uint64(b))
 	},
-	TritonFP32Type: func(b []uint8) interface{} {
-		return float64(math.Float32frombits(binary.LittleEndian.Uint32(b)))
+	SliceFloat32Type: func(b []uint8) any {
+		return math.Float32frombits(binary.LittleEndian.Uint32(b))
 	},
-	SliceInt64Type: func(b []uint8) interface{} {
-		return int64(binary.LittleEndian.Uint32(b))
+	SliceFloat64Type: func(b []uint8) any {
+		return math.Float64frombits(binary.LittleEndian.Uint64(b))
 	},
-	SliceIntType: func(b []uint8) interface{} {
+	SliceInt64Type: func(b []uint8) any {
+		return int64(binary.LittleEndian.Uint64(b))
+	},
+	SliceIntType: func(b []uint8) any {
 		return int(binary.LittleEndian.Uint32(b))
 	},
 }
 
 // BinaryToSlice []byte to slice.
-func BinaryToSlice(body []uint8, bytesLen int, returnType string) []interface{} {
+func BinaryToSlice(body []uint8, bytesLen int, returnType string) []any {
 	// special process BYTES and []byte
 	if returnType == TritonBytesType || returnType == SliceByteType {
 		return SliceToInterfaceSlice(strings.Fields(string(BinaryFilter(body))))
 	}
 	// response body split by chunk (other types need convert functions)
 	convertFunc := convertFuncMap[returnType]
-	convertFuncResult := make([]interface{}, cap(body)/bytesLen)
+	convertFuncResult := make([]any, len(body)/bytesLen)
 	for i := 0; i < len(convertFuncResult); i++ {
 		if i*bytesLen+bytesLen > len(body) {
 			if len(body[i*bytesLen:]) > 0 {

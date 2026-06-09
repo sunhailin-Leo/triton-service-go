@@ -16,13 +16,13 @@ func testGenerateW2NERModelInferRequest() []*nvidia_inferenceserver.ModelInferRe
 	}
 }
 
-func testGenerateW2NERModelInferOutputRequest(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
+func testGenerateW2NERModelInferOutputRequest(params ...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
 	return []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor{
 		{Name: "logic"},
 	}
 }
 
-func testW2NERModelInferCallback(inferResponse interface{}, params ...interface{}) ([]interface{}, error) {
+func testW2NERModelInferCallback(inferResponse any, params ...any) ([]any, error) {
 	return nil, nil
 }
 
@@ -58,7 +58,7 @@ func TestNewW2NERModelService_NilCallbacks(t *testing.T) {
 	tests := []struct {
 		name           string
 		inputCallback  func() []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor
-		outputCallback func(...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
+		outputCallback func(...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
 		inferCallback  nvidia_inferenceserver.DecoderFunc
 		expectError    bool
 	}{

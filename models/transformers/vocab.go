@@ -30,12 +30,22 @@ type Dict struct {
 func VocabFromFile(path string) (Dict, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		// TODO wrap w/ stdlib
 		return Dict{}, err
 	}
 	defer func() { _ = f.Close() }()
+
+	// Estimate vocab size from file size (average ~10 bytes per token for BERT vocab)
+	fi, statErr := f.Stat()
+	estimatedSize := 21128 // default BERT vocab size
+	if statErr == nil && fi.Size() > 0 {
+		estimatedSize = int(fi.Size() / 10)
+		if estimatedSize < 100 {
+			estimatedSize = 100
+		}
+	}
+
 	scanner := bufio.NewScanner(f)
-	voc := Dict{tokens: map[string]ID{}}
+	voc := Dict{tokens: make(map[string]ID, estimatedSize)}
 	for scanner.Scan() {
 		voc.Add(scanner.Text())
 	}
@@ -50,7 +60,7 @@ func VocabFromSlice(vocabArr []string) (Dict, error) {
 	if len(vocabArr) == 0 {
 		return Dict{}, utils.ErrEmptyVocab
 	}
-	voc := Dict{tokens: map[string]ID{}}
+	voc := Dict{tokens: make(map[string]ID, len(vocabArr))}
 	for i := range vocabArr {
 		voc.Add(vocabArr[i])
 	}

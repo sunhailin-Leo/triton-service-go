@@ -34,10 +34,13 @@ func TestNewTritonClientWithOnlyHTTP_CustomClient(t *testing.T) {
 }
 
 func TestNewTritonClientWithOnlyGRPC_NilConn(t *testing.T) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(nil)
+	srv, err := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(nil)
 
 	if srv != nil {
 		t.Error("Expected nil service for nil connection")
+	}
+	if err == nil {
+		t.Error("Expected error for nil connection")
 	}
 }
 
@@ -48,7 +51,10 @@ func TestNewTritonClientWithOnlyGRPC_ValidConn(t *testing.T) {
 	}
 	defer func() { _ = conn.Close() }()
 
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(conn)
+	srv, err := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(conn)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
 
 	if srv == nil {
 		t.Fatal("Expected service to be created")
@@ -143,7 +149,7 @@ func TestTritonClientService_JsonUnmarshal(t *testing.T) {
 func TestTritonClientService_SetJSONEncoder(t *testing.T) {
 	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
 
-	customEncoder := func(v interface{}) ([]byte, error) {
+	customEncoder := func(v any) ([]byte, error) {
 		return []byte(`{"custom":true}`), nil
 	}
 
@@ -158,17 +164,17 @@ func TestTritonClientService_SetJSONEncoder(t *testing.T) {
 	}
 }
 
-func TestTritonClientService_SetJsonDecoder(t *testing.T) {
+func TestTritonClientService_SetJSONDecoder(t *testing.T) {
 	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
 
-	customDecoder := func(data []byte, v interface{}) error {
+	customDecoder := func(data []byte, v any) error {
 		if m, ok := v.(*map[string]string); ok {
 			(*m)["custom"] = "decoded"
 		}
 		return nil
 	}
 
-	srv.SetJsonDecoder(customDecoder)
+	srv.SetJSONDecoder(customDecoder)
 
 	result := make(map[string]string)
 	err := srv.JsonUnmarshal([]byte(`{}`), &result)
@@ -354,7 +360,7 @@ func TestTraceSettingRequestHTTPObj_MarshalUnmarshal(t *testing.T) {
 		{
 			name: "valid trace setting request",
 			obj: &nvidia_inferenceserver.TraceSettingRequestHTTPObj{
-				TraceSetting: map[string]interface{}{
+				TraceSetting: map[string]any{
 					"trace_level": 1,
 					"rate":        0.5,
 				},
@@ -363,7 +369,7 @@ func TestTraceSettingRequestHTTPObj_MarshalUnmarshal(t *testing.T) {
 		{
 			name: "trace setting with empty settings",
 			obj: &nvidia_inferenceserver.TraceSettingRequestHTTPObj{
-				TraceSetting: map[string]interface{}{},
+				TraceSetting: map[string]any{},
 			},
 		},
 	}

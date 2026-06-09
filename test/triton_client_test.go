@@ -1,3 +1,5 @@
+//go:build integration
+
 package test
 
 import (
@@ -29,9 +31,12 @@ func TestNewTritonClientWithOnlyHTTP_CustomClient(t *testing.T) {
 
 // TestNewTritonClientWithOnlyGRPC_NilConn tests creating GRPC client with nil connection
 func TestNewTritonClientWithOnlyGRPC_NilConn(t *testing.T) {
-	client := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(nil)
+	client, err := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(nil)
 	if client != nil {
 		t.Fatal("expected nil client when passing nil grpc connection")
+	}
+	if err == nil {
+		t.Fatal("expected error when passing nil grpc connection")
 	}
 }
 
@@ -43,7 +48,10 @@ func TestNewTritonClientWithOnlyGRPC_ValidConn(t *testing.T) {
 	}
 	defer func() { _ = conn.Close() }()
 
-	client := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(conn)
+	client, err := nvidia_inferenceserver.NewTritonClientWithOnlyGRPC(conn)
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
 	if client == nil {
 		t.Fatal("expected non-nil client")
 	}
@@ -105,7 +113,7 @@ func TestTritonClientService_SetCustomJsonEncoder(t *testing.T) {
 	client := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
 
 	called := false
-	customEncoder := func(v interface{}) ([]byte, error) {
+	customEncoder := func(v any) ([]byte, error) {
 		called = true
 		return json.Marshal(v)
 	}

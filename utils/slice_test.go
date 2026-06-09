@@ -305,12 +305,12 @@ func TestSliceToInterfaceSlice(t *testing.T) {
 	tests := []struct {
 		name     string
 		arr      []int
-		validate func(t *testing.T, result []interface{})
+		validate func(t *testing.T, result []any)
 	}{
 		{
 			name: "normal conversion",
 			arr:  []int{1, 2, 3},
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
 				}
@@ -322,7 +322,7 @@ func TestSliceToInterfaceSlice(t *testing.T) {
 		{
 			name: "empty slice",
 			arr:  []int{},
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 0 {
 					t.Errorf("expected 0 elements, got %d", len(result))
 				}
@@ -331,7 +331,7 @@ func TestSliceToInterfaceSlice(t *testing.T) {
 		{
 			name: "single element",
 			arr:  []int{42},
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 1 {
 					t.Errorf("expected 1 element, got %d", len(result))
 				}

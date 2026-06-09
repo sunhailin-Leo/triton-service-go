@@ -42,8 +42,8 @@ go get -u github.com/sunhailin-Leo/triton-service-go/v2
 package main
 
 import (
+	"context"
 	"fmt"
-	"time"
 
     "github.com/sunhailin-Leo/triton-service-go/v2/models/transformers"
     "github.com/sunhailin-Leo/triton-service-go/v2/nvidia_inferenceserver"
@@ -83,7 +83,7 @@ func testGenerateModelInferRequest() []*nvidia_inferenceserver.ModelInferRequest
 }
 
 // testGenerateModelInferOutputRequest Triton Output
-func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
+func testGenerateModelInferOutputRequest(params ...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
 	return []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor{
 		{
 			Name: tBertModelOutputProbabilitiesKey,
@@ -100,7 +100,7 @@ func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_infere
 }
 
 // testModerInferCallback infer call back (process model infer data)
-func testModerInferCallback(inferResponse interface{}, params ...interface{}) ([]interface{}, error) {
+func testModerInferCallback(inferResponse any, params ...any) ([]any, error) {
 	fmt.Println(inferResponse)
 	fmt.Println(params...)
 	return nil, nil
@@ -118,16 +118,18 @@ func main() {
 		panic(grpcErr)
 	}
 
-	// Service
+	// Service (Option pattern for configuration)
 	bertService, initErr := transformers.NewBertModelService(
 		vocabPath, httpAddr, defaultHttpClient, defaultGRPCClient,
-		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback)
+		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback,
+		transformers.WithBertChineseTokenize(false),
+		transformers.WithBertMaxSeqLength(maxSeqLen),
+	)
 	if initErr != nil {
 		panic(initErr)
 	}
-	bertService.SetChineseTokenize(false).SetMaxSeqLength(maxSeqLen)
 	// infer
-	inferResultV1, inferErr := bertService.ModelInfer([]string{"<Data>"}, "<Model Name>", "<Model Version>", 1*time.Second)
+	inferResultV1, inferErr := bertService.ModelInfer(context.Background(), []string{"<Data>"}, "<Model Name>", "<Model Version>")
 	if inferErr != nil {
 		panic(inferErr)
 	}

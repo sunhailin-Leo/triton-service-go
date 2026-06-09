@@ -105,9 +105,9 @@ func GetMaxSubSliceLength[T any](arr [][]T) (maxLength int) {
 	return maxLength
 }
 
-// SliceToInterfaceSlice any slice to []interface{}.
-func SliceToInterfaceSlice[T any](arr []T) []interface{} {
-	result := make([]interface{}, len(arr))
+// SliceToInterfaceSlice any slice to []any.
+func SliceToInterfaceSlice[T any](arr []T) []any {
+	result := make([]any, len(arr))
 	for i := range arr {
 		result[i] = arr[i]
 	}

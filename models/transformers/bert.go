@@ -1,6 +1,7 @@
 package transformers
 
 import (
+	"context"
 	"encoding/binary"
 	"strings"
 
@@ -214,15 +215,18 @@ func (m *BertModelService) generateGRPCRequest(
 	inferDataArr []string,
 	inferInputTensor []*nvidia_inferenceserver.ModelInferRequest_InferInputTensor,
 ) ([][]byte, []*InputObjects) {
-	// size is: len(inferDataArr) * m.maxSeqLength * 4
-	var segmentIdsBytes, inputIdsBytes, inputMaskBytes []byte
+	// Pre-allocate byte slices based on batch size and max sequence length.
+	// Each INT32 element is 4 bytes, so total = batchSize * maxSeqLen * 4.
+	batchSize := len(inferDataArr)
+	segmentIdsBytes := make([]byte, 0, batchSize*m.MaxSeqLength*4)
+	inputIdsBytes := make([]byte, 0, batchSize*m.MaxSeqLength*4)
+	inputMaskBytes := make([]byte, 0, batchSize*m.MaxSeqLength*4)
 	batchModelInputObjs := make([]*InputObjects, len(inferDataArr))
 	for i := range inferDataArr {
 		feature, inputObject := m.getBertInputFeature(inferDataArr[i])
 		// feature.TypeIDs  == segment_ids
 		// feature.TokenIDs == input_ids
 		// feature.Mask     == input_mask
-		// Temp variable to hold out converted int32 -> []byte
 		for j := range inferInputTensor {
 			switch inferInputTensor[j].Name {
 			case ModelBertModelSegmentIdsKey:
@@ -259,10 +263,11 @@ func (m *BertModelService) generateGRPCRequest(
 
 // ModelInfer API to call Triton Inference Server.
 func (m *BertModelService) ModelInfer(
+	ctx context.Context,
 	inferData []string,
 	modelName, modelVersion string,
-	params ...interface{},
-) ([]interface{}, error) {
+	params ...any,
+) ([]any, error) {
 	// Create request input/output tensors
 	inferInputs := m.GenerateModelInferRequest()
 	inferOutputs := m.GenerateModelInferOutputRequest(params...)
@@ -273,7 +278,7 @@ func (m *BertModelService) ModelInfer(
 			return nil, utils.ErrEmptyGRPCRequestBody
 		}
 		return m.TritonService.ModelGRPCInfer(
-			inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion,
+			ctx, inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion,
 			m.InferCallback, m, grpcInputData, params,
 		)
 	}
@@ -286,19 +291,67 @@ func (m *BertModelService) ModelInfer(
 	}
 	// HTTP Infer
 	return m.TritonService.ModelHTTPInfer(
-		httpRequestBody, modelName, modelVersion,
+		ctx, httpRequestBody, modelName, modelVersion,
 		m.InferCallback, m, httpInputData, params,
 	)
 }
 
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
 
+// BertOption configures a BertModelService.
+type BertOption func(*BertModelService)
+
+// WithBertMaxSeqLength sets the max sequence length.
+func WithBertMaxSeqLength(maxSeqLen int) BertOption {
+	return func(s *BertModelService) {
+		s.MaxSeqLength = maxSeqLen
+	}
+}
+
+// WithBertChineseTokenize enables Chinese tokenization.
+func WithBertChineseTokenize(charMode bool) BertOption {
+	return func(s *BertModelService) {
+		s.IsChinese = true
+		s.IsChineseCharMode = charMode
+	}
+}
+
+// WithBertGRPCInfer enables gRPC for inference.
+func WithBertGRPCInfer() BertOption {
+	return func(s *BertModelService) {
+		s.IsGRPC = true
+	}
+}
+
+// WithBertTokenizerReturnPosInfo enables returning position info.
+func WithBertTokenizerReturnPosInfo() BertOption {
+	return func(s *BertModelService) {
+		s.IsReturnPosArray = true
+	}
+}
+
+// WithBertModelName sets the model name.
+func WithBertModelName(prefix, name string) BertOption {
+	return func(s *BertModelService) {
+		s.ModelName = prefix + "-" + name
+	}
+}
+
+// WithBertModelNameWithoutDash sets the model name without dash separator.
+func WithBertModelNameWithoutDash(name string) BertOption {
+	return func(s *BertModelService) {
+		s.ModelName = name
+	}
+}
+
+// NewBertModelService creates a BertModelService with the given required parameters and optional configuration.
 func NewBertModelService(
 	bertVocabPath, httpAddr string,
 	httpClient *fasthttp.Client, grpcConn *grpc.ClientConn,
 	modelInputCallback models.GenerateModelInferRequest,
 	modelOutputCallback models.GenerateModelInferOutputRequest,
 	modelInferCallback nvidia_inferenceserver.DecoderFunc,
+	opts ...BertOption,
 ) (*BertModelService, error) {
 	// 0、callback function validation
 	if modelInputCallback == nil || modelOutputCallback == nil || modelInferCallback == nil {
@@ -323,6 +376,10 @@ func NewBertModelService(
 		},
 		BertVocab:     voc,
 		BertTokenizer: tokenizer,
+	}
+	// 3、Apply options
+	for _, opt := range opts {
+		opt(srv)
 	}
 	return srv, nil
 }

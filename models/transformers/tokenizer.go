@@ -199,7 +199,7 @@ func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includ
 					String:  string(word),
 					Offsets: OffsetsType{Start: offset - wordLen, End: offset},
 				})
-				word = make([]rune, 0, cap(word))
+				word = word[:0]
 			}
 			if includeSplitToken {
 				words = append(words, StringOffsetsPair{
@@ -238,7 +238,7 @@ func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool,
 					String:  string(word),
 					Offsets: OffsetsType{Start: offset - wordLen, End: offset},
 				})
-				word = make([]rune, 0, cap(word))
+				word = word[:0]
 			}
 			if includeSplitToken || includeSplitFunc(r) {
 				words = append(words, StringOffsetsPair{
@@ -330,7 +330,8 @@ func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []Str
 
 		if len(characters) > t.maxWordChars {
 			if t.vocabulary.GetID(t.unkToken) == -1 {
-				panic("Missing unk-token")
+				outputTokens = append(outputTokens, StringOffsetsPair{String: t.unkToken, Offsets: tokens[i].Offsets})
+				continue
 			}
 			outputTokens = append(outputTokens, StringOffsetsPair{String: t.unkToken, Offsets: tokens[i].Offsets})
 			continue
@@ -371,9 +372,6 @@ func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []Str
 		}
 
 		if isBad {
-			if t.vocabulary.GetID(t.unkToken) == -1 {
-				panic("Missing unk-token")
-			}
 			outputTokens = append(outputTokens, StringOffsetsPair{String: t.unkToken, Offsets: tokens[i].Offsets})
 		} else {
 			outputTokens = append(outputTokens, subTokens...)

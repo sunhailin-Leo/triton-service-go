@@ -102,7 +102,7 @@ func TestIsChinese(t *testing.T) {
 		{"korean", '가', false},
 		{"english", 'a', false},
 		{"digit", '1', false},
-		{"punctuation", '，', true},
+		{"punctuation not chinese", '，', false},
 	}
 
 	for _, tt := range tests {
@@ -128,8 +128,8 @@ func TestIsChineseOrNumber(t *testing.T) {
 		{"english letter", 'a', false},
 		{"english letter upper", 'A', false},
 		{"space", ' ', false},
-		{"punctuation", ',', true},
-		{"chinese punctuation", '，', true},
+		{"punctuation not included", ',', false},
+		{"chinese punctuation not included", '，', false},
 	}
 
 	for _, tt := range tests {
@@ -153,8 +153,8 @@ func TestIsWhiteSpaceOrChinese(t *testing.T) {
 		{"chinese char", '中', true},
 		{"english letter", 'a', false},
 		{"digit", '1', false},
-		{"punctuation", ',', true},
-		{"chinese punctuation", '，', true},
+		{"punctuation not included", ',', false},
+		{"chinese punctuation not included", '，', false},
 	}
 
 	for _, tt := range tests {
@@ -178,8 +178,8 @@ func TestIsWhiteSpaceOrChineseOrNumber(t *testing.T) {
 		{"chinese char", '中', true},
 		{"digit", '1', true},
 		{"english letter", 'a', false},
-		{"punctuation", ',', true},
-		{"chinese punctuation", '，', true},
+		{"punctuation not included", ',', false},
+		{"chinese punctuation not included", '，', false},
 	}
 
 	for _, tt := range tests {
@@ -233,7 +233,7 @@ func TestPadChinese(t *testing.T) {
 		{"mixed text", "Hello中文World", "Hello 中  文 World"},
 		{"no chinese", "Hello World", "Hello World"},
 		{"empty string", "", ""},
-		{"chinese with punctuation", "中，文", " 中  ，  文 "},
+		{"chinese with punctuation", "中，文", " 中 ， 文 "},
 	}
 
 	for _, tt := range tests {
@@ -379,14 +379,14 @@ func TestBinaryToSlice(t *testing.T) {
 		body       []byte
 		bytesLen   int
 		returnType string
-		validate   func(t *testing.T, result []interface{})
+		validate   func(t *testing.T, result []any)
 	}{
 		{
 			name:       "INT32 type",
 			body:       makeInt32Bytes([]int32{1, 2, 3}),
 			bytesLen:   4,
 			returnType: utils.TritonINT32Type,
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
 				}
@@ -400,7 +400,7 @@ func TestBinaryToSlice(t *testing.T) {
 			body:       makeInt64Bytes([]int64{1, 2, 3}),
 			bytesLen:   8,
 			returnType: utils.TritonINT64Type,
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
 				}
@@ -410,11 +410,25 @@ func TestBinaryToSlice(t *testing.T) {
 			},
 		},
 		{
+			name:       "FP64 type",
+			body:       makeFloat64Bytes([]float64{1.0, 2.0, 3.0}),
+			bytesLen:   8,
+			returnType: utils.TritonFP64Type,
+			validate: func(t *testing.T, result []any) {
+				if len(result) != 3 {
+					t.Errorf("expected 3 elements, got %d", len(result))
+				}
+				if result[0].(float64) != 1.0 || result[1].(float64) != 2.0 || result[2].(float64) != 3.0 {
+					t.Errorf("unexpected values: %v", result)
+				}
+			},
+		},
+		{
 			name:       "SliceFloat32 type",
 			body:       makeFloat32Bytes([]float32{1.0, 2.0, 3.0}),
 			bytesLen:   4,
 			returnType: utils.SliceFloat32Type,
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
 				}
@@ -424,22 +438,25 @@ func TestBinaryToSlice(t *testing.T) {
 			},
 		},
 		{
-			name:       "TritonFP16 type",
-			body:       makeFloat32Bytes([]float32{1.0, 2.0, 3.0}),
-			bytesLen:   4,
-			returnType: utils.TritonFP16Type,
-			validate: func(t *testing.T, result []interface{}) {
+			name:       "SliceFloat64 type",
+			body:       makeFloat64Bytes([]float64{1.0, 2.0, 3.0}),
+			bytesLen:   8,
+			returnType: utils.SliceFloat64Type,
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
+				}
+				if result[0].(float64) != 1.0 || result[1].(float64) != 2.0 || result[2].(float64) != 3.0 {
+					t.Errorf("unexpected values: %v", result)
 				}
 			},
 		},
 		{
-			name:       "SliceFloat64 type",
+			name:       "TritonFP16 type",
 			body:       makeFloat32Bytes([]float32{1.0, 2.0, 3.0}),
 			bytesLen:   4,
-			returnType: utils.SliceFloat64Type,
-			validate: func(t *testing.T, result []interface{}) {
+			returnType: utils.TritonFP16Type,
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
 				}
@@ -450,20 +467,26 @@ func TestBinaryToSlice(t *testing.T) {
 			body:       makeFloat32Bytes([]float32{1.0, 2.0, 3.0}),
 			bytesLen:   4,
 			returnType: utils.TritonFP32Type,
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
+				}
+				if result[0].(float32) != 1.0 || result[1].(float32) != 2.0 || result[2].(float32) != 3.0 {
+					t.Errorf("unexpected values: %v", result)
 				}
 			},
 		},
 		{
 			name:       "SliceInt64 type",
-			body:       makeInt32Bytes([]int32{1, 2, 3}),
-			bytesLen:   4,
+			body:       makeInt64Bytes([]int64{1, 2, 3}),
+			bytesLen:   8,
 			returnType: utils.SliceInt64Type,
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
+				}
+				if result[0].(int64) != 1 || result[1].(int64) != 2 || result[2].(int64) != 3 {
+					t.Errorf("unexpected values: %v", result)
 				}
 			},
 		},
@@ -472,9 +495,12 @@ func TestBinaryToSlice(t *testing.T) {
 			body:       makeInt32Bytes([]int32{1, 2, 3}),
 			bytesLen:   4,
 			returnType: utils.SliceIntType,
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 3 {
 					t.Errorf("expected 3 elements, got %d", len(result))
+				}
+				if result[0].(int) != 1 || result[1].(int) != 2 || result[2].(int) != 3 {
+					t.Errorf("unexpected values: %v", result)
 				}
 			},
 		},
@@ -483,7 +509,7 @@ func TestBinaryToSlice(t *testing.T) {
 			body:       []byte("hello world"),
 			bytesLen:   4,
 			returnType: utils.TritonBytesType,
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 2 {
 					t.Errorf("expected 2 elements, got %d", len(result))
 				}
@@ -494,7 +520,7 @@ func TestBinaryToSlice(t *testing.T) {
 			body:       []byte("hello world"),
 			bytesLen:   4,
 			returnType: utils.SliceByteType,
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 2 {
 					t.Errorf("expected 2 elements, got %d", len(result))
 				}
@@ -505,7 +531,7 @@ func TestBinaryToSlice(t *testing.T) {
 			body:       []byte{},
 			bytesLen:   4,
 			returnType: utils.TritonINT32Type,
-			validate: func(t *testing.T, result []interface{}) {
+			validate: func(t *testing.T, result []any) {
 				if len(result) != 0 {
 					t.Errorf("expected 0 elements, got %d", len(result))
 				}
@@ -520,15 +546,17 @@ func TestBinaryToSlice(t *testing.T) {
 		})
 	}
 
-	// Incomplete bytes causes panic in BinaryToSlice due to binary.LittleEndian.Uint32
-	t.Run("incomplete bytes panics", func(t *testing.T) {
-		defer func() {
-			if r := recover(); r == nil {
-				t.Error("expected panic for incomplete bytes, but did not panic")
-			}
-		}()
+	// Incomplete bytes are safely handled by BinaryToSlice (bounded access, no panic)
+	t.Run("incomplete bytes safe handling", func(t *testing.T) {
 		incompleteBody := append(makeInt32Bytes([]int32{1, 2}), 0x01)
-		utils.BinaryToSlice(incompleteBody, 4, utils.TritonINT32Type)
+		result := utils.BinaryToSlice(incompleteBody, 4, utils.TritonINT32Type)
+		// The first two int32 values should be parsed correctly
+		if len(result) < 2 {
+			t.Errorf("expected at least 2 elements, got %d", len(result))
+		}
+		if result[0].(int32) != 1 || result[1].(int32) != 2 {
+			t.Errorf("unexpected values: %v", result)
+		}
 	})
 }
 
@@ -552,6 +580,14 @@ func makeFloat32Bytes(values []float32) []byte {
 	result := make([]byte, len(values)*4)
 	for i, v := range values {
 		binary.LittleEndian.PutUint32(result[i*4:], math.Float32bits(v))
+	}
+	return result
+}
+
+func makeFloat64Bytes(values []float64) []byte {
+	result := make([]byte, len(values)*8)
+	for i, v := range values {
+		binary.LittleEndian.PutUint64(result[i*8:], math.Float64bits(v))
 	}
 	return result
 }

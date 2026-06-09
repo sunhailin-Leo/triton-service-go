@@ -1,6 +1,7 @@
 package transformers
 
 import (
+	"context"
 	"slices"
 
 	"github.com/sunhailin-Leo/triton-service-go/v2/models"
@@ -237,17 +238,22 @@ func (w *W2NerModelService) generateHTTPRequest(
 	return jsonBody, modelInputObj, nil
 }
 
+// Grpc2DSliceToLittleEndianByteSlice exports the private method for testing.
+func (w *W2NerModelService) Grpc2DSliceToLittleEndianByteSlice(slice any, row, col int) []byte {
+	return w.grpc2DSliceToLittleEndianByteSlice(slice, row, col)
+}
+
 // grpcSliceToLittleEndianByteSlice bool slice, 2-D int32 slice to byte slice with little endian.
 func (w *W2NerModelService) grpc2DSliceToLittleEndianByteSlice(slice any, row, col int) []byte {
 	switch s := slice.(type) {
 	case [][]bool:
-		var returnByte []byte
+		returnByte := make([]byte, 0, row*col)
 		for i := 0; i < row; i++ {
 			returnByte = append(returnByte, w.grpcSliceToLittleEndianByteSlice(col, s[i], ModelBoolDataType)...)
 		}
 		return returnByte
 	case [][]int32:
-		var returnByte []byte
+		returnByte := make([]byte, 0, row*col*4)
 		for i := 0; i < row; i++ {
 			returnByte = append(returnByte, w.grpcSliceToLittleEndianByteSlice(col, s[i], ModelInt32DataType)...)
 		}
@@ -309,10 +315,11 @@ func (w *W2NerModelService) generateGRPCRequest(
 
 // ModelInfer API to call Triton Inference Server.
 func (w *W2NerModelService) ModelInfer(
+	ctx context.Context,
 	inferData [][]string,
 	modelName, modelVersion string,
-	params ...interface{},
-) ([]interface{}, error) {
+	params ...any,
+) ([]any, error) {
 	// Create request input/output tensors
 	inferInputs := w.GenerateModelInferRequest()
 	inferOutputs := w.GenerateModelInferOutputRequest(params...)
@@ -323,7 +330,7 @@ func (w *W2NerModelService) ModelInfer(
 		if grpcRawInputs == nil {
 			return nil, utils.ErrEmptyGRPCRequestBody
 		}
-		return w.TritonService.ModelGRPCInfer(inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion,
+		return w.TritonService.ModelGRPCInfer(ctx, inferInputs, inferOutputs, grpcRawInputs, modelName, modelVersion,
 			w.InferCallback, w, grpcInputData, params)
 	}
 
@@ -335,18 +342,59 @@ func (w *W2NerModelService) ModelInfer(
 		return nil, utils.ErrEmptyHTTPRequestBody
 	}
 	// HTTP Infer
-	return w.TritonService.ModelHTTPInfer(httpRequestBody, modelName, modelVersion, w.InferCallback,
+	return w.TritonService.ModelHTTPInfer(ctx, httpRequestBody, modelName, modelVersion, w.InferCallback,
 		w, httpInputData, params)
 }
 
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
 
+// W2NerOption configures a W2NerModelService.
+type W2NerOption func(*W2NerModelService)
+
+// WithW2NerMaxSeqLength sets the max sequence length.
+func WithW2NerMaxSeqLength(maxSeqLen int) W2NerOption {
+	return func(s *W2NerModelService) {
+		s.MaxSeqLength = maxSeqLen
+	}
+}
+
+// WithW2NerChineseTokenize enables Chinese tokenization.
+func WithW2NerChineseTokenize(charMode bool) W2NerOption {
+	return func(s *W2NerModelService) {
+		s.IsChinese = true
+		s.IsChineseCharMode = charMode
+	}
+}
+
+// WithW2NerGRPCInfer enables gRPC for inference.
+func WithW2NerGRPCInfer() W2NerOption {
+	return func(s *W2NerModelService) {
+		s.IsGRPC = true
+	}
+}
+
+// WithW2NerTokenizerReturnPosInfo enables returning position info.
+func WithW2NerTokenizerReturnPosInfo() W2NerOption {
+	return func(s *W2NerModelService) {
+		s.IsReturnPosArray = true
+	}
+}
+
+// WithW2NerModelName sets the model name.
+func WithW2NerModelName(prefix, name string) W2NerOption {
+	return func(s *W2NerModelService) {
+		s.ModelName = prefix + "-" + name
+	}
+}
+
+// NewW2NERModelService creates a W2NerModelService with the given required parameters and optional configuration.
 func NewW2NERModelService(
 	bertVocabPath, httpAddr string,
 	httpClient *fasthttp.Client, grpcConn *grpc.ClientConn,
 	modelInputCallback models.GenerateModelInferRequest,
 	modelOutputCallback models.GenerateModelInferOutputRequest,
 	modelInferCallback nvidia_inferenceserver.DecoderFunc,
+	opts ...W2NerOption,
 ) (*W2NerModelService, error) {
 	// 1、Init Bert Service(Because W2NER is based on Bert)
 	baseSrv, baseSrvErr := NewBertModelService(bertVocabPath, httpAddr, httpClient, grpcConn,
@@ -355,5 +403,10 @@ func NewW2NERModelService(
 		return nil, baseSrvErr
 	}
 
-	return &W2NerModelService{BertModelService: baseSrv}, nil
+	srv := &W2NerModelService{BertModelService: baseSrv}
+	// 2、Apply options
+	for _, opt := range opts {
+		opt(srv)
+	}
+	return srv, nil
 }
