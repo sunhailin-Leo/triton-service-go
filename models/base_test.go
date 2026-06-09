@@ -290,17 +290,17 @@ func TestModelService_SetAPIRequestTimeout_WithTritonService(t *testing.T) {
 	srv.SetAPIRequestTimeout(timeout)
 }
 
-func TestModelService_SetJsonEncoder(t *testing.T) {
+func TestModelService_SetJSONEncoder(t *testing.T) {
 	tritonSrv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
 	srv := &models.ModelService{
 		TritonService: tritonSrv,
 	}
 
-	customEncoder := func(v interface{}) ([]byte, error) {
+	customEncoder := func(v any) ([]byte, error) {
 		return []byte(`{"custom":true}`), nil
 	}
 
-	result := srv.SetJsonEncoder(customEncoder)
+	result := srv.SetJSONEncoder(customEncoder)
 
 	if result != srv {
 		t.Error("Expected method to return *ModelService for chaining")
@@ -312,20 +312,20 @@ func TestModelService_SetJsonEncoder(t *testing.T) {
 	}
 }
 
-func TestModelService_SetJsonDecoder(t *testing.T) {
+func TestModelService_SetJSONDecoder(t *testing.T) {
 	tritonSrv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
 	srv := &models.ModelService{
 		TritonService: tritonSrv,
 	}
 
-	customDecoder := func(data []byte, v interface{}) error {
+	customDecoder := func(data []byte, v any) error {
 		if m, ok := v.(*map[string]string); ok {
 			(*m)["custom"] = "decoded"
 		}
 		return nil
 	}
 
-	result := srv.SetJsonDecoder(customDecoder)
+	result := srv.SetJSONDecoder(customDecoder)
 
 	if result != srv {
 		t.Error("Expected method to return *ModelService for chaining")

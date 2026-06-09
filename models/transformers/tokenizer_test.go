@@ -158,7 +158,7 @@ func TestBaseTokenizerTokenizeChineseCharMode(t *testing.T) {
 
 func TestNewWordPieceTokenizer(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	if tokenizer == nil {
 		t.Fatal("expected non-nil tokenizer")
 	}
@@ -169,7 +169,7 @@ func TestWordPieceTokenizerSetDoLowerCase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to load vocab: %v", err)
 	}
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	tokenizer.SetDoLowerCase(true)
 	// "hello" is in the chinese vocab
 	tokens := tokenizer.Tokenize("HELLO")
@@ -184,7 +184,7 @@ func TestWordPieceTokenizerSetDoLowerCase(t *testing.T) {
 
 func TestWordPieceTokenizerTokenize_English(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	tokens := tokenizer.Tokenize("hello")
 	if len(tokens) != 1 {
 		t.Fatalf("expected 1 token, got %d", len(tokens))
@@ -196,7 +196,7 @@ func TestWordPieceTokenizerTokenize_English(t *testing.T) {
 
 func TestWordPieceTokenizerTokenizeChinese(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	tokens := tokenizer.TokenizeChinese("你好")
 	if len(tokens) != 2 {
 		t.Fatalf("expected 2 tokens, got %d", len(tokens))
@@ -205,7 +205,7 @@ func TestWordPieceTokenizerTokenizeChinese(t *testing.T) {
 
 func TestWordPieceTokenizerTokenizeChineseCharMode(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	tokens := tokenizer.TokenizeChineseCharMode("你好")
 	if len(tokens) != 2 {
 		t.Fatalf("expected 2 tokens, got %d", len(tokens))
@@ -214,7 +214,7 @@ func TestWordPieceTokenizerTokenizeChineseCharMode(t *testing.T) {
 
 func TestWordPieceTokenizerWordPieceTokenize_TooLong(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	longToken := transformers.StringOffsetsPair{
 		String:  string(make([]rune, 201)),
 		Offsets: transformers.OffsetsType{Start: 0, End: 201},
@@ -230,7 +230,7 @@ func TestWordPieceTokenizerWordPieceTokenize_TooLong(t *testing.T) {
 
 func TestWordPieceTokenizerWordPieceTokenize_Subword(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	token := transformers.StringOffsetsPair{
 		String:  "unhappiness",
 		Offsets: transformers.OffsetsType{Start: 0, End: 11},
@@ -325,7 +325,7 @@ func BenchmarkBaseTokenizeChinese(b *testing.B) {
 
 func BenchmarkWordPieceTokenize_Chinese(b *testing.B) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	text := "这是一个测试句子，用于基准测试中文分词的性能。"
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -336,7 +336,7 @@ func BenchmarkWordPieceTokenize_Chinese(b *testing.B) {
 
 func BenchmarkWordPieceTokenize_Multilingual(b *testing.B) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-multilingual-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	text := "This is a test sentence for benchmarking."
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -347,7 +347,7 @@ func BenchmarkWordPieceTokenize_Multilingual(b *testing.B) {
 
 func BenchmarkWordPieceTokenize_ChineseCharMode(b *testing.B) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	text := "这是一个测试句子，用于基准测试中文分词的性能。"
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -396,7 +396,7 @@ func BenchmarkGroupPieces(b *testing.B) {
 // TestWordPieceTokenizer_WordPieceTokenize_Empty tests empty token input
 func TestWordPieceTokenizer_WordPieceTokenize_Empty(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	tokens := tokenizer.WordPieceTokenize([]transformers.StringOffsetsPair{})
 	if len(tokens) != 0 {
 		t.Errorf("expected 0 tokens for empty input, got %d", len(tokens))
@@ -406,7 +406,7 @@ func TestWordPieceTokenizer_WordPieceTokenize_Empty(t *testing.T) {
 // TestWordPieceTokenizer_WordPieceTokenize_SpecialTokens tests special tokens handling
 func TestWordPieceTokenizer_WordPieceTokenize_SpecialTokens(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 
 	tests := []struct {
 		name  string
@@ -438,7 +438,7 @@ func TestWordPieceTokenizer_WordPieceTokenize_SpecialTokens(t *testing.T) {
 // TestWordPieceTokenizer_WordPieceTokenize_SubwordPrefix tests subword prefix handling
 func TestWordPieceTokenizer_WordPieceTokenize_SubwordPrefix(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 
 	// Test a word that might be split into subwords
 	token := transformers.StringOffsetsPair{
@@ -463,7 +463,7 @@ func TestWordPieceTokenizer_WordPieceTokenize_SubwordPrefix(t *testing.T) {
 // TestWordPieceTokenizer_WordPieceTokenize_OffsetsPreserved tests that offsets are preserved
 func TestWordPieceTokenizer_WordPieceTokenize_OffsetsPreserved(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 
 	token := transformers.StringOffsetsPair{
 		String:  "hello",
@@ -583,7 +583,7 @@ func TestBaseTokenizer_WithLowerCase(t *testing.T) {
 // TestWordPieceTokenizer_SetDoLowerCase_Chaining tests method chaining
 func TestWordPieceTokenizer_SetDoLowerCase_Chaining(t *testing.T) {
 	vocab, _ := transformers.VocabFromFile("../../test/bert-chinese-vocab.txt")
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 
 	// Test that SetDoLowerCase returns the tokenizer for chaining
 	result := tokenizer.SetDoLowerCase(true)

@@ -46,13 +46,16 @@ func StringSliceTruncate(sequence [][]string, maxLen int) [][]string {
 }
 
 // SliceTransposeFor3D Transport 3-D Dimension Slice. Like NxM to MxN.
+// The input must be a regular (non-jagged) 3D slice where all rows have the same number of columns.
 func SliceTransposeFor3D[T comparable](slice [][][]T) [][][]T {
+	if len(slice) == 0 || len(slice[0]) == 0 {
+		return nil
+	}
 	n, m := len(slice), len(slice[0])
 	transposed := make([][][]T, m)
 	for i := range transposed {
 		transposed[i] = make([][]T, n)
 	}
-	// transposed
 	for i := range slice {
 		for j := range slice[i] {
 			transposed[j][i] = slice[i][j]
@@ -62,13 +65,16 @@ func SliceTransposeFor3D[T comparable](slice [][][]T) [][][]T {
 }
 
 // SliceTransposeFor2D Transport 2-D Dimension Slice. Like NxM to MxN.
+// The input must be a regular (non-jagged) 2D slice where all rows have the same number of columns.
 func SliceTransposeFor2D[T any](slice [][]T) [][]T {
+	if len(slice) == 0 || len(slice[0]) == 0 {
+		return nil
+	}
 	n, m := len(slice), len(slice[0])
 	transposed := make([][]T, m)
 	for i := range transposed {
 		transposed[i] = make([]T, n)
 	}
-	// transposed
 	for i := range slice {
 		for j := range slice[i] {
 			transposed[j][i] = slice[i][j]
@@ -105,9 +111,9 @@ func GetMaxSubSliceLength[T any](arr [][]T) (maxLength int) {
 	return maxLength
 }
 
-// SliceToInterfaceSlice any slice to []interface{}.
-func SliceToInterfaceSlice[T any](arr []T) []interface{} {
-	result := make([]interface{}, len(arr))
+// SliceToInterfaceSlice any slice to []any.
+func SliceToInterfaceSlice[T any](arr []T) []any {
+	result := make([]any, len(arr))
 	for i := range arr {
 		result[i] = arr[i]
 	}

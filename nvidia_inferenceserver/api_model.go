@@ -1,5 +1,7 @@
 package nvidia_inferenceserver
 
+//go:generate go run ../proto/generate.go --proto-dir=../proto --out-dir=.
+
 type ModelIndexRequestHTTPObj struct {
 	RepoName string `json:"repository_name"`
 	Ready    bool   `json:"ready"`
