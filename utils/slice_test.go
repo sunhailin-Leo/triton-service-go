@@ -514,3 +514,65 @@ func BenchmarkGenerateRange(b *testing.B) {
 		utils.GenerateRange[int](0, 1000)
 	}
 }
+
+func TestSliceTransposeFor3D_Empty(t *testing.T) {
+	tests := []struct {
+		name    string
+		slice   [][][]int
+		wantNil bool
+	}{
+		{
+			name:    "empty outer slice",
+			slice:   [][][]int{},
+			wantNil: true,
+		},
+		{
+			name:    "first inner slice empty",
+			slice:   [][][]int{{}, {{1, 2}}},
+			wantNil: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := utils.SliceTransposeFor3D(tt.slice)
+			if tt.wantNil && result != nil {
+				t.Errorf("SliceTransposeFor3D() for empty input should return nil, got %v", result)
+			}
+			if !tt.wantNil && result == nil {
+				t.Errorf("SliceTransposeFor3D() should not return nil for this input")
+			}
+		})
+	}
+}
+
+func TestSliceTransposeFor2D_Empty(t *testing.T) {
+	tests := []struct {
+		name    string
+		slice   [][]int
+		wantNil bool
+	}{
+		{
+			name:    "empty outer slice",
+			slice:   [][]int{},
+			wantNil: true,
+		},
+		{
+			name:    "first inner slice empty",
+			slice:   [][]int{{}, {1, 2}},
+			wantNil: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := utils.SliceTransposeFor2D(tt.slice)
+			if tt.wantNil && result != nil {
+				t.Errorf("SliceTransposeFor2D() for empty input should return nil, got %v", result)
+			}
+			if !tt.wantNil && result == nil {
+				t.Errorf("SliceTransposeFor2D() should not return nil for this input")
+			}
+		})
+	}
+}

@@ -9,22 +9,37 @@ func (t *TritonClientService) EnsureCtx(ctx context.Context) (context.Context, c
 	return t.ensureCtx(ctx)
 }
 
-// HTTPErrorHandler exports httpErrorHandler for testing.
-func (t *TritonClientService) HTTPErrorHandler(statusCode int, httpErr error) error {
-	return t.httpErrorHandler(statusCode, httpErr)
+// HTTPError exports httpError for testing.
+func HTTPError(op string, statusCode int, err error) error {
+	return httpError(op, statusCode, err)
 }
 
-// GRPCErrorHandler exports grpcErrorHandler for testing.
-func (t *TritonClientService) GRPCErrorHandler(grpcErr error) error {
-	return t.grpcErrorHandler(grpcErr)
+// GRPCError exports grpcError for testing.
+func GRPCError(op string, err error) error {
+	return grpcError(op, err)
 }
 
-// DecodeFuncErrorHandler exports decodeFuncErrorHandler for testing.
-func (t *TritonClientService) DecodeFuncErrorHandler(err error, isGRPC bool) error {
-	return t.decodeFuncErrorHandler(err, isGRPC)
+// DecodeError exports decodeError for testing.
+func DecodeError(op string, isGRPC bool, err error) error {
+	return decodeError(op, isGRPC, err)
 }
 
 // PathEscape exports pathEscape for testing.
 func PathEscape(s string) string {
 	return pathEscape(s)
+}
+
+// EnsureScheme exports ensureScheme for testing.
+func EnsureScheme(rawURL string) string {
+	return ensureScheme(rawURL)
+}
+
+// NewTritonError exports newTritonError for testing structured errors.
+func NewTritonError(protocol Protocol, op string, statusCode int, err error) *TritonError {
+	return &TritonError{
+		Protocol:   protocol,
+		Op:         op,
+		StatusCode: statusCode,
+		Err:        err,
+	}
 }

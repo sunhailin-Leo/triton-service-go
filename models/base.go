@@ -14,6 +14,12 @@ type GenerateModelInferRequest func() []*nvidia_inferenceserver.ModelInferReques
 // GenerateModelInferOutputRequest model output callback.
 type GenerateModelInferOutputRequest func(params ...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
 
+// ModelService is the base service for all model implementations.
+//
+// Deprecated field access: All exported fields are retained for backward compatibility.
+// New code should use the provided setter/getter methods (e.g., SetMaxSeqLength, SetModelInferWithGRPC)
+// or functional options (e.g., WithBertMaxSeqLength) instead of accessing fields directly.
+// Direct field mutation is not concurrency-safe.
 type ModelService struct {
 	IsGRPC                          bool
 	IsChinese                       bool
@@ -123,12 +129,16 @@ func (m *ModelService) SetAPIRequestTimeout(timeout time.Duration) *ModelService
 }
 
 // SetJSONEncoder set json encoder
+//
+// Deprecated: Use WithJSONEncoder option during client construction instead.
 func (m *ModelService) SetJSONEncoder(encoder utils.JSONMarshal) *ModelService {
 	m.TritonService.SetJSONEncoder(encoder)
 	return m
 }
 
 // SetJSONDecoder set json decoder
+//
+// Deprecated: Use WithJSONDecoder option during client construction instead.
 func (m *ModelService) SetJSONDecoder(decoder utils.JSONUnmarshal) *ModelService {
 	m.TritonService.SetJSONDecoder(decoder)
 	return m

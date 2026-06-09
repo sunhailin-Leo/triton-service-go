@@ -76,6 +76,7 @@ func IsWhiteSpaceOrChineseOrNumber(c rune) bool {
 // Clean function will clear some characters.
 func Clean(text string) string {
 	var b strings.Builder
+	b.Grow(len(text))
 	for _, c := range text {
 		if c == 0 || c == 0xfffd || IsControl(c) {
 			continue
@@ -93,6 +94,7 @@ func Clean(text string) string {
 // This implementation matches BasicTokenizer._tokenize_chinese_chars.
 func PadChinese(text string) string {
 	var b strings.Builder
+	b.Grow(len(text) + len(text)/2)
 	for _, c := range text {
 		if IsChinese(c) {
 			b.WriteRune(' ')
@@ -108,6 +110,7 @@ func PadChinese(text string) string {
 // CleanAndPadChineseWithWhiteSpace combine three function clean, padChinese, tokenizeWhitespaceV1.
 func CleanAndPadChineseWithWhiteSpace(text string) []string {
 	var b strings.Builder
+	b.Grow(len(text) + len(text)/2)
 	for _, c := range text {
 		if c == 0 || c == 0xfffd || IsControl(c) {
 			continue
@@ -131,6 +134,7 @@ func CleanAndPadChineseWithWhiteSpace(text string) []string {
 // StripAccentsAndLower strip accents and lower.
 func StripAccentsAndLower(text string) string {
 	var b strings.Builder
+	b.Grow(len(text))
 	for _, c := range norm.NFD.String(text) {
 		if unicode.Is(unicode.Mn, c) {
 			continue
@@ -144,14 +148,16 @@ func StripAccentsAndLower(text string) string {
 	return b.String()
 }
 
-// SplitPunctuation split punctuation.
+// SplitPunctuation splits the text around punctuation characters.
 func SplitPunctuation(text string) (toks []string) {
 	var b strings.Builder
 	for _, c := range text {
 		if IsPunctuation(c) {
-			toks = append(toks, b.String())
+			if b.Len() > 0 {
+				toks = append(toks, b.String())
+				b.Reset()
+			}
 			toks = append(toks, string(c))
-			b.Reset()
 		} else {
 			b.WriteRune(c)
 		}
@@ -162,22 +168,49 @@ func SplitPunctuation(text string) (toks []string) {
 	return
 }
 
-// BinaryFilter []byte filter space.
+// BinaryFilter filters zero bytes from a byte slice, inserting spaces at word boundaries.
 func BinaryFilter(arr []byte) []byte {
-	result := make([]byte, 0)
+	result := make([]byte, 0, len(arr))
 	for i := range arr {
 		if arr[i] == 0 {
 			continue
 		}
-		if arr[i] != 0 && i != len(arr)-1 && arr[i+1] == 0 {
+		if i != len(arr)-1 && arr[i+1] == 0 {
 			if i != 0 {
-				result = append(result, byte(' '))
+				result = append(result, ' ')
 			}
 			continue
 		}
 		result = append(result, arr[i])
 	}
 	return result
+}
+
+// fp16ToFloat32 converts a IEEE 754 half-precision (16-bit) value to float32.
+func fp16ToFloat32(bits uint16) float32 {
+	sign := uint32(bits>>15) & 0x1
+	exponent := uint32(bits>>10) & 0x1F
+	mantissa := uint32(bits) & 0x3FF
+
+	switch exponent {
+	case 0:
+		if mantissa == 0 {
+			return math.Float32frombits(sign << 31)
+		}
+		// subnormal fp16 → normalized fp32
+		for mantissa&0x400 == 0 {
+			mantissa <<= 1
+			exponent--
+		}
+		exponent++
+		mantissa &= 0x3FF
+		return math.Float32frombits((sign << 31) | ((exponent + 112) << 23) | (mantissa << 13))
+	case 31:
+		// Inf / NaN
+		return math.Float32frombits((sign << 31) | 0x7F800000 | (mantissa << 13))
+	default:
+		return math.Float32frombits((sign << 31) | ((exponent + 112) << 23) | (mantissa << 13))
+	}
 }
 
 // convert functions.
@@ -189,7 +222,7 @@ var convertFuncMap = map[string]func([]uint8) any{
 		return int64(binary.LittleEndian.Uint64(b))
 	},
 	TritonFP16Type: func(b []uint8) any {
-		return math.Float32frombits(binary.LittleEndian.Uint32(b))
+		return fp16ToFloat32(binary.LittleEndian.Uint16(b))
 	},
 	TritonFP32Type: func(b []uint8) any {
 		return math.Float32frombits(binary.LittleEndian.Uint32(b))
@@ -211,24 +244,32 @@ var convertFuncMap = map[string]func([]uint8) any{
 	},
 }
 
-// BinaryToSlice []byte to slice.
+// ErrUnsupportedType is returned when BinaryToSlice receives an unknown data type.
+var ErrUnsupportedType = "unsupported return type for BinaryToSlice"
+
+// BinaryToSlice converts a byte slice to a typed slice based on the returnType.
+// Returns nil if the returnType is not supported.
 func BinaryToSlice(body []uint8, bytesLen int, returnType string) []any {
 	// special process BYTES and []byte
 	if returnType == TritonBytesType || returnType == SliceByteType {
 		return SliceToInterfaceSlice(strings.Fields(string(BinaryFilter(body))))
 	}
 	// response body split by chunk (other types need convert functions)
-	convertFunc := convertFuncMap[returnType]
+	convertFunc, ok := convertFuncMap[returnType]
+	if !ok || convertFunc == nil {
+		return nil
+	}
+	if bytesLen <= 0 || len(body) == 0 {
+		return nil
+	}
 	convertFuncResult := make([]any, len(body)/bytesLen)
 	for i := 0; i < len(convertFuncResult); i++ {
-		if i*bytesLen+bytesLen > len(body) {
-			if len(body[i*bytesLen:]) > 0 {
-				convertFuncResult[i] = convertFunc(body[i*bytesLen:])
-			}
+		start := i * bytesLen
+		end := start + bytesLen
+		if end > len(body) {
 			break
-		} else {
-			convertFuncResult[i] = convertFunc(body[i*bytesLen : i*bytesLen+bytesLen])
 		}
+		convertFuncResult[i] = convertFunc(body[start:end])
 	}
 	return convertFuncResult
 }

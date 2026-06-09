@@ -3,6 +3,7 @@ package nvidia_inferenceserver_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"testing"
 	"time"
 
@@ -117,20 +118,65 @@ func BenchmarkPathEscape_SpecialChars(b *testing.B) {
 
 // --- Error Handler Benchmarks ---
 
-func BenchmarkHTTPErrorHandler_Nil(b *testing.B) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
+func BenchmarkHTTPError_Nil(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = srv.HTTPErrorHandler(200, nil)
+		_ = nvidia_inferenceserver.HTTPError("test", 200, nil)
 	}
 }
 
-func BenchmarkGRPCErrorHandler_Nil(b *testing.B) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
+func BenchmarkGRPCError_Nil(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = srv.GRPCErrorHandler(nil)
+		_ = nvidia_inferenceserver.GRPCError("test", nil)
+	}
+}
+
+// --- TritonError.Error() Benchmarks ---
+
+func BenchmarkTritonError_Error_WithStatusCode(b *testing.B) {
+	err := nvidia_inferenceserver.HTTPError("infer", 500, nil)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = err.Error()
+	}
+}
+
+func BenchmarkTritonError_Error_WithUnderlyingError(b *testing.B) {
+	err := nvidia_inferenceserver.HTTPError("infer", 0, errors.New("connection refused"))
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = err.Error()
+	}
+}
+
+func BenchmarkTritonError_Error_FullInfo(b *testing.B) {
+	err := nvidia_inferenceserver.HTTPError("infer", 500, errors.New("timeout"))
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = err.Error()
+	}
+}
+
+func BenchmarkTritonError_Error_GRPC(b *testing.B) {
+	err := nvidia_inferenceserver.GRPCError("health", errors.New("unavailable"))
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = err.Error()
+	}
+}
+
+func BenchmarkHTTPError_CreateAndCall(b *testing.B) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		err := nvidia_inferenceserver.HTTPError("test", 500, errors.New("test error"))
+		_ = err.Error()
 	}
 }

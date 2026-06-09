@@ -317,9 +317,9 @@ func TestSplitPunctuation(t *testing.T) {
 		{"simple punctuation", "hello,world", []string{"hello", ",", "world"}},
 		{"multiple punctuation", "hello,world!", []string{"hello", ",", "world", "!"}},
 		{"no punctuation", "hello world", []string{"hello world"}},
-		{"only punctuation", ",!", []string{"", ",", "", "!"}},
+		{"only punctuation", ",!", []string{",", "!"}},
 		{"empty string", "", []string(nil)},
-		{"punctuation at start", "!hello", []string{"", "!", "hello"}},
+		{"punctuation at start", "!hello", []string{"!", "hello"}},
 		{"punctuation at end", "hello!", []string{"hello", "!"}},
 		{"mixed", "hello, world!", []string{"hello", ",", " world", "!"}},
 	}

@@ -3,6 +3,7 @@ package nvidia_inferenceserver_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"testing"
@@ -486,68 +487,75 @@ func TestModelHTTPInfer_CancelledContext(t *testing.T) {
 	}
 }
 
-// --- Error Handler Unit Tests (via export_test.go) ---
+// --- Structured Error Unit Tests (via export_test.go) ---
 
-func TestHTTPErrorHandler_WithValue(t *testing.T) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
-	err := srv.HTTPErrorHandler(500, fmt.Errorf("internal error"))
+func TestHTTPError_WithValue(t *testing.T) {
+	err := nvidia_inferenceserver.HTTPError("test", 500, fmt.Errorf("internal error"))
 	if err == nil {
 		t.Fatal("expected non-nil error")
 	}
-	if err.Error() != "[HTTP]code: 500; error: internal error" {
-		t.Errorf("unexpected error message: %s", err.Error())
+	var tritonErr *nvidia_inferenceserver.TritonError
+	if !errors.As(err, &tritonErr) {
+		t.Fatal("expected TritonError type")
+	}
+	if tritonErr.StatusCode != 500 {
+		t.Errorf("expected status 500, got %d", tritonErr.StatusCode)
 	}
 }
 
-func TestHTTPErrorHandler_NilErr_Non200Status(t *testing.T) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
-	err := srv.HTTPErrorHandler(503, nil)
+func TestHTTPError_NilErr_Non200Status(t *testing.T) {
+	err := nvidia_inferenceserver.HTTPError("test", 503, nil)
 	if err == nil {
 		t.Fatal("expected non-nil error for non-200 status with nil error")
 	}
-	if err.Error() != "[HTTP]unexpected status code: 503" {
-		t.Errorf("unexpected error message: %s", err.Error())
-	}
 }
 
-func TestHTTPErrorHandler_NilErr_200Status(t *testing.T) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
-	err := srv.HTTPErrorHandler(200, nil)
+func TestHTTPError_NilErr_200Status(t *testing.T) {
+	err := nvidia_inferenceserver.HTTPError("test", 200, nil)
 	if err != nil {
 		t.Errorf("expected nil error for 200 status with nil error, got: %v", err)
 	}
 }
 
-func TestGRPCErrorHandler_WithValue(t *testing.T) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
-	err := srv.GRPCErrorHandler(fmt.Errorf("grpc error"))
+func TestGRPCError_WithValue(t *testing.T) {
+	err := nvidia_inferenceserver.GRPCError("test", fmt.Errorf("grpc error"))
 	if err == nil {
 		t.Fatal("expected non-nil error")
 	}
-	if err.Error() != "[GRPC]error: grpc error" {
-		t.Errorf("unexpected error message: %s", err.Error())
+	var tritonErr *nvidia_inferenceserver.TritonError
+	if !errors.As(err, &tritonErr) {
+		t.Fatal("expected TritonError type")
+	}
+	if tritonErr.Protocol != nvidia_inferenceserver.ProtocolGRPC {
+		t.Errorf("expected GRPC protocol, got %v", tritonErr.Protocol)
 	}
 }
 
-func TestDecodeFuncErrorHandler_HTTP(t *testing.T) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
-	err := srv.DecodeFuncErrorHandler(fmt.Errorf("decode error"), false)
+func TestDecodeError_HTTP(t *testing.T) {
+	err := nvidia_inferenceserver.DecodeError("infer", false, fmt.Errorf("decode error"))
 	if err == nil {
 		t.Fatal("expected non-nil error")
 	}
-	if err.Error() != "[HTTP]decodeFunc error: decode error" {
-		t.Errorf("unexpected error message: %s", err.Error())
+	var tritonErr *nvidia_inferenceserver.TritonError
+	if !errors.As(err, &tritonErr) {
+		t.Fatal("expected TritonError type")
+	}
+	if tritonErr.Protocol != nvidia_inferenceserver.ProtocolHTTP {
+		t.Errorf("expected HTTP protocol, got %v", tritonErr.Protocol)
 	}
 }
 
-func TestDecodeFuncErrorHandler_GRPC(t *testing.T) {
-	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
-	err := srv.DecodeFuncErrorHandler(fmt.Errorf("decode error"), true)
+func TestDecodeError_GRPC(t *testing.T) {
+	err := nvidia_inferenceserver.DecodeError("infer", true, fmt.Errorf("decode error"))
 	if err == nil {
 		t.Fatal("expected non-nil error")
 	}
-	if err.Error() != "[GRPC]decodeFunc error: decode error" {
-		t.Errorf("unexpected error message: %s", err.Error())
+	var tritonErr *nvidia_inferenceserver.TritonError
+	if !errors.As(err, &tritonErr) {
+		t.Fatal("expected TritonError type")
+	}
+	if tritonErr.Protocol != nvidia_inferenceserver.ProtocolGRPC {
+		t.Errorf("expected GRPC protocol, got %v", tritonErr.Protocol)
 	}
 }
 

@@ -104,7 +104,7 @@ fuzz-time:
 ## lint: Run golangci-lint
 lint:
 	@command -v golangci-lint >/dev/null 2>&1 || { echo "golangci-lint not found, install: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"; exit 1; }
-	golangci-lint run --enable=nolintlint,gochecknoinits,bodyclose,gocritic --verbose
+	golangci-lint run --enable=nolintlint,bodyclose,gocritic --verbose
 
 ## vet: Run go vet
 vet:

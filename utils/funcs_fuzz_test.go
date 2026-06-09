@@ -388,3 +388,32 @@ func parseFloat64CSV(csv string) []float64 {
 	}
 	return result
 }
+
+// FuzzBinaryToSlice_FP32_Boundary tests BinaryToSlice with FP32 boundary values.
+func FuzzBinaryToSlice_FP32_Boundary(f *testing.F) {
+	// Seed with normal and boundary FP32 data
+	f.Add(makeFloat32Bytes([]float32{0.0}), 4, utils.TritonFP32Type)
+	f.Add(makeFloat32Bytes([]float32{math.Float32frombits(0x80000000)}), 4, utils.TritonFP32Type) // negative zero
+	f.Add(makeFloat32Bytes([]float32{1.0}), 4, utils.TritonFP32Type)
+	f.Add(makeFloat32Bytes([]float32{-1.0}), 4, utils.TritonFP32Type)
+	f.Add(makeFloat32Bytes([]float32{math.MaxFloat32}), 4, utils.TritonFP32Type)
+	f.Add(makeFloat32Bytes([]float32{math.SmallestNonzeroFloat32}), 4, utils.TritonFP32Type)
+	f.Add(makeFloat32Bytes([]float32{float32(math.Inf(1))}), 4, utils.TritonFP32Type)
+	f.Add(makeFloat32Bytes([]float32{float32(math.Inf(-1))}), 4, utils.TritonFP32Type)
+	f.Add(makeFloat32Bytes([]float32{float32(math.NaN())}), 4, utils.TritonFP32Type)
+	f.Add(makeFloat32Bytes([]float32{3.4028235e+38, -3.4028235e+38}), 4, utils.TritonFP32Type)
+
+	f.Fuzz(func(t *testing.T, body []byte, bytesLen int, returnType string) {
+		if bytesLen != 4 {
+			return
+		}
+		if len(body) == 0 || len(body)%4 != 0 {
+			return
+		}
+		if returnType != utils.TritonFP32Type && returnType != utils.SliceFloat32Type {
+			return
+		}
+		result := utils.BinaryToSlice(body, bytesLen, returnType)
+		_ = result
+	})
+}

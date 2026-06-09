@@ -2,6 +2,7 @@ package transformers
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	"github.com/sunhailin-Leo/triton-service-go/v2/utils"
 )
@@ -187,8 +188,8 @@ func (t *BaseTokenizer) TokenizeChineseCharMode(text string) []StringOffsetsPair
 // splitOn splits the given string as the `shouldSplit` predicate dictates.
 // It keeps track of the offsets.
 func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includeSplitToken bool) []StringOffsetsPair {
-	words := make([]StringOffsetsPair, 0)
-	var word []rune
+	words := make([]StringOffsetsPair, 0, 8)
+	word := make([]rune, 0, 32)
 
 	offset := 0
 	for _, r := range text {
@@ -226,8 +227,8 @@ func (t *BaseTokenizer) splitOn(text string, shouldSplit func(rune) bool, includ
 // splitOnChinese splits the given string as the `shouldSplit` predicate dictates.
 // It keeps track of the offsets.
 func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool, includeSplitToken bool, includeSplitFunc func(rune) bool) []StringOffsetsPair {
-	words := make([]StringOffsetsPair, 0)
-	var word []rune
+	words := make([]StringOffsetsPair, 0, 8)
+	word := make([]rune, 0, 32)
 
 	offset := 0
 	for _, r := range text {
@@ -324,28 +325,58 @@ func (t *WordPieceTokenizer) TokenizeChineseCharMode(text string) []StringOffset
 // transforms the input token in a new slice of words or sub-words units based on the supplied vocabulary.
 // The resulting tokens preserve the alignment with the portion of the original text they belong to.
 func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []StringOffsetsPair {
-	outputTokens := make([]StringOffsetsPair, 0)
+	outputTokens := make([]StringOffsetsPair, 0, len(tokens))
 	for i := range tokens {
 		characters := []rune(tokens[i].String)
 
 		if len(characters) > t.maxWordChars {
-			if t.vocabulary.GetID(t.unkToken) == -1 {
-				outputTokens = append(outputTokens, StringOffsetsPair{String: t.unkToken, Offsets: tokens[i].Offsets})
-				continue
-			}
 			outputTokens = append(outputTokens, StringOffsetsPair{String: t.unkToken, Offsets: tokens[i].Offsets})
 			continue
 		}
 
 		isBad := false
 		start := 0
-		subTokens := make([]StringOffsetsPair, 0)
+		subTokens := make([]StringOffsetsPair, 0, 4)
 
 		for start < len(characters) {
+			// Build the lookup string: for start > 0, prepend the split prefix ("##")
+			remaining := string(characters[start:])
+			var lookupStr string
+			if start > 0 {
+				lookupStr = t.splitPrefix + remaining
+			} else {
+				lookupStr = remaining
+			}
+
+			// Use Trie for O(n) longest prefix matching instead of O(n²) shrinking loop
+			if t.vocabulary.prefixTree != nil {
+				matchedToken, _, matchedByteLen := t.vocabulary.prefixTree.longestPrefix(lookupStr)
+				if matchedByteLen > 0 {
+					// Calculate how many runes were consumed from characters[start:]
+					var consumedRunes int
+					if start > 0 {
+						// Subtract the byte length of the split prefix
+						consumedBytes := matchedByteLen - len(t.splitPrefix)
+						consumedRunes = runeCountInBytes(remaining, consumedBytes)
+					} else {
+						consumedRunes = runeCountInBytes(remaining, matchedByteLen)
+					}
+					subTokens = append(subTokens, StringOffsetsPair{
+						String: matchedToken,
+						Offsets: OffsetsType{
+							Start: tokens[i].Offsets.Start + start,
+							End:   tokens[i].Offsets.Start + start + consumedRunes,
+						},
+					})
+					start += consumedRunes
+					continue
+				}
+			}
+
+			// Fallback: brute-force shrinking loop (when Trie is not available or no match)
 			end := len(characters)
 			var curStrToken StringOffsetsPair
 			found := false
-
 			for start < end {
 				subStr := string(characters[start:end])
 				if start > 0 {
@@ -364,7 +395,6 @@ func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []Str
 			}
 			if !found {
 				isBad = true
-
 				break
 			}
 			subTokens = append(subTokens, curStrToken)
@@ -378,6 +408,21 @@ func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []Str
 		}
 	}
 	return outputTokens
+}
+
+// runeCountInBytes returns the number of runes that fit within byteLen bytes of text.
+func runeCountInBytes(text string, byteLen int) int {
+	count := 0
+	consumed := 0
+	for _, r := range text {
+		size := utf8.RuneLen(r)
+		if consumed+size > byteLen {
+			break
+		}
+		consumed += size
+		count++
+	}
+	return count
 }
 
 // IsDefaultSpecial return whether the word matches a special token, or not.
