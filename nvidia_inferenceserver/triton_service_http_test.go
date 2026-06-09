@@ -20,22 +20,8 @@ func startTestHTTPServer(t *testing.T, handler func(ctx *fasthttp.RequestCtx)) s
 		t.Fatalf("failed to listen: %v", err)
 	}
 	go fasthttp.Serve(ln, handler) //nolint:errcheck
-	t.Cleanup(func() { ln.Close() })
+	t.Cleanup(func() { _ = ln.Close() })
 	return ln.Addr().String()
-}
-
-// jsonHandler returns a fasthttp handler that responds with 200 and the JSON-serialized body.
-func jsonHandler(t *testing.T, body any) func(ctx *fasthttp.RequestCtx) {
-	t.Helper()
-	data, err := json.Marshal(body)
-	if err != nil {
-		t.Fatalf("failed to marshal response: %v", err)
-	}
-	return func(ctx *fasthttp.RequestCtx) {
-		ctx.SetContentType("application/json")
-		ctx.SetStatusCode(fasthttp.StatusOK)
-		ctx.SetBody(data)
-	}
 }
 
 // errorHandler responds with the given HTTP status code and error body.
@@ -567,7 +553,7 @@ func TestDecodeFuncErrorHandler_GRPC(t *testing.T) {
 
 func TestEnsureCtx_Nil(t *testing.T) {
 	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
-	ctx, cancel := srv.EnsureCtx(nil)
+	ctx, cancel := srv.EnsureCtx(context.TODO())
 	defer cancel()
 	if ctx == nil {
 		t.Fatal("expected non-nil context")

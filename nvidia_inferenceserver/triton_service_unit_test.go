@@ -18,7 +18,7 @@ import (
 func TestTritonClientService_EnsureCtx_Nil(t *testing.T) {
 	srv := nvidia_inferenceserver.NewTritonClientWithOnlyHTTP("127.0.0.1:9001", nil)
 	// Test with nil context - should default to context.Background() with timeout
-	ctx, cancel := srv.EnsureCtx(nil)
+	ctx, cancel := srv.EnsureCtx(context.TODO())
 	defer cancel()
 	if ctx == nil {
 		t.Fatal("expected non-nil context")
