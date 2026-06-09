@@ -277,13 +277,13 @@ type WordPieceTokenizer struct {
 }
 
 // NewWordPieceTokenizer returns a new WordPieceTokenizer.
-func NewWordPieceTokenizer(vocabulary Dict) *WordPieceTokenizer {
+func NewWordPieceTokenizer(vocabulary *Dict) *WordPieceTokenizer {
 	return &WordPieceTokenizer{
 		baseTokenizer: NewBaseTokenizer(
 			RegisterSpecialWords(DefaultUNK, DefaultCLS, DefaultSEP, DefaultMask),
 			WithLowerCase(false),
 		),
-		vocabulary:   &vocabulary,
+		vocabulary:   vocabulary,
 		unkToken:     DefaultUNK,
 		splitPrefix:  NumPadToken,
 		maxWordChars: DefaultMaxWordChars,

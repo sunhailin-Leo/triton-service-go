@@ -27,7 +27,7 @@ const (
 type BertModelService struct {
 	models.ModelService
 
-	BertVocab     Dict
+	BertVocab     *Dict
 	BertTokenizer *WordPieceTokenizer
 }
 
@@ -363,7 +363,7 @@ func NewBertModelService(
 		return nil, vocabReadErr
 	}
 	// 2、Init Service
-	tokenizer := NewWordPieceTokenizer(voc)
+	tokenizer := NewWordPieceTokenizer(&voc)
 	tokenizer.SetDoLowerCase(true) // Default to true for backward compatibility with BERT
 
 	srv := &BertModelService{
@@ -374,7 +374,7 @@ func NewBertModelService(
 			GenerateModelInferRequest:       modelInputCallback,
 			GenerateModelInferOutputRequest: modelOutputCallback,
 		},
-		BertVocab:     voc,
+		BertVocab:     &voc,
 		BertTokenizer: tokenizer,
 	}
 	// 3、Apply options

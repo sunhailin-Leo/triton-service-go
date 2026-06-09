@@ -90,7 +90,7 @@ func FuzzWordPieceTokenize(f *testing.F) {
 	if err != nil {
 		f.Fatalf("Failed to load vocab: %v", err)
 	}
-	tokenizer := transformers.NewWordPieceTokenizer(vocab)
+	tokenizer := transformers.NewWordPieceTokenizer(&vocab)
 	f.Fuzz(func(t *testing.T, text string) {
 		baseTokens := tokenizer.Tokenize(text)
 		result := tokenizer.WordPieceTokenize(baseTokens)

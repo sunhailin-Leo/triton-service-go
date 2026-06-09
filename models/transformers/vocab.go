@@ -157,7 +157,7 @@ func (v *Dict) Add(token string) {
 }
 
 // GetID will return the ID of the token in the vocab. Will be negative if it doesn't exist.
-func (v Dict) GetID(token string) ID {
+func (v *Dict) GetID(token string) ID {
 	id, ok := v.tokens[token]
 	if !ok {
 		return ID(-1)
@@ -166,7 +166,7 @@ func (v Dict) GetID(token string) ID {
 }
 
 // Size returns the size of the vocabulary.
-func (v Dict) Size() int {
+func (v *Dict) Size() int {
 	return len(v.tokens)
 }
 
@@ -194,7 +194,7 @@ func (v *Dict) LongestSubstring(token string) string {
 }
 
 // ConvertItems convert items to ids.
-func (v Dict) ConvertItems(items []string) []ID {
+func (v *Dict) ConvertItems(items []string) []ID {
 	ids := make([]ID, len(items))
 	for i := range items {
 		ids[i] = v.tokens[items[i]]
@@ -203,12 +203,12 @@ func (v Dict) ConvertItems(items []string) []ID {
 }
 
 // ConvertTokens convert token to id.
-func (v Dict) ConvertTokens(tokens []string) []ID {
+func (v *Dict) ConvertTokens(tokens []string) []ID {
 	return v.ConvertItems(tokens)
 }
 
 // IsInVocab token is in vocabs.
-func (v Dict) IsInVocab(token string) bool {
+func (v *Dict) IsInVocab(token string) bool {
 	_, exists := v.tokens[token]
 
 	return exists

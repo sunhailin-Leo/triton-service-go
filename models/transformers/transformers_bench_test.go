@@ -75,7 +75,7 @@ func BenchmarkWordPieceTokenizer_Tokenize(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to load vocab: %v", err)
 	}
-	tok := transformers.NewWordPieceTokenizer(vocab)
+	tok := transformers.NewWordPieceTokenizer(&vocab)
 	tok.SetDoLowerCase(true)
 	text := "Hello, world! This is a benchmark test for the wordpiece tokenizer."
 	b.ReportAllocs()
@@ -90,7 +90,7 @@ func BenchmarkWordPieceTokenizer_TokenizeChinese(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to load vocab: %v", err)
 	}
-	tok := transformers.NewWordPieceTokenizer(vocab)
+	tok := transformers.NewWordPieceTokenizer(&vocab)
 	text := "自然语言处理是人工智能领域中的重要方向。"
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -104,7 +104,7 @@ func BenchmarkWordPieceTokenizer_TokenizeChineseCharMode(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to load vocab: %v", err)
 	}
-	tok := transformers.NewWordPieceTokenizer(vocab)
+	tok := transformers.NewWordPieceTokenizer(&vocab)
 	text := "自然语言处理是人工智能领域中的重要方向。"
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -118,7 +118,7 @@ func BenchmarkWordPieceTokenizer_WordPieceTokenize(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to load vocab: %v", err)
 	}
-	tok := transformers.NewWordPieceTokenizer(vocab)
+	tok := transformers.NewWordPieceTokenizer(&vocab)
 	text := "unaffordable"
 	tokens := tok.Tokenize(text)
 	b.ReportAllocs()
