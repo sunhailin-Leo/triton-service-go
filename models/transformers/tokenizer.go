@@ -268,7 +268,7 @@ func (t *BaseTokenizer) splitOnChinese(text string, shouldSplit func(rune) bool,
 // WordPieceTokenizers uses BaseTokenizer to preprocess the input text.
 type WordPieceTokenizer struct {
 	baseTokenizer *BaseTokenizer
-	vocabulary    Dict
+	vocabulary    *Dict
 	unkToken      string
 	splitPrefix   string
 	maxWordChars  int
@@ -283,7 +283,7 @@ func NewWordPieceTokenizer(vocabulary Dict) *WordPieceTokenizer {
 			RegisterSpecialWords(DefaultUNK, DefaultCLS, DefaultSEP, DefaultMask),
 			WithLowerCase(false),
 		),
-		vocabulary:   vocabulary,
+		vocabulary:   &vocabulary,
 		unkToken:     DefaultUNK,
 		splitPrefix:  NumPadToken,
 		maxWordChars: DefaultMaxWordChars,
@@ -349,29 +349,27 @@ func (t *WordPieceTokenizer) WordPieceTokenize(tokens []StringOffsetsPair) []Str
 			}
 
 			// Use Trie for O(n) longest prefix matching instead of O(n²) shrinking loop
-			if t.vocabulary.prefixTree != nil {
-				_, matchedByteLen := t.vocabulary.prefixTree.longestPrefix(lookupStr)
-				if matchedByteLen > 0 {
-					matchedToken := lookupStr[:matchedByteLen]
-					// Calculate how many runes were consumed from characters[start:]
-					var consumedRunes int
-					if start > 0 {
-						// Subtract the byte length of the split prefix
-						consumedBytes := matchedByteLen - len(t.splitPrefix)
-						consumedRunes = runeCountInBytes(remaining, consumedBytes)
-					} else {
-						consumedRunes = runeCountInBytes(remaining, matchedByteLen)
-					}
-					subTokens = append(subTokens, StringOffsetsPair{
-						String: matchedToken,
-						Offsets: OffsetsType{
-							Start: tokens[i].Offsets.Start + start,
-							End:   tokens[i].Offsets.Start + start + consumedRunes,
-						},
-					})
-					start += consumedRunes
-					continue
+			_, matchedByteLen := t.vocabulary.ensureTrie().longestPrefix(lookupStr)
+			if matchedByteLen > 0 {
+				matchedToken := lookupStr[:matchedByteLen]
+				// Calculate how many runes were consumed from characters[start:]
+				var consumedRunes int
+				if start > 0 {
+					// Subtract the byte length of the split prefix
+					consumedBytes := matchedByteLen - len(t.splitPrefix)
+					consumedRunes = runeCountInBytes(remaining, consumedBytes)
+				} else {
+					consumedRunes = runeCountInBytes(remaining, matchedByteLen)
 				}
+				subTokens = append(subTokens, StringOffsetsPair{
+					String: matchedToken,
+					Offsets: OffsetsType{
+						Start: tokens[i].Offsets.Start + start,
+						End:   tokens[i].Offsets.Start + start + consumedRunes,
+					},
+				})
+				start += consumedRunes
+				continue
 			}
 
 			// Fallback: brute-force shrinking loop (when Trie is not available or no match)
