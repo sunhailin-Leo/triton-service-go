@@ -1,3 +1,5 @@
+//go:build integration
+
 package test
 
 import (
@@ -37,7 +39,7 @@ func testGenerateW2NERModelInferRequest() []*nvidia_inferenceserver.ModelInferRe
 	}
 }
 
-func testGenerateW2NERModelInferOutputRequest(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
+func testGenerateW2NERModelInferOutputRequest(params ...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
 	for _, param := range params {
 		log.Println("Param: ", param)
 	}
@@ -54,7 +56,7 @@ func testGenerateW2NERModelInferOutputRequest(params ...interface{}) []*nvidia_i
 }
 
 // testModerInferCallback infer call back (process model infer data).
-func testW2NERModerInferCallback(inferResponse interface{}, params ...interface{}) ([]interface{}, error) {
+func testW2NERModerInferCallback(inferResponse any, params ...any) ([]any, error) {
 	log.Println("response: ", inferResponse)
 	log.Println(params...)
 	return nil, nil

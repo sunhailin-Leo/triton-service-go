@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"time"
 
 	"github.com/sunhailin-Leo/triton-service-go/v2/nvidia_inferenceserver"
@@ -13,6 +14,12 @@ type GenerateModelInferRequest func() []*nvidia_inferenceserver.ModelInferReques
 // GenerateModelInferOutputRequest model output callback.
 type GenerateModelInferOutputRequest func(params ...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor
 
+// ModelService is the base service for all model implementations.
+//
+// Deprecated field access: All exported fields are retained for backward compatibility.
+// New code should use the provided setter/getter methods (e.g., SetMaxSeqLength, SetModelInferWithGRPC)
+// or functional options (e.g., WithBertMaxSeqLength) instead of accessing fields directly.
+// Direct field mutation is not concurrency-safe.
 type ModelService struct {
 	IsGRPC                          bool
 	IsChinese                       bool
@@ -121,15 +128,19 @@ func (m *ModelService) SetAPIRequestTimeout(timeout time.Duration) *ModelService
 	return m
 }
 
-// SetJsonEncoder set json encoder
-func (m *ModelService) SetJsonEncoder(encoder utils.JSONMarshal) *ModelService {
+// SetJSONEncoder set json encoder
+//
+// Deprecated: Use WithJSONEncoder option during client construction instead.
+func (m *ModelService) SetJSONEncoder(encoder utils.JSONMarshal) *ModelService {
 	m.TritonService.SetJSONEncoder(encoder)
 	return m
 }
 
-// SetJsonDecoder set json decoder
-func (m *ModelService) SetJsonDecoder(decoder utils.JSONUnmarshal) *ModelService {
-	m.TritonService.SetJsonDecoder(decoder)
+// SetJSONDecoder set json decoder
+//
+// Deprecated: Use WithJSONDecoder option during client construction instead.
+func (m *ModelService) SetJSONDecoder(decoder utils.JSONUnmarshal) *ModelService {
+	m.TritonService.SetJSONDecoder(decoder)
 	return m
 }
 
@@ -138,43 +149,43 @@ func (m *ModelService) SetJsonDecoder(decoder utils.JSONUnmarshal) *ModelService
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////
 
 // CheckServerReady check server is ready.
-func (m *ModelService) CheckServerReady() (bool, error) {
-	return m.TritonService.CheckServerReady()
+func (m *ModelService) CheckServerReady(ctx context.Context) (bool, error) {
+	return m.TritonService.CheckServerReady(ctx)
 }
 
 // CheckServerAlive check server is alive.
-func (m *ModelService) CheckServerAlive() (bool, error) {
-	return m.TritonService.CheckServerAlive()
+func (m *ModelService) CheckServerAlive(ctx context.Context) (bool, error) {
+	return m.TritonService.CheckServerAlive(ctx)
 }
 
 // CheckModelReady check model is ready.
-func (m *ModelService) CheckModelReady(modelName, modelVersion string) (bool, error) {
-	return m.TritonService.CheckModelReady(modelName, modelVersion)
+func (m *ModelService) CheckModelReady(ctx context.Context, modelName, modelVersion string) (bool, error) {
+	return m.TritonService.CheckModelReady(ctx, modelName, modelVersion)
 }
 
 // GetServerMeta get server meta.
-func (m *ModelService) GetServerMeta() (*nvidia_inferenceserver.ServerMetadataResponse, error) {
-	return m.TritonService.ServerMetadata()
+func (m *ModelService) GetServerMeta(ctx context.Context) (*nvidia_inferenceserver.ServerMetadataResponse, error) {
+	return m.TritonService.ServerMetadata(ctx)
 }
 
 // GetModelMeta get model meta.
-func (m *ModelService) GetModelMeta(modelName, modelVersion string) (*nvidia_inferenceserver.ModelMetadataResponse, error) {
-	return m.TritonService.ModelMetadataRequest(modelName, modelVersion)
+func (m *ModelService) GetModelMeta(ctx context.Context, modelName, modelVersion string) (*nvidia_inferenceserver.ModelMetadataResponse, error) {
+	return m.TritonService.ModelMetadataRequest(ctx, modelName, modelVersion)
 }
 
 // GetAllModelInfo get all model info.
-func (m *ModelService) GetAllModelInfo(repoName string, isReady bool) (*nvidia_inferenceserver.RepositoryIndexResponse, error) {
-	return m.TritonService.ModelIndex(repoName, isReady)
+func (m *ModelService) GetAllModelInfo(ctx context.Context, repoName string, isReady bool) (*nvidia_inferenceserver.RepositoryIndexResponse, error) {
+	return m.TritonService.ModelIndex(ctx, repoName, isReady)
 }
 
 // GetModelConfig get model config.
-func (m *ModelService) GetModelConfig(modelName, modelVersion string) (*nvidia_inferenceserver.ModelConfigResponse, error) {
-	return m.TritonService.ModelConfiguration(modelName, modelVersion)
+func (m *ModelService) GetModelConfig(ctx context.Context, modelName, modelVersion string) (*nvidia_inferenceserver.ModelConfigResponse, error) {
+	return m.TritonService.ModelConfiguration(ctx, modelName, modelVersion)
 }
 
 // GetModelInferStats get model infer stats.
-func (m *ModelService) GetModelInferStats(modelName, modelVersion string) (*nvidia_inferenceserver.ModelStatisticsResponse, error) {
-	return m.TritonService.ModelInferStats(modelName, modelVersion)
+func (m *ModelService) GetModelInferStats(ctx context.Context, modelName, modelVersion string) (*nvidia_inferenceserver.ModelStatisticsResponse, error) {
+	return m.TritonService.ModelInferStats(ctx, modelName, modelVersion)
 }
 
 //////////////////////////////////////////// Triton Service API Function ////////////////////////////////////////////

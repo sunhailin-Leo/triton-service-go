@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.2.0] - 2026-06-09
+
+### Added
+
+- `ClientOption` functional options pattern for `TritonClientService` construction: `WithTimeout`, `WithJSONEncoder`, `WithJSONDecoder`, `WithHTTPClient`, `WithLogger`
+- `TritonError` structured error type with `errors.Is`/`errors.As` support (`nvidia_inferenceserver/errors.go`)
+- Trie data structure (`trieNode`, `trie`, `buildTrie`, `longestPrefix`) in `vocab.go` for efficient longest-prefix token lookup
+- `ensureTrie()` method on `Dict` for lazy trie initialization via `sync.Once`
+- `runeCountInBytes` helper in `tokenizer.go` for byte-to-rune offset conversion
+- FP16 (half-precision) binary decoding support in `BinaryToSlice`
+- Empty-input guards for `SliceTransposeFor3D` and `SliceTransposeFor2D`
+- `HTTPSPrefix` constant for TLS/SSL URL detection
+- Compile-time interface compliance check `var _ TritonService = (*TritonClientService)(nil)`
+- `bert_preprocess_test.go` covering BERT preprocessing pipeline
+- Fuzz test seeds for FP16 type in `BinaryToSlice`
+- Deprecation doc comments on `ModelService` direct field access and `SetJSONEncoder`/`SetJSONDecoder`
+
+### Changed
+
+- `TritonClientService` fields refactored for concurrency safety: `secondaryServerURL` → `atomic.Value`, `apiTimeout` → `atomic.Int64`, added `sync.RWMutex`
+- Constructor signatures updated: `NewTritonClientWithOnlyHTTP`, `NewTritonClientWithOnlyGRPC`, `NewTritonClientForAll` now accept `...ClientOption` variadic parameter
+- `WordPieceTokenize` matching algorithm changed from O(n²) shrinking loop to O(n) Trie-based longest prefix matching
+- `WordPieceTokenizer.vocabulary` field changed from value type to pointer type to avoid unnecessary copies; `BertModelService.BertVocab` updated from `Dict` to `*Dict`
+- `NewWordPieceTokenizer` parameters switched from value to pointer passing
+- `Dict` receiver methods updated to pointer receivers for consistency
+- `VocabFromFile`/`VocabFromSlice` refactored: removed `Dict.Add()` calls, build token map directly then construct `Dict`
+- `dis2idx` in `bert_w2ner.go` changed from hardcoded 1024-element slice literal to `init()` function with log2-based bucket computation
+- Tokenizer `splitOn`/`splitOnChinese` pre-allocate slices (`words` cap=8, `word` cap=32) to reduce allocations
+- `WordPieceTokenize` output slices pre-allocated with estimated capacity
+- `strings.Builder` capacity pre-estimated in `Clean`, `PadChinese`, `CleanAndPadChineseWithWhiteSpace`, `StripAccentsAndLower` to reduce memory reallocations
+- `BinaryFilter` pre-allocates result slice with `cap(len(arr))` and removed redundant `arr[i] != 0` guard
+- Transpose function doc comments clarified: input must be a regular (non-jagged) matrix
+- Type alias `[]interface{}` → `[]any` across utils helpers, JSON function types, and related tests
+- Test context creation simplified (`nil` → `context.TODO()`) in `nvidia_inferenceserver` tests
+- FP16 test data corrected from FP32 4-byte format to proper FP16 2-byte encoding
+- README simplified: condensed historical version notes, TLS status updated from "planned" to supported
+
+### Fixed
+
+- `SplitPunctuation` no longer emits empty strings when text starts with punctuation
+
+### Removed
+
+- Unused `ErrUnsupportedType` variable from `utils/funcs.go`
+- Unused `jsonHandler` helper function from `nvidia_inferenceserver` tests
+- `gochecknoinits` rule from `golangci-lint` configuration
+
 ## [v2.1.0] - 2026-03-31
 
 ### Added

@@ -1,3 +1,5 @@
+//go:build integration
+
 package test
 
 import (
@@ -88,7 +90,7 @@ func TestGetMaxSubSliceLength(t *testing.T) {
 
 func TestSliceToInterfaceSlice(t *testing.T) {
 	input1 := [][]int{{1, 2, 3}, {4, 5, 6}}
-	expected1 := []interface{}{[]int{1, 2, 3}, []int{4, 5, 6}}
+	expected1 := []any{[]int{1, 2, 3}, []int{4, 5, 6}}
 	result1 := utils.SliceToInterfaceSlice(input1)
 	if !reflect.DeepEqual(result1, expected1) {
 		t.Errorf("Test case 1 failed. Expected %v, got %v", expected1, result1)

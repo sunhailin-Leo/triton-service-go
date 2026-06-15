@@ -1,3 +1,5 @@
+//go:build integration
+
 package test
 
 import (
@@ -43,7 +45,7 @@ func testGenerateModelInferRequest() []*nvidia_inferenceserver.ModelInferRequest
 
 // testGenerateModelInferOutputRequest Triton Output.
 func testGenerateModelInferOutputRequest(
-	params ...interface{},
+	params ...any,
 ) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
 	for _, param := range params {
 		log.Println("Param: ", param)
@@ -64,7 +66,7 @@ func testGenerateModelInferOutputRequest(
 }
 
 // testModerInferCallback infer call back (process model infer data).
-func testModerInferCallback(inferResponse interface{}, params ...interface{}) ([]interface{}, error) {
+func testModerInferCallback(inferResponse any, params ...any) ([]any, error) {
 	log.Println(inferResponse)
 	log.Println(params...)
 	return nil, nil

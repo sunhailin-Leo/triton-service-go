@@ -23,7 +23,10 @@ Unofficial Golang SDK for [Triton Inference Server](https://github.com/triton-in
 - **98% API coverage** of Triton Inference Server HTTP/gRPC protocol
 - **Built-in BERT / W2NER model services** with WordPiece tokenizer
 - **Pluggable JSON encoder/decoder** — swap in `sonic`, `go-json`, etc.
-- TLS/SSL not yet supported (planned)
+- **TLS/SSL support** — pass `https://` URLs for HTTP or configure `tls.Config` on gRPC connections
+- **Structured errors** — `TritonError` type with `errors.Is`/`errors.As` support
+- **Functional options** — `ClientOption` pattern for flexible client configuration
+- **Observable** — optional `slog.Logger` injection via `WithLogger`
 
 ---
 
@@ -42,8 +45,8 @@ go get -u github.com/sunhailin-Leo/triton-service-go/v2
 package main
 
 import (
+	"context"
 	"fmt"
-	"time"
 
     "github.com/sunhailin-Leo/triton-service-go/v2/models/transformers"
     "github.com/sunhailin-Leo/triton-service-go/v2/nvidia_inferenceserver"
@@ -83,7 +86,7 @@ func testGenerateModelInferRequest() []*nvidia_inferenceserver.ModelInferRequest
 }
 
 // testGenerateModelInferOutputRequest Triton Output
-func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
+func testGenerateModelInferOutputRequest(params ...any) []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor {
 	return []*nvidia_inferenceserver.ModelInferRequest_InferRequestedOutputTensor{
 		{
 			Name: tBertModelOutputProbabilitiesKey,
@@ -100,7 +103,7 @@ func testGenerateModelInferOutputRequest(params ...interface{}) []*nvidia_infere
 }
 
 // testModerInferCallback infer call back (process model infer data)
-func testModerInferCallback(inferResponse interface{}, params ...interface{}) ([]interface{}, error) {
+func testModerInferCallback(inferResponse any, params ...any) ([]any, error) {
 	fmt.Println(inferResponse)
 	fmt.Println(params...)
 	return nil, nil
@@ -118,16 +121,18 @@ func main() {
 		panic(grpcErr)
 	}
 
-	// Service
+	// Service (Option pattern for configuration)
 	bertService, initErr := transformers.NewBertModelService(
 		vocabPath, httpAddr, defaultHttpClient, defaultGRPCClient,
-		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback)
+		testGenerateModelInferRequest, testGenerateModelInferOutputRequest, testModerInferCallback,
+		transformers.WithBertChineseTokenize(false),
+		transformers.WithBertMaxSeqLength(maxSeqLen),
+	)
 	if initErr != nil {
 		panic(initErr)
 	}
-	bertService.SetChineseTokenize(false).SetMaxSeqLength(maxSeqLen)
 	// infer
-	inferResultV1, inferErr := bertService.ModelInfer([]string{"<Data>"}, "<Model Name>", "<Model Version>", 1*time.Second)
+	inferResultV1, inferErr := bertService.ModelInfer(context.Background(), []string{"<Data>"}, "<Model Name>", "<Model Version>")
 	if inferErr != nil {
 		panic(inferErr)
 	}
@@ -167,138 +172,13 @@ make check      # Run all CI checks (fmt + vet + lint + test + bench)
 
 ---
 
-### Version
+### Latest Version
 
-* version 2.1.0 - 2026/03/31
-  * **Proto files updated** to latest upstream ([triton-inference-server/common](https://github.com/triton-inference-server/common/tree/main/protobuf)), regenerated Go stubs with split `*_grpc.pb.go` files
-  * **Bug fixes**: `setHTTPConnection` logic bug, `ModelIndex` interface signature, `ShareMemoryStatus` return type, `scanner.Err()` handling in vocab loading
-  * **Performance**: pre-allocated byte buffers in `grpcSliceToLittleEndianByteSlice`, `Flatten2DSlice` capacity preallocation
-  * **API changes**: `ShareMemoryStatus` split into `ShareCUDAMemoryStatus` / `ShareSystemMemoryStatus`; interface return types changed from `interface{}` to concrete types; callback types updated to `...any`
-  * **Tests**: comprehensive unit tests across all packages (utils 98.8%, models 80.5%, transformers 48.0%, nvidia_inferenceserver 2.1%), 34 benchmark tests for core hot paths
-  * **Tooling**: added `Makefile` with standardized dev targets, GitHub Actions workflows optimized (Go 1.26.x support, coverage upload via Codecov, workflow rename fix)
-  * **Dependencies**: updated `google.golang.org/grpc`, `google.golang.org/protobuf`, `github.com/valyala/fasthttp`, `golang.org/x/text` to latest versions
+**v2.1.0** - 2026/03/31
+- Proto files synced with latest upstream, regenerated Go stubs
+- Bug fixes: `setHTTPConnection`, `ModelIndex` signature, `ShareMemoryStatus` return type
+- Performance: pre-allocated byte buffers for gRPC encoding, `Flatten2DSlice` optimization
+- Comprehensive unit tests (utils 98.8%, models 80.5%)
+- Added `Makefile`, GitHub Actions CI improvements
 
-* version 2.0.5 - 2024/07/26
-  * Remove timeout for `TritonService` interface, use `SetAPIRequestTimeout` instead.
-  * Add new api for `SetAPIRequestTimeout`
-
-* version 2.0.4 - 2024/07/09
-  * Update `W2NER` input feature problem.(Missing `MaxSeqLength` config)
-  * Code style fix. Reducing nil cases
-  * Add `slice.StringSliceTruncatePrecisely` function for logic to handle [][] string data truncation.
-
-* version 2.0.3 - 2024/07/08
-  * Fix `w2ner.pieces2word` nil slice caused infer error.
-
-* version 2.0.2 - 2024/05/27
-  * Fix `generateGRPCRequest` missing tensor shape.
-  * Update go.mod
-
-* version 2.0.1 - 2024/03/06
-  * Fix `2.0.0` cannot read `go.mod` successfully.
-
-* version 2.0.0 - 2024/03/06
-  * **No longer compatible with Go version 1.18, 1.19, 1.20** 
-  * refactor `models` package and rename package from `bert` to `transformers`.
-    * **Incompatible with previous versions, calls require simple modifications**
-  * Add `W2NER` model(Based on Bert, but used for NER tasks)
-
-* version 1.4.6 - 2023/07/27
-  * remove `github.com/goccy/go-json` and set `encoding/json` to default json marshal/unmarshal.
-  * add `JsonEncoder` and `JsonDecoder` API to adapt other json parser.
-
-* version 1.4.5 - 2023/07/12
-  * update go.mod
-  * fix Chinese tokenizer error
-
-* version 1.4.4 - 2023/07/11
-  * tokenize Chinese-English-Number text with char mode for NER task.
-
-* version 1.4.3 - 2023/06/29
-  * fix miss `params` parameters in `models/bert/model.go`
-
-* version 1.4.2 - 2023/06/05
-  * add `SetSecondaryServerURL` API for some special test environment.
-
-* version 1.4.0 - 2023/03/28
-  * add some functions for utils and some consts
-
-* version 1.3.9 - 2023/03/07
-  * optimize a bit of performance on tokenizer.
-  * do `golangci-lint` jobs
-
-* version 1.3.8 - 2023/03/06
-  * update `go.mod`
-
-* version 1.3.7 - 2023/03/03
-  * update grpc proto and grpc codes to compatible triton inference server 23.02
-
-* version 1.3.6 - 2023/03/01
-  * fix version error
-
-* version 1.3.5 - 2023/03/01
-  * fix http response callback error
-
-* version 1.3.4 - 2023/02/15
-  * fix grpc input order
-
-* version 1.3.3 - 2023/02/10
-  * add API to return word offsets
-
-* version 1.3.2 - 2023/02/10
-  * update API support more params before infer or after infer.
-
-* version 1.3.1 - 2023/02/10
-  * update `go.mod`
-
-* version 1.3.0 - 2023/02/08
-  * Remove deprecated API
-  * update `go.mod`
-
-* version 1.2.7 - 2023/02/06
-  * add `GetModelInferIsGRPC`, `GetTokenizerIsChineseMode` API
-  * update `README.md`
-  * update `go.mod`
-
-* version 1.2.6 - 2023/02/03
-  * add `Bert` service to call `Triton Inference Server`
-  * update `go.mod`
-
-* version 1.2.5 - 2023/01/13
-  * fix `makeHttpGetRequestWithDoTimeout` error Method.
-
-* version 1.2.4 - 2023/01/12
-  * fix `GOPROXY` can not get `go.mod`
-
-* version 1.2.3 - 2023/01/12
-  * update grpc connection code
-  * update connection api
-  * add some const for uri
-  * add some test code
-  * [API Update]split share system/cuda memory api
-  * [API Update]add three api for client initialize
-  * [API Update]update model load/unload api
-  * [API Update]remove `isGRPC` parameter instead of determine `grpcClient` is nil or not.
-  * [API Update]decodeFunc return `[]interface{}` instead of `interface{}` for support batch request.
-
-* version 1.2.2 - 2022/11/14
-  * fix empty request/response pool
-
-* version 1.1.8 - 2022/11/09
-  * update grpc proto base on 22.07 [protobuf](https://github.com/triton-inference-server/common/tree/r22.07/protobuf)
-  * update `nvidia_inferenceser` package for grpc service
-  * use `github.com/goccy/go-json` instead of `github.com/bytedance/sonic`, because it will make memory pool larger than `goccy/go-json` with same QPS.
-  * remove use `fiber` client make http request.
-  * update `go.mod`
-
-* version 1.1.7
-  * ~~use `bytedance/sonic` instead of `encoding/json`~~
-  * use `errors.New` instead of `fmt.Errorf`
-  * remove `fmt` package usage
-  * update `go.mod`
-
-* version 1.1.2
-  * update go.mod
-
-* version 1.0.0
-  * Implement about 90% API of Triton Inference Server HTTP/GRPC Protocol
+For full version history, see [CHANGELOG.md](./CHANGELOG.md).
