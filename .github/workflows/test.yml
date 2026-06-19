@@ -35,7 +35,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-${{ matrix.go-version }}-
       - name: Fetch Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Run Test
         uses: nick-fields/retry@v4
         with:
@@ -51,7 +51,7 @@ jobs:
         with:
           go-version: 1.26.x
       - name: Fetch Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Run Tests with Coverage
         run: go test ./... -coverprofile=coverage.out -covermode=atomic
       - name: Upload Coverage to Codecov
