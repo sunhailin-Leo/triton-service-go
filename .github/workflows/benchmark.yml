@@ -20,7 +20,7 @@ jobs:
         with:
           go-version: 1.25.x
       - name: Fetch Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Run Benchmark
         run: set -o pipefail; go test ./... -benchmem -run=^$ -bench . -count=3 | tee output.txt
       - name: Get Previous Benchmark Results
