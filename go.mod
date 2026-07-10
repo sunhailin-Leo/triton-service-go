@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/valyala/fasthttp v1.72.0
-	golang.org/x/text v0.38.0
+	golang.org/x/text v0.40.0
 	google.golang.org/grpc v1.82.0
 	google.golang.org/protobuf v1.36.11
 )
