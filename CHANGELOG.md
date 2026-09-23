@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.3.0] - 2026-09-23
+
+### Added
+
+- Opt-in native `simd/archsimd` encoding for BERT INT32 gRPC tensors on Go 1.27+ amd64/arm64 (`GOEXPERIMENT=simd`), selected by build constraints with a scalar fallback for other builds
+- Go 1.27 test coverage on Linux, macOS, and Windows, including SIMD-enabled race tests
+
+### Fixed
+
+- Vulnerability CI uses stable Go and automatic toolchain selection when installing `govulncheck`, avoiding failures from an outdated pinned toolchain
+- Test CI checks out source before `setup-go` and avoids duplicate Go module caching
+
+### Dependencies
+
+- Updated `github.com/valyala/fasthttp` to v1.74.0, `golang.org/x/text` to v0.41.0, `google.golang.org/grpc` to v1.84.0, and `google.golang.org/protobuf` to v1.36.12
+- Updated GitHub Actions dependencies: `actions/checkout` v7, `actions/setup-go` v7, `actions/cache` v6, and `securego/gosec` v2.29.0
+
 ## [v2.2.0] - 2026-06-09
 
 ### Added
