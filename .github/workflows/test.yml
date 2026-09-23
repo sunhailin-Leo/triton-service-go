@@ -15,14 +15,17 @@ jobs:
   Build:
     strategy:
       matrix:
-        go-version: [1.25.x, 1.26.x]
+        go-version: [1.25.x, 1.26.x, 1.27.x]
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v7
       - name: Install Go
         uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go-version }}
+          cache: false
       - name: Setup Golang caches
         uses: actions/cache@v6
         with:
@@ -34,14 +37,27 @@ jobs:
           key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-${{ matrix.go-version }}-
-      - name: Fetch Repository
-        uses: actions/checkout@v7
       - name: Run Test
         uses: nick-fields/retry@v4
         with:
           max_attempts: 3
           timeout_minutes: 15
           command: go test ./... -v -race -count=1
+
+  SIMD:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: 1.27.x
+      - name: Run Go 1.27 SIMD tests
+        env:
+          GOEXPERIMENT: simd
+        run: go test ./... -race -count=1
 
   Coverage:
     runs-on: ubuntu-latest

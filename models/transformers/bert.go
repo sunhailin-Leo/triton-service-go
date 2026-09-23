@@ -179,9 +179,7 @@ func (m *BertModelService) grpcSliceToLittleEndianByteSlice(maxLen int, input an
 		switch inputType {
 		case ModelInt32DataType:
 			returnByte := make([]byte, maxLen*4)
-			for i := 0; i < maxLen; i++ {
-				binary.LittleEndian.PutUint32(returnByte[i*4:], uint32(s[i]))
-			}
+			putInt32LittleEndian(returnByte, s[:maxLen])
 			return returnByte
 		case ModelInt64DataType:
 			returnByte := make([]byte, maxLen*8)

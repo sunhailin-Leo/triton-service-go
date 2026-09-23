@@ -15,14 +15,15 @@ jobs:
   Security:
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v7
       - name: Install Go
         uses: actions/setup-go@v7
         with:
-          go-version: 1.25.x
-          check-latest: true
-      - name: Fetch Repository
-        uses: actions/checkout@v7
+          go-version: stable
       - name: Install Govulncheck
+        env:
+          GOTOOLCHAIN: auto
         run: go install golang.org/x/vuln/cmd/govulncheck@latest
       - name: Run Govulncheck
         run: govulncheck ./...
