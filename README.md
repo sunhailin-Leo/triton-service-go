@@ -157,6 +157,20 @@ make vulncheck  # Run govulncheck
 make check      # Run all CI checks (fmt + vet + lint + test + bench)
 ```
 
+Go 1.27+ supports an opt-in SIMD path for BERT INT32 gRPC tensor encoding on
+amd64 and arm64. Use a Go 1.27+ toolchain and enable the experimental standard
+library `simd/archsimd` package when building or testing:
+
+```shell
+GOEXPERIMENT=simd go test ./...
+GOEXPERIMENT=simd go build ./...
+```
+
+Select the Go 1.27+ executable before setting `GOEXPERIMENT`; an older `go`
+launcher cannot reliably switch toolchains with this experiment enabled.
+Go 1.25/1.26, Go 1.27+ without the experiment, and other architectures use
+the existing scalar encoder. The module's minimum Go version remains 1.25.
+
 ### Project Structure
 
 ```
