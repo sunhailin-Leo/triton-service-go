@@ -1,4 +1,4 @@
-//go:build !go1.27 || !goexperiment.simd || (!amd64 && !arm64)
+//go:build !go1.27 || !goexperiment.simd || !gc || (!amd64 && !arm64)
 
 package transformers
 
